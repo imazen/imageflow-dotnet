@@ -1,0 +1,3 @@
+Imageflow.NET contains code contributed by:
+
+Nathanael Jones <nathanael.jones@gmail.com>
