@@ -106,7 +106,7 @@ configuration: Release
 
 before_build: 
   - dotnet restore src/Imageflow.dncore.sln 
-  - msbuild /t:restore src/Imageflow.dnfull.sln 
+  - nuget restore  tests/Imageflow.TestDotNetFull/Imageflow.TestDotNetFull.csproj -SolutionDirectory src
 
 
 
