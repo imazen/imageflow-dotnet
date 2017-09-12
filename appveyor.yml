@@ -106,15 +106,15 @@ configuration: Release
 
 before_build: 
   - dotnet restore src/Imageflow.dncore.sln 
-  - nuget restore tests/Imageflow.TestDotNetFull/Imageflow.TestDotNetFull.csproj -SolutionDirectory src
+  - msbuild /t:restore src/Imageflow.dnfull.sln 
+
+
 
 build:
   parallel: true                  # enable MSBuild parallel builds
   project: src/Imageflow.both.sln     # path to Visual Studio solution or project
   publish_nuget: true             # package projects with .nuspec files and push to artifacts
   publish_nuget_symbols: true     # generate and publish NuGet symbol packages
-  include_nuget_references: true  # add -IncludeReferencedProjects option while packaging NuGet artifacts
-
 
 #TODO: consider DocFx integration https://github.com/docascode/docfx-seed
 
