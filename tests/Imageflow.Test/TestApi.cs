@@ -30,7 +30,8 @@ namespace Imageflow.Test
                 r = await b.Decode(imageBytes).FlipHorizontal().Rotate90()
                     .EncodeToBytes(new GifEncoder()).FinishAsync();
 
-                r.GetFirstOutputBytes();
+                Assert.Equal(r.First.Width, 1);
+                Assert.True(r.First.TryGetBytes().HasValue);
             }
             
         }
