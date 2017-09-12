@@ -61,19 +61,21 @@ install:
   - echo.
   # Provide LAST_VERSION (without 'v' prefix), FILE_VERSION, NUMERIC_PART, ASSEMBLY_VERSION, LAST_VERSION_SUFFIX
   - echo "LAST_VERSION_TAG=%LAST_VERSION_TAG%"
+  - SET "TAG=%CI_TAG%"
+  - IF "%TAG%"=="" SET "TAG=none"
   - IF "%LAST_VERSION_TAG:~0,1%"=="v" SET "LAST_VERSION=%LAST_VERSION_TAG:~1%"
-  - IF "%CI_TAG:~0,1%"=="v" SET "LAST_VERSION=%CI_TAG:~1%"
+  - IF "%TAG:~0,1%"=="v" SET "LAST_VERSION=%TAG:~1%"
   - echo "LAST_VERSION=%LAST_VERSION%"
   - FOR /F "delims=-" %%a in ("%LAST_VERSION%") do (SET "NUMERIC_PART=%%a" & SET "LAST_VERSION_SUFFIX=%%b")
   - SET "FILE_VERSION=%NUMERIC_PART%.%CI_SEQUENTIAL_BUILD_NUMBER%"
   - FOR /F "delims=." %%a in ("%LAST_VERSION%") do (SET "ASSEMBLY_VERSION=%%a.0.0.0")
   - IF "%ASSEMBLY_VERSION%"=="0.0.0.0" SET "ASSEMBLY_VERSION=0.0.0.1"
   # Determine  SEMVER_1
-  - if NOT "%CI_TAG%"=="" IF "%CI_TAG:~0,1%"=="v" SET "SEMVER_1=%CI_TAG:~1%"
+  - IF "%TAG:~0,1%"=="v" SET "SEMVER_1=%TAG:~1%"
 
   - IF "%SEMVER_1%"=="" SET "SEMVER_1=%NUMERIC_PART%-build%PADDED_BUILD_NUMBER%"
   # Determine SEMVER_2
-  - if NOT "%CI_TAG%"=="" IF "%CI_TAG:~0,1%"=="v" SET "SEMVER_2=%CI_TAG:~1%"
+  - IF "%TAG:~0,1%"=="v" SET "SEMVER_2=%TAG:~1%"
   - IF "%SEMVER_2%,%LAST_VERSION_SUFFIX%"=="," SET "SEMVER_2=%LAST_VERSION%-and.%COMMITS_SINCE_TAG%.build.%CI_SEQUENTIAL_BUILD_NUMBER%+git.hash.%SHORT_COMMIT%"
   - IF "%SEMVER_2%"=="" SET "SEMVER_2=%LAST_VERSION%.%COMMITS_SINCE_TAG%.build.%CI_SEQUENTIAL_BUILD_NUMBER%+git.hash.%SHORT_COMMIT%"
   - ps: Update-AppveyorBuild -Version "$env:SEMVER_2"
