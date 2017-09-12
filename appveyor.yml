@@ -18,8 +18,8 @@ install:
   # INFORMATIONAL_VERSION = [last version tag]-[commit count since tag]-[short commit hash]
   # SEMVER_1 = current tag (minus v), falling back to %NUMERIC_PART%-build[buildnumber] (non-tagged-commits are only uploaded to appeveyor feed)
   # if current tag: SEMVER_2=%CI_TAG:~1%+git.hash.%SHORT_COMMIT%
-  # if last tag has -suffix: SEMVER_2=%LAST TAG:~1%.%COMMITS_SINCE_TAG%+git.hash.%SHORT_COMMIT%
-  # if last tag has no suffix: SEMVER_2=%LAST TAG:~1%-and.%COMMITS_SINCE_TAG%+git.hash.%SHORT_COMMIT%
+  # if last tag has -suffix: SEMVER_2=%LAST TAG:~1%.%COMMITS_SINCE_TAG%.build.[buildnumber]+git.hash.%SHORT_COMMIT%
+  # if last tag has no suffix: SEMVER_2=%LAST TAG:~1%-and.%COMMITS_SINCE_TAG%.build.[buildnumber]+git.hash.%SHORT_COMMIT%
   # ARTIFACT_NAME=%CI_REPO%-%CI_TAG%-%SHORT_COMMIT%%PLATFORM_SUFFIX%
   # if no tag: ARTIFACT_NAME=%CI_REPO%-build-%PADDED_BUILD_NUMBER%-%ARTIFACT_SERIES_NAME%-%LAST_TAG%-%COMMITS_SINCE_TAG%-%SHORT_COMMIT%%PLATFORM_SUFFIX%
 
@@ -29,8 +29,8 @@ install:
   - SET "GIT_COMMIT=%APPVEYOR_REPO_COMMIT%"
   - SET "CI_SEQUENTIAL_BUILD_NUMBER=%APPVEYOR_BUILD_NUMBER%"
   - SET "PADDED_BUILD_NUMBER=%CI_SEQUENTIAL_BUILD_NUMBER%"
-  - IF "%CI_SEQUENTIAL_BUILD_NUMBER%:~2"="" SET "PADDED_BUILD_NUMBER=0%CI_SEQUENTIAL_BUILD_NUMBER%"
-  - IF "%CI_SEQUENTIAL_BUILD_NUMBER%:~1"="" SET "PADDED_BUILD_NUMBER=00%CI_SEQUENTIAL_BUILD_NUMBER%"
+  - IF "%CI_SEQUENTIAL_BUILD_NUMBER:~2%"=="" SET "PADDED_BUILD_NUMBER=0%CI_SEQUENTIAL_BUILD_NUMBER%"
+  - IF "%CI_SEQUENTIAL_BUILD_NUMBER:~1%"=="" SET "PADDED_BUILD_NUMBER=00%CI_SEQUENTIAL_BUILD_NUMBER%"
   - SET "CI_BUILD_URL=https://ci.appveyor.com/project/%APPVEYOR_ACCOUNT_NAME%/%APPVEYOR_PROJECT_SLUG%/build/%APPVEYOR_BUILD_VERSION%"
   - SET "CI_JOB_TITLE=AppVeyor %APPVEYOR_BUILD_VERSION% %APPVEYOR_JOB_NAME%"
   - SET "CI_JOB_URL=https://ci.appveyor.com/project/%APPVEYOR_ACCOUNT_NAME%/%APPVEYOR_PROJECT_SLUG%/branch/%APPVEYOR_REPO_BRANCH%/job/%APPVEYOR_JOB_ID%"
@@ -46,12 +46,13 @@ install:
   - if "%CI_TAG%,%CI_PULL_REQUEST_INFO%"=="," SET "ARTIFACT_SERIES_NAME=%CI_RELATED_BRANCH%"
   - echo "Debug GIT_OPTIONAL_BRANCH=%GIT_OPTIONAL_BRANCH%, ARTIFACT_SERIES_NAME=%ARTIFACT_SERIES_NAME%, CI_TAG=%CI_TAG%, CI_PULL_REQUEST_INFO=%CI_PULL_REQUEST_INFO%"
   - git rev-parse --short HEAD>tempfile.txt&set /p SHORT_COMMIT=<tempfile.txt
-  - git describe --always --tags --long *>tempfile.txt&set /p INFORMATIONAL_VERSION=<tempfile.txt
-  - FOR /F "delims=-" %%a %%b in ("%INFORMATIONAL_VERSION%") do (SET "COMMITS_SINCE_TAG=%%b")
+  - git describe --always --tags --long>tempfile.txt&set /p INFORMATIONAL_VERSION=<tempfile.txt
+  - FOR /F "delims=-" %%a in ("%INFORMATIONAL_VERSION%") do (SET "COMMITS_SINCE_TAG=%%b")
   - echo If this fails, you need to add at least one version tag to the repo in the form "v..."
   - git describe --tags --abbrev=0 --match v*>tempfile.txt&set /p LAST_VERSION_TAG=<tempfile.txt
   - SET "PLATFORM_SUFFIX=%OS_SPECIFIC_SUFFIX%-%PLATFORM%"
   - if "%PLATFORM%"=="Any CPU" SET "PLATFORM_SUFFIX=%OS_SPECIFIC_SUFFIX%"
+  - if "%PLATFORM%"=="" SET "PLATFORM_SUFFIX=%OS_SPECIFIC_SUFFIX%"
   - if "%CI_TAG%"=="" SET "ARTIFACT_NAME=%CI_REPO%-build-%PADDED_BUILD_NUMBER%-%ARTIFACT_SERIES_NAME%-%INFORMATIONAL_VERSION%%PLATFORM_SUFFIX%"
   - if NOT "%CI_TAG%"=="" SET "ARTIFACT_NAME=%CI_REPO%-%CI_TAG%-%SHORT_COMMIT%%PLATFORM_SUFFIX%"
   - SET "ESTIMATED_ARTIFACT_URL=https://ci.appveyor.com/api/buildjobs/%APPVEYOR_JOB_ID%/artifacts/%ARTIFACT_NAME%.zip"
@@ -61,7 +62,7 @@ install:
   # Provide LAST_VERSION (without 'v' prefix), FILE_VERSION, NUMERIC_PART, ASSEMBLY_VERSION, LAST_VERSION_SUFFIX
   - IF "%LAST_VERSION_TAG:~0,1%"=="v" SET "LAST_VERSION=%LAST_VERSION_TAG:~1%"
   - IF "%CI_TAG:~0,1%"=="v" SET "LAST_VERSION=%CI_TAG:~1%"
-  - FOR /F "delims=-" %%a %%b in ("%LAST_VERSION%") do (SET "NUMERIC_PART=%%a" & SET "LAST_VERSION_SUFFIX=%%b")
+  - FOR /F "delims=-" %%a in ("%LAST_VERSION%") do (SET "NUMERIC_PART=%%a" & SET "LAST_VERSION_SUFFIX=%%b")
   - SET "FILE_VERSION=%NUMERIC_PART%.%CI_SEQUENTIAL_BUILD_NUMBER%"
   - FOR /F "delims=." %%a in ("%LAST_VERSION%") do (SET "ASSEMBLY_VERSION=%%a.0.0.0")
   # Determine  SEMVER_1
@@ -70,8 +71,8 @@ install:
   - IF "%SEMVER_1%"=="" SET "SEMVER_1=%NUMERIC_PART%-build%PADDED_BUILD_NUMBER%"
   # Determine SEMVER_2
   - IF "%CI_TAG:~0,1%"=="v" SET "SEMVER_2=%CI_TAG:~1%"
-  - IF "%SEMVER_2%,%LAST_VERSION_SUFFIX%"=="," SET "SEMVER_2=%LAST_VERSION%-and.%COMMITS_SINCE_TAG%+build.%CI_SEQUENTIAL_BUILD_NUMBER%.git.hash.%SHORT_COMMIT%"
-  - IF "%SEMVER_2%"=="" SET "SEMVER_2=%LAST_VERSION%.%COMMITS_SINCE_TAG%+build.%CI_SEQUENTIAL_BUILD_NUMBER%.git.hash.%SHORT_COMMIT%"
+  - IF "%SEMVER_2%,%LAST_VERSION_SUFFIX%"=="," SET "SEMVER_2=%LAST_VERSION%-and.%COMMITS_SINCE_TAG%.build.%CI_SEQUENTIAL_BUILD_NUMBER%+git.hash.%SHORT_COMMIT%"
+  - IF "%SEMVER_2%"=="" SET "SEMVER_2=%LAST_VERSION%.%COMMITS_SINCE_TAG%.build.%CI_SEQUENTIAL_BUILD_NUMBER%+git.hash.%SHORT_COMMIT%"
   - ps: Update-AppveyorBuild -Version "$env:SEMVER_2"
 
 assembly_info:
@@ -84,11 +85,11 @@ assembly_info:
 dotnet_csproj:
   patch: true
   file: '**\*.csproj'
-  version: '{SEMVER_2}'
+  version: '{FILE_VERSION}'
   package_version: '{SEMVER_2}' #Use SEMVER_1 instead for compatibility with older clients
-  informational_version: '{INFORMATIONAL_VERSION}'
-  assembly_version: '{ASSEMBLY_VERSION}'
-  file_version: '{FILE_VERSION}'
+ # informational_version: '{INFORMATIONAL_VERSION}'
+ # assembly_version: '{ASSEMBLY_VERSION}'
+ # file_version: '{FILE_VERSION}'
 
 # Automatically register private account and/or project AppVeyor NuGet feeds.
 nuget:
@@ -97,7 +98,7 @@ nuget:
   disable_publish_on_pr: true     # disable publishing of .nupkg artifacts to
                                   # account/project feeds for pull request builds
 
-platform: Any CPU
+# platform: Any CPU - Don't explicitly set Any CPU, causes problems
 configuration: Release
 
 
@@ -108,10 +109,11 @@ build:
   publish_nuget_symbols: true     # generate and publish NuGet symbol packages
   include_nuget_references: true  # add -IncludeReferencedProjects option while packaging NuGet artifacts
 
-artifacts:
+#TODO: consider DocFx integration https://github.com/docascode/docfx-seed
 
+artifacts:
   - path: src\Imageflow\bin\Release\
-  - name: $(ARTIFACT_NAME).zip
+    name: $(ARTIFACT_NAME).zip
 
   # pushing all *.nupkg files in build directory recursively
   - path: '**\*.nupkg'
