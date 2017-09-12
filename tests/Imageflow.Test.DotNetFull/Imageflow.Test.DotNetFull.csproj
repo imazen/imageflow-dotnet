@@ -94,7 +94,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Imageflow\Imageflow.Net.csproj">
+    <ProjectReference Include="..\..\src\Imageflow\Imageflow.Net.csproj">
       <Project>{cdc4d36a-3276-45c7-a07d-96d04794f0a0}</Project>
       <Name>Imageflow.Net</Name>
     </ProjectReference>

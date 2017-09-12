@@ -107,7 +107,9 @@ nuget:
 # platform: Any CPU - Don't explicitly set Any CPU, causes problems
 configuration: Release
 
-
+before_build: 
+  - dotnet restore src/Imageflow.dnfull.sln 
+  
 build:
   parallel: true                  # enable MSBuild parallel builds
   project: src/Imageflow.dnfull.sln     # path to Visual Studio solution or project
