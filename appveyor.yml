@@ -37,6 +37,7 @@ install:
   - SET "CI_STRING=name:AppVeyor job_id:%APPVEYOR_JOB_ID% build_id:%APPVEYOR_BUILD_ID% build_number:%APPVEYOR_BUILD_NUMBER% build_version:%APPVEYOR_BUILD_VERSION% account_name:%APPVEYOR_ACCOUNT_NAME% project_slug:%APPVEYOR_PROJECT_SLUG% tag_name:%APPVEYOR_REPO_TAG_NAME% pull_request_number:%APPVEYOR_PULL_REQUEST_NUMBER% branch:%APPVEYOR_REPO_BRANCH%"
   - SET "CI_TAG=%APPVEYOR_REPO_TAG_NAME%"
   - SET "CI_REPO=%APPVEYOR_REPO_NAME%"
+  - SET "CI_PROJECT=%APPVEYOR_PROJECT_NAME%"
   - SET "CI_RELATED_BRANCH=%APPVEYOR_REPO_BRANCH%"
   - SET "CI_PULL_REQUEST_INFO=%APPVEYOR_PULL_REQUEST_NUMBER%"
   - SET "GIT_OPTIONAL_BRANCH="
@@ -53,8 +54,8 @@ install:
   - SET "PLATFORM_SUFFIX=%OS_SPECIFIC_SUFFIX%-%PLATFORM%"
   - if "%PLATFORM%"=="Any CPU" SET "PLATFORM_SUFFIX=%OS_SPECIFIC_SUFFIX%"
   - if "%PLATFORM%"=="" SET "PLATFORM_SUFFIX=%OS_SPECIFIC_SUFFIX%"
-  - if "%CI_TAG%"=="" SET "ARTIFACT_NAME=%CI_REPO%-build-%PADDED_BUILD_NUMBER%-%ARTIFACT_SERIES_NAME%-%INFORMATIONAL_VERSION%%PLATFORM_SUFFIX%"
-  - if NOT "%CI_TAG%"=="" SET "ARTIFACT_NAME=%CI_REPO%-%CI_TAG%-%SHORT_COMMIT%%PLATFORM_SUFFIX%"
+  - if "%CI_TAG%"=="" SET "ARTIFACT_NAME=%CI_PROJECT%-build-%PADDED_BUILD_NUMBER%-%ARTIFACT_SERIES_NAME%-%INFORMATIONAL_VERSION%%PLATFORM_SUFFIX%"
+  - if NOT "%CI_TAG%"=="" SET "ARTIFACT_NAME=%CI_PROJECT%-%CI_TAG%-%SHORT_COMMIT%%PLATFORM_SUFFIX%"
   - SET "ESTIMATED_ARTIFACT_URL=https://ci.appveyor.com/api/buildjobs/%APPVEYOR_JOB_ID%/artifacts/%ARTIFACT_NAME%.zip"
   - echo. && echo. && echo Estimated upload URL && echo. && echo %ESTIMATED_ARTIFACT_URL% && echo. && echo.
   - echo "GIT_COMMIT=%GIT_COMMIT%" && echo "CI_STRING=%CI_STRING%" && echo "CI_TAG=%CI_TAG%" && echo "CI_RELATED_BRANCH=%CI_RELATED_BRANCH%" && echo "CI_PULL_REQUEST_INFO=%CI_PULL_REQUEST_INFO%" && echo "ARTIFACT_SERIES_NAME=%ARTIFACT_SERIES_NAME%"
@@ -123,13 +124,20 @@ test_script:
   - vstest.console /logger:Appveyor /Platform:x86 tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
   - vstest.console /logger:Appveyor /Platform:x64 tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
 
+after_test:
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - rmdir /q /s .\artifacts || exit 0
+  - mkdir .\artifacts\staging\
+  - xcopy /Y src\Imageflow\bin\Release\netstandard2.0\*.pdb artifacts\staging\ || exit 0
+  - xcopy /Y src\Imageflow\bin\Release\netstandard2.0\*.dll  artifacts\staging\
+  - cd artifacts\staging
+  - 7z a -r "..\..\%ARTIFACT_NAME%.zip" *
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - appveyor PushArtifact "%ARTIFACT_NAME%.zip"
+
 #TODO: consider DocFx integration https://github.com/docascode/docfx-seed
 
 artifacts:
-  - path: src\Imageflow\bin\Release\netstandard2.0
-    name: $(ARTIFACT_NAME)
-    type: zip
-
   # pushing all *.nupkg files in build directory recursively
   - path: '**\*.nupkg'
     name: NuGet Packages
