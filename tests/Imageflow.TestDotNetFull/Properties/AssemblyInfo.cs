@@ -2,18 +2,18 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("Imageflow.Test.DotNetFull")]
+[assembly: AssemblyTitle("Imageflow.TestDotNetFull")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Imageflow.Test.DotNetFull")]
+[assembly: AssemblyProduct("Imageflow.TestDotNetFull")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
 
-[assembly: Guid("73093d90-4c00-46f5-8e11-10181ba5d781")]
+[assembly: Guid("c5cef6b5-b7be-46b1-b141-58b5b67ce7d1")]
 
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]

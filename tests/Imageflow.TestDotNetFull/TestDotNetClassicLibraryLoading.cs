@@ -1,6 +1,7 @@
+﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Imageflow.Test.DotNetFull
+namespace Imageflow.TestDotNetFull
 {
     [TestClass]
     public class TestDotNetClassicLibraryLoading
