@@ -116,8 +116,13 @@ build:
   publish_nuget: true             # package projects with .nuspec files and push to artifacts
   publish_nuget_symbols: true     # generate and publish NuGet symbol packages
 
-before_test:
-  dotnet build src/Imageflow.dncore.sln
+test_script:
+  dotnet build src/Imageflow.dncore.sln -C Release
+  dotnet test src/Imageflow.dncore.sln -C Release
+  vstest.console /logger:Appveyor tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
+  vstest.console /logger:Appveyor /Platform:x86 tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
+  vstest.console /logger:Appveyor /Platform:x64 tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
+
 #TODO: consider DocFx integration https://github.com/docascode/docfx-seed
 
 artifacts:
