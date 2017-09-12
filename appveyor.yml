@@ -137,10 +137,7 @@ after_test:
 
 #TODO: consider DocFx integration https://github.com/docascode/docfx-seed
 
-artifacts:
-  # pushing all *.nupkg files in build directory recursively
-  - path: '**\*.nupkg'
-    name: NuGet Packages
+
 deploy:
   - provider: GitHub
     description: 'imageflow-win'
