@@ -97,10 +97,7 @@ dotnet_csproj:
  # assembly_version: '{ASSEMBLY_VERSION}'
  # file_version: '{FILE_VERSION}'
 
-# Automatically register private account and/or project AppVeyor NuGet feeds.
 nuget:
-  account_feed: true
-  project_feed: true
   disable_publish_on_pr: true     # disable publishing of .nupkg artifacts to
                                   # account/project feeds for pull request builds
 
@@ -109,7 +106,8 @@ configuration: Release
 
 before_build: 
   - dotnet restore src/Imageflow.dnfull.sln 
-  
+  - nuget restore tests/Imageflow.TestDotNetFull/Imageflow.TestDotNetFull.csproj
+
 build:
   parallel: true                  # enable MSBuild parallel builds
   project: src/Imageflow.dnfull.sln     # path to Visual Studio solution or project
