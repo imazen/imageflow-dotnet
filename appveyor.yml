@@ -65,6 +65,7 @@ install:
   - FOR /F "delims=-" %%a in ("%LAST_VERSION%") do (SET "NUMERIC_PART=%%a" & SET "LAST_VERSION_SUFFIX=%%b")
   - SET "FILE_VERSION=%NUMERIC_PART%.%CI_SEQUENTIAL_BUILD_NUMBER%"
   - FOR /F "delims=." %%a in ("%LAST_VERSION%") do (SET "ASSEMBLY_VERSION=%%a.0.0.0")
+  - IF "%ASSEMBLY_VERSION%"=="0.0.0.0" SET "ASSEMBLY_VERSION=0.0.0.1"
   # Determine  SEMVER_1
   - IF "%CI_TAG:~0,1%"=="v" SET "SEMVER_1=%CI_TAG:~1%"
 
