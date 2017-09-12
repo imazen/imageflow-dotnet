@@ -112,10 +112,12 @@ before_build:
 
 build:
   parallel: true                  # enable MSBuild parallel builds
-  project: src/Imageflow.both.sln     # path to Visual Studio solution or project
+  project: src/Imageflow.dnfull.sln     # path to Visual Studio solution or project
   publish_nuget: true             # package projects with .nuspec files and push to artifacts
   publish_nuget_symbols: true     # generate and publish NuGet symbol packages
 
+before_test:
+  dotnet build src/Imageflow.dncore.sln
 #TODO: consider DocFx integration https://github.com/docascode/docfx-seed
 
 artifacts:
