@@ -47,9 +47,9 @@ install:
   - echo "Debug GIT_OPTIONAL_BRANCH=%GIT_OPTIONAL_BRANCH%, ARTIFACT_SERIES_NAME=%ARTIFACT_SERIES_NAME%, CI_TAG=%CI_TAG%, CI_PULL_REQUEST_INFO=%CI_PULL_REQUEST_INFO%"
   - git rev-parse --short HEAD>tempfile.txt&set /p SHORT_COMMIT=<tempfile.txt
   - git describe --always --tags --long>tempfile.txt&set /p INFORMATIONAL_VERSION=<tempfile.txt
-  - FOR /F "tokens=1,2 delims=-" %%a in ("%INFORMATIONAL_VERSION%") do (SET "COMMITS_SINCE_TAG=%%b")
   - echo If this fails, you need to add at least one version tag to the repo in the form "v0.0.1"
   - git describe --tags --abbrev=0 --match v*>tempfile.txt&set /p LAST_VERSION_TAG=<tempfile.txt
+  - git rev-list %LAST_VERSION_TAG%.. --count>tempfile.txt&set /p COMMITS_SINCE_TAG=<tempfile.txt
   - SET "PLATFORM_SUFFIX=%OS_SPECIFIC_SUFFIX%-%PLATFORM%"
   - if "%PLATFORM%"=="Any CPU" SET "PLATFORM_SUFFIX=%OS_SPECIFIC_SUFFIX%"
   - if "%PLATFORM%"=="" SET "PLATFORM_SUFFIX=%OS_SPECIFIC_SUFFIX%"
