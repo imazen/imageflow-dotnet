@@ -178,41 +178,67 @@ namespace Imageflow.Test
                 Assert.Equal(true, (bool)data.success);
             }
         }
-        
-//        [Fact]
-//        public void TestFileIo()
-//        {
-//            string from = null;
-//            string to = null;
-//            try
-//            {
-//                from = Path.GetTempFileName();
-//                to = Path.GetTempFileName();
-//                File.WriteAllBytes(from,  Convert.FromBase64String(
-//                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
-//
-//                using (var c = new JobContext())
-//                {
-//
-//                    c.AddInputFile(0,from);
-//                    c.AddOutputFile(1, to);
-//                    var response = c.ExecuteImageResizer4CommandString(0, 1, "w=200&h=200&scale=both&format=jpg");
-//
-//                    var data = response.DeserializeDynamic();
-//
-//                    output.WriteLine(response.GetString());
-//
-//                    Assert.Equal(200, (int) data.code);
-//                    Assert.Equal(true, (bool) data.success);
-//                    Assert.True(File.ReadAllBytes(to).Length > 0);
-//                }
-//            }
-//            finally
-//            {
-//                if (from != null) File.Delete(from);
-//                if (to != null) File.Delete(to);
-//            }
-//            
-//        }
+        [Fact]
+        public unsafe void TestBitmapBgra()
+        {
+
+            const int Width = 1280;
+            const int Height = 853;
+            const int ResizedWidth = 150;
+            const int ResizedHeight = 99;
+
+            ulong bitmap = 0;
+            using (var context = new Imageflow.Bindings.JobContext())
+            {
+
+                context.Execute(new
+                {
+                    framewise = new
+                    {
+                        steps = new object[] {
+                            new { create_canvas = new { w= Width, h = Height, color = "black" , format = "bgr_32" } },
+                            new { constrain = new { within = new { w=ResizedWidth, h =ResizedHeight } } },
+                            new { flow_bitmap_bgra_ptr = new { ptr_to_flow_bitmap_bgra_ptr =  (ulong)&bitmap  } }
+                        }
+                    }
+                });
+            }
+        }
+
+        //        [Fact]
+        //        public void TestFileIo()
+        //        {
+        //            string from = null;
+        //            string to = null;
+        //            try
+        //            {
+        //                from = Path.GetTempFileName();
+        //                to = Path.GetTempFileName();
+        //                File.WriteAllBytes(from,  Convert.FromBase64String(
+        //                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
+        //
+        //                using (var c = new JobContext())
+        //                {
+        //
+        //                    c.AddInputFile(0,from);
+        //                    c.AddOutputFile(1, to);
+        //                    var response = c.ExecuteImageResizer4CommandString(0, 1, "w=200&h=200&scale=both&format=jpg");
+        //
+        //                    var data = response.DeserializeDynamic();
+        //
+        //                    output.WriteLine(response.GetString());
+        //
+        //                    Assert.Equal(200, (int) data.code);
+        //                    Assert.Equal(true, (bool) data.success);
+        //                    Assert.True(File.ReadAllBytes(to).Length > 0);
+        //                }
+        //            }
+        //            finally
+        //            {
+        //                if (from != null) File.Delete(from);
+        //                if (to != null) File.Delete(to);
+        //            }
+        //            
+        //        }
     }
 }
