@@ -29,7 +29,23 @@ namespace Imageflow.Fluent
                 throw new ArgumentException("ioId", $"ioId {ioId} has already been assigned");
             _outputs.Add(ioId, destination);
         }
-        
+        public BuildNode DownscalingDecode(IBytesSource source, int ioId, int widthHint, int heightHint, bool scaleLumaSpatially = false, bool gammaCorrectForSrgbDuringSpatialLumaScaling = false)
+        {
+            AddInput(ioId, source);
+            return BuildNode.StartNode(this, new
+            {
+                decode = new
+                {
+                    io_id = ioId,
+                    commands = new object[] {new { jpeg_downscale_hints = new {
+                        width = widthHint,
+                        height  = heightHint,
+                         scale_luma_spatially = scaleLumaSpatially,
+                         gamma_correct_for_srgb_during_spatial_luma_scaling = gammaCorrectForSrgbDuringSpatialLumaScaling
+                    } } }
+                }
+            });
+        }
         public BuildNode Decode(IBytesSource source, int ioId)
         {
             AddInput(ioId, source);
