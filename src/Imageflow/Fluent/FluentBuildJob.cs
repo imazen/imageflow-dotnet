@@ -97,8 +97,6 @@ namespace Imageflow.Fluent
         
         private readonly HashSet<BuildItemBase> nodesCreated = new HashSet<BuildItemBase>();
        
-        internal virtual bool HasContext => false;
-        
         public BuildNode CreateCanvasBgra32(uint w, uint h, AnyColor color) =>
             CreateCanvas(w, h, color, PixelFormat.Bgra_32);
         

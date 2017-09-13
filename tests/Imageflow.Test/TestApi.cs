@@ -27,10 +27,10 @@ namespace Imageflow.Test
             BuildJobResult r;
             using (var b = new FluentBuildJob())
             {
-                r = await b.Decode(imageBytes).FlipHorizontal().Rotate90()
-                    .EncodeToBytes(new GifEncoder()).FinishAsync();
+                r = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20).ConstrainWithin(5, 5)
+                   .EncodeToBytes(new GifEncoder()).FinishAsync();
 
-                Assert.Equal(r.First.Width, 1);
+                Assert.Equal(5, r.First.Width);
                 Assert.True(r.First.TryGetBytes().HasValue);
             }
             

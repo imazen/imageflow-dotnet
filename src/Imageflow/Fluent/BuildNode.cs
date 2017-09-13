@@ -38,19 +38,45 @@ namespace Imageflow.Fluent
         private BuildNode NodeWithCanvas(BuildNode canvas, object data) => new BuildNode(Builder, data, this, canvas);
 
 
-        public BuildNode ConstrainWithin(uint? w, uint? h) => To(new {constrain = new {w, h}});
+        public BuildNode ConstrainWithin(uint? w, uint? h) => To(new { constrain = new { within = new { w, h } } });
         public BuildNode ConstrainWithin(uint? w, uint? h, float? sharpenPercent, InterpolationFilter? downFilter, InterpolationFilter? upFilter, ScalingFloatspace? interpolationColorspace, ResampleWhen? resampleWhen)
-            => To(new {constrain = new {w, h, hints = new
+            => To(new
             {
-                sharpen_percent = sharpenPercent,
-                down_filter = downFilter?.ToString().ToLowerInvariant(),
-                up_filter = upFilter?.ToString().ToLowerInvariant(),
-                scaling_colorspace = interpolationColorspace?.ToString().ToLowerInvariant(),
-                resample_when = resampleWhen?.ToString().ToLowerInvariant()
-            }}});
+                constrain = new
+                {
+                    within = new
+                    {
+                        w,
+                        h,
+                        hints = new
+                        {
+                            sharpen_percent = sharpenPercent,
+                            down_filter = downFilter?.ToString().ToLowerInvariant(),
+                            up_filter = upFilter?.ToString().ToLowerInvariant(),
+                            scaling_colorspace = interpolationColorspace?.ToString().ToLowerInvariant(),
+                            resample_when = resampleWhen?.ToString().ToLowerInvariant()
+                        }
+                    }
+                }
+            });
+
+        public BuildNode Distort(uint w, uint h, float? sharpenPercent = null, InterpolationFilter? downFilter = null, InterpolationFilter? upFilter = null)
+            => To(new
+            {
+                resample_2d = new
+                {
+                    w,
+                    h,
+                    down_filter = downFilter?.ToString().ToLowerInvariant(),
+                    up_filter = upFilter?.ToString().ToLowerInvariant(),
+                    hints = new
+                    {
+                        sharpen_percent = sharpenPercent,
+                    }
+                }
+            });
 
 
-     
         public BuildNode FlipVertical() => To(new {flip_v = (string)null});
         public BuildNode FlipHorizontal() => To(new {flip_h = (string)null });
         
