@@ -51,8 +51,8 @@ namespace Imageflow.Fluent
                         hints = new
                         {
                             sharpen_percent = sharpenPercent,
-                            down_filter = downFilter?.ToString().ToLowerInvariant(),
-                            up_filter = upFilter?.ToString().ToLowerInvariant(),
+                            down_filter = downFilter?.ToString(),
+                            up_filter = upFilter?.ToString(),
                             scaling_colorspace = interpolationColorspace?.ToString().ToLowerInvariant(),
                             resample_when = resampleWhen?.ToString().ToLowerInvariant()
                         }
@@ -67,8 +67,8 @@ namespace Imageflow.Fluent
                 {
                     w,
                     h,
-                    down_filter = downFilter?.ToString().ToLowerInvariant(),
-                    up_filter = upFilter?.ToString().ToLowerInvariant(),
+                    down_filter = downFilter?.ToString(),
+                    up_filter = upFilter?.ToString(),
                     hints = new
                     {
                         sharpen_percent = sharpenPercent,

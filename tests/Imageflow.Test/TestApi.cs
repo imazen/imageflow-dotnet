@@ -35,5 +35,24 @@ namespace Imageflow.Test
             }
             
         }
+
+
+        [Fact]
+        public async Task TestCustomDownscaling()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            BuildJobResult r;
+            using (var b = new FluentBuildJob())
+            {
+                r = await b.DownscalingDecode(new BytesSource(imageBytes), 0, 20,20, false, false)
+                    .Distort(30, 20, 50.0f, InterpolationFilter.RobidouxFast, InterpolationFilter.Cubic)
+                    .ConstrainWithin(5, 5)
+                   .EncodeToBytes(new LibPngEncoder()).FinishAsync();
+
+                Assert.Equal(5, r.First.Width);
+                Assert.True(r.First.TryGetBytes().HasValue);
+            }
+
+        }
     }
 }
