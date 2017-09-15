@@ -29,6 +29,7 @@ namespace Imageflow.Fluent
                 throw new ArgumentException("ioId", $"ioId {ioId} has already been assigned");
             _outputs.Add(ioId, destination);
         }
+        [Obsolete("Use Decode(source, ioId, commands) instead")]
         public BuildNode DownscalingDecode(IBytesSource source, int ioId, int widthHint, int heightHint, bool scaleLumaSpatially = false, bool gammaCorrectForSrgbDuringSpatialLumaScaling = false)
         {
             AddInput(ioId, source);
@@ -46,12 +47,34 @@ namespace Imageflow.Fluent
                 }
             });
         }
-        public BuildNode Decode(IBytesSource source, int ioId)
+
+       
+        public BuildNode Decode(IBytesSource source, int ioId, DecodeCommands commands)
         {
             AddInput(ioId, source);
-            return BuildNode.StartNode(this, new {decode = new {io_id = ioId}});
+            if (commands == null)
+            {
+                return BuildNode.StartNode(this,
+                    new
+                    {
+                        decode = new
+                        {
+                            io_id = ioId
+                        }
+                    });
+            }
+            return BuildNode.StartNode(this,
+                new
+                {
+                    decode = new
+                    {
+                        io_id = ioId,
+                        commands = commands.ToImageflowDynamic()
+                    }
+                });
         }
-
+        
+        public BuildNode Decode(IBytesSource source, int ioId) => Decode(source, ioId, null);
         public BuildNode Decode(IBytesSource source) => Decode( source, GenerateIoId());
         public BuildNode Decode(ArraySegment<byte> source) => Decode( new BytesSource(source), GenerateIoId());
         public BuildNode Decode(byte[] source) => Decode( new BytesSource(source), GenerateIoId());

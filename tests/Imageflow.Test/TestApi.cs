@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using Xunit;
 using Imageflow;
 using System.Dynamic;
@@ -44,7 +45,13 @@ namespace Imageflow.Test
             BuildJobResult r;
             using (var b = new FluentBuildJob())
             {
-                r = await b.DownscalingDecode(new BytesSource(imageBytes), 0, 20,20, false, false)
+                var cmd = new DecodeCommands
+                {
+                    DownscaleHint = new Size(20, 20),
+                    DownscalingMode = DecderDownscalingMode.Fastest,
+                    DiscardColorProfile = true
+                };
+                r = await b.Decode(new BytesSource(imageBytes), 0, cmd)
                     .Distort(30, 20, 50.0f, InterpolationFilter.RobidouxFast, InterpolationFilter.Cubic)
                     .ConstrainWithin(5, 5)
                    .EncodeToBytes(new LibPngEncoder()).FinishAsync();
