@@ -5,7 +5,6 @@ using System.Linq;
 
 namespace Imageflow.Fluent
 {
-    [Flags]
     public enum DecderDownscalingMode
     {
         /// <summary>
@@ -35,7 +34,7 @@ namespace Imageflow.Fluent
 
         public DecderDownscalingMode DownscalingMode { get; set; } = DecderDownscalingMode.Unspecified;
 
-        public bool DiscardColorProfile { get; set; } = false;
+        public bool DiscardColorProfile { get; set; }
 
         public object[] ToImageflowDynamic()
         {
@@ -43,7 +42,7 @@ namespace Imageflow.Fluent
                 jpeg_downscale_hints = new {
                     width = DownscaleHint.Value.Width,
                     height  = DownscaleHint.Value.Height,
-                    scale_luma_spatially = (DownscalingMode | DecderDownscalingMode.SpatialLumaScaling) > 0,
+                    scale_luma_spatially = DownscalingMode == DecderDownscalingMode.SpatialLumaScaling || DownscalingMode == DecderDownscalingMode.GammaCorrectSpatialLumaScaling,
                     gamma_correct_for_srgb_during_spatial_luma_scaling = DownscalingMode == DecderDownscalingMode.GammaCorrectSpatialLumaScaling
                 } 
              }: null;
