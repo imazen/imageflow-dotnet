@@ -30,7 +30,7 @@ namespace Imageflow.Fluent
             this.bytes = bytes;
         }
         
-        private ArraySegment<byte> bytes;
+        private readonly ArraySegment<byte> bytes;
 
         public void Dispose()
         {
@@ -40,11 +40,11 @@ namespace Imageflow.Fluent
     }
     public class StreamSource : IBytesSource
     {
-        internal static readonly RecyclableMemoryStreamManager Mgr = new RecyclableMemoryStreamManager();
+        private static readonly RecyclableMemoryStreamManager Mgr = new RecyclableMemoryStreamManager();
         public StreamSource(Stream underlying, bool disposeUnderlying)
         {
-            this._underlying = underlying;
-            this._disposeUnderlying = disposeUnderlying;
+            _underlying = underlying;
+            _disposeUnderlying = disposeUnderlying;
         }
         private readonly Stream _underlying;
         private RecyclableMemoryStream _copy;

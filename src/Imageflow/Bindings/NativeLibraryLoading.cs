@@ -14,35 +14,46 @@ using System.Threading;
 
 namespace Imageflow.Bindings
 {
-    interface ILibraryLoadLogger
+    internal interface ILibraryLoadLogger
     {
         void NotifyAttempt(string basename, string fullPath, bool fileExists, bool previouslyLoaded, int? loadErrorCode);
     }
     internal static class NativeLibraryLoader
     {
-        static bool IsUnix => Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX;
+        private static bool IsUnix => Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX;
 
-        static readonly Lazy<string> SharedLibraryPrefix = new Lazy<string>(() => IsUnix ? "lib" : "", LazyThreadSafetyMode.PublicationOnly);
+        private static readonly Lazy<string> SharedLibraryPrefix = new Lazy<string>(() => IsUnix ? "lib" : "", LazyThreadSafetyMode.PublicationOnly);
 
-        static readonly Lazy<bool> IsDotNetCore = new Lazy<bool>(() =>
+        private static readonly Lazy<bool> IsDotNetCore = new Lazy<bool>(() =>
             typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.CodeBase.Contains("Microsoft.NETCore.App")
             , LazyThreadSafetyMode.PublicationOnly);
 
-        static readonly Lazy<string> SharedLibraryExtension = new Lazy<string>(() =>
+        private static readonly Lazy<string> SharedLibraryExtension = new Lazy<string>(() =>
         {
-            if (Environment.OSVersion.Platform == PlatformID.MacOSX)
-                return "dylib";
-            if (Environment.OSVersion.Platform == PlatformID.Unix)
-                return "so";
-            return "dll";
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.MacOSX:
+                    return "dylib";
+                case PlatformID.Unix:
+                    return "so";
+                case PlatformID.Win32NT:
+                case PlatformID.Win32S:
+                case PlatformID.Win32Windows:
+                case PlatformID.WinCE:
+                case PlatformID.Xbox:
+                    return "dll";
+                default:
+                    return "dll";
+            }
         }, LazyThreadSafetyMode.PublicationOnly);
 
         /// <summary>
         /// The output subdirectory that NuGet .props/.targets should be copying unmanaged binaries to.
         /// If you're using .NET Core you don't need this.
         /// </summary>
-        static readonly Lazy<string> ArchitectureSubdir = new Lazy<string>(() =>
+        private static readonly Lazy<string> ArchitectureSubdir = new Lazy<string>(() =>
         {
+            // ReSharper disable once InvertIf
             if (!IsUnix)
             {
                 var architecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
@@ -50,7 +61,7 @@ namespace Imageflow.Bindings
                 {
                     return "ia64";
                 }
-                else if (string.Equals(architecture, "arm", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(architecture, "arm", StringComparison.OrdinalIgnoreCase))
                 {
                     return Environment.Is64BitProcess ? "arm64" : "arm";
                 }
@@ -59,12 +70,12 @@ namespace Imageflow.Bindings
             return Environment.Is64BitProcess ? "x64" : "x86";
         }, LazyThreadSafetyMode.PublicationOnly);
 
-        static private IEnumerable<string> BaseFolders(IEnumerable<string> customSearchDirectories = null)
+        private static IEnumerable<string> BaseFolders(IEnumerable<string> customSearchDirectories = null)
         {
             // Prioritize user suggestions
             if (customSearchDirectories != null)
             {
-                foreach (string d in customSearchDirectories)
+                foreach (var d in customSearchDirectories)
                 {
                     yield return d;
                 }
@@ -75,10 +86,10 @@ namespace Imageflow.Bindings
             yield return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
 
-        static private IEnumerable<string> SearchPossibilitiesForFile(string filename, IEnumerable<string> customSearchDirectories = null)
+        private static IEnumerable<string> SearchPossibilitiesForFile(string filename, IEnumerable<string> customSearchDirectories = null)
         {
             var subdir = ArchitectureSubdir.Value;
-            foreach (string f in BaseFolders(customSearchDirectories))
+            foreach (var f in BaseFolders(customSearchDirectories))
             {
                 if (string.IsNullOrEmpty(f)) continue;
                 var directory = Path.GetFullPath(f);
@@ -92,7 +103,7 @@ namespace Imageflow.Bindings
             }
         }
 
-        static bool LoadLibrary(string fullPath, out IntPtr handle, out int? errorCode)
+        private static bool LoadLibrary(string fullPath, out IntPtr handle, out int? errorCode)
         {
             handle = IsUnix ? UnixLoadLibrary.Execute(fullPath) : WindowsLoadLibrary.Execute(fullPath);
             if (handle == IntPtr.Zero)
@@ -100,18 +111,15 @@ namespace Imageflow.Bindings
                 errorCode = Marshal.GetLastWin32Error();
                 return false;
             }
-            else
-            {
-                errorCode = null;
-                return true;
-            }
+            errorCode = null;
+            return true;
         }
 
         private static bool TryLoadByBasenameInternal(string basename, ILibraryLoadLogger log, out IntPtr handle, IEnumerable<string> customSearchDirectories = null)
         {
             var filename = $"{SharedLibraryPrefix.Value}{basename}.{SharedLibraryExtension.Value}";
 
-            foreach (string path in SearchPossibilitiesForFile(filename, customSearchDirectories))
+            foreach (var path in SearchPossibilitiesForFile(filename, customSearchDirectories))
             {
                 if (!File.Exists(path))
                 {
@@ -135,7 +143,7 @@ namespace Imageflow.Bindings
             return false;
         }
 
-        static readonly Lazy<ConcurrentDictionary<string, IntPtr>> LibraryHandlesByBasename = new Lazy<ConcurrentDictionary<string, IntPtr>>(() => new ConcurrentDictionary<string, IntPtr>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);
+        private static readonly Lazy<ConcurrentDictionary<string, IntPtr>> LibraryHandlesByBasename = new Lazy<ConcurrentDictionary<string, IntPtr>>(() => new ConcurrentDictionary<string, IntPtr>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);
 
         // Not yet implemented. 
         // static readonly Lazy<ConcurrentDictionary<string, IntPtr>> LibraryHandlesByFullPath = new Lazy<ConcurrentDictionary<string, IntPtr>>(() => new ConcurrentDictionary<string, IntPtr>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);
@@ -180,13 +188,14 @@ namespace Imageflow.Bindings
         }
 
 
-        class LoadLogger : ILibraryLoadLogger
+        private class LoadLogger : ILibraryLoadLogger
         {
             internal Exception firstException;
             internal Exception lastException;
 
-            List<LogEntry> log = new List<LogEntry>(7);
-            struct LogEntry
+            private readonly List<LogEntry> _log = new List<LogEntry>(7);
+
+            private struct LogEntry
             {
                 internal string basename;
                 internal string fullPath;
@@ -196,7 +205,7 @@ namespace Imageflow.Bindings
             }
             public void NotifyAttempt(string basename, string fullPath, bool fileExists, bool previouslyLoaded, int? loadErrorCode)
             {
-                log.Add(new LogEntry { basename = basename,
+                _log.Add(new LogEntry { basename = basename,
                     fullPath = fullPath,
                     fileExists = fileExists,
                     previouslyLoaded = previouslyLoaded,
@@ -205,10 +214,10 @@ namespace Imageflow.Bindings
 
             internal void RaiseException()
             {
-                var sb = new StringBuilder(log.Select((e) => e.basename?.Length ?? 0 + e.fullPath?.Length ?? 0 + 20).Sum());
+                var sb = new StringBuilder(_log.Select((e) => e.basename?.Length ?? 0 + e.fullPath?.Length ?? 0 + 20).Sum());
                 sb.AppendFormat("Using \"{0}[basename].{1}\" Subdir=\"{2}\", IsUnix={3}, IsDotNetCore={4}\n", SharedLibraryPrefix.Value, SharedLibraryExtension.Value, ArchitectureSubdir.Value, IsUnix, IsDotNetCore.Value);
                 if (firstException != null) sb.AppendFormat("Before searching: {0}\n", firstException.Message);
-                foreach (var e in log)
+                foreach (var e in _log)
                 {
                     if (e.previouslyLoaded)
                     {
@@ -253,8 +262,7 @@ namespace Imageflow.Bindings
             }
             catch (DllNotFoundException first)
             {
-                var logger = new LoadLogger();
-                logger.firstException = first;
+                var logger = new LoadLogger {firstException = first};
                 if (TryLoadByBasename("imageflow", logger, out var handle, customSearchDirectories))
                 {
                     try
@@ -274,10 +282,10 @@ namespace Imageflow.Bindings
 
     [SuppressUnmanagedCodeSecurity]
     [SecurityCritical]
-    static class WindowsLoadLibrary
+    internal static class WindowsLoadLibrary
     {
         [DllImport("kernel32", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode, SetLastError = true)]
-        static extern IntPtr LoadLibraryEx(string fileName, IntPtr reservedNull, uint flags);
+        private static extern IntPtr LoadLibraryEx(string fileName, IntPtr reservedNull, uint flags);
 
         public static IntPtr Execute(string fileName)
         {
@@ -289,11 +297,11 @@ namespace Imageflow.Bindings
 
     [SuppressUnmanagedCodeSecurity]
     [SecurityCritical]
-    static class UnixLoadLibrary
+    internal static class UnixLoadLibrary
     {
         // TODO: unsure if this works on Mac OS X; it might be libc instead
         [DllImport("libdl.so", SetLastError = true)]
-        static extern IntPtr dlopen(String fileName, int flags);
+        private static extern IntPtr dlopen(string fileName, int flags);
 
         public static IntPtr Execute(string fileName)
         {

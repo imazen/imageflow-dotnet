@@ -16,7 +16,8 @@ namespace Imageflow.Bindings
         private readonly JobContextHandle _handle;
         private List<GCHandle> _pinned;
         private List<IDisposable> _toDispose;
-        internal JobContextHandle Handle
+
+        private JobContextHandle Handle
         {
             get
             {
@@ -30,7 +31,7 @@ namespace Imageflow.Bindings
         internal bool IsOutput(int ioId) => ioSet.ContainsKey(ioId) && ioSet[ioId] == IoKind.OutputBuffer;
         internal int LargestIoId => ioSet.Keys.DefaultIfEmpty().Max();
         
-        private Dictionary<int, IoKind> ioSet = new Dictionary<int, IoKind>();
+        private readonly Dictionary<int, IoKind> ioSet = new Dictionary<int, IoKind>();
 
         public JobContext()
         {
@@ -119,7 +120,7 @@ namespace Imageflow.Bindings
 
         internal void AddToDisposeQueue(IDisposable d)
         {
-            if (this._toDispose == null) this._toDispose = new List<IDisposable>(1);
+            if (_toDispose == null) _toDispose = new List<IDisposable>(1);
             _toDispose.Add(d);
         }
         

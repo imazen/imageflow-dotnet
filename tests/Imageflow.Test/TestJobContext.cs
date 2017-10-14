@@ -11,11 +11,11 @@ namespace Imageflow.Test
 {
     public class TestContext
     {
-        private readonly ITestOutputHelper output;
+        private readonly ITestOutputHelper _output;
 
         public TestContext(ITestOutputHelper output)
         {
-            this.output = output;
+            _output = output;
         }
 
         [Fact]
@@ -40,7 +40,7 @@ namespace Imageflow.Test
 
                 var data = response.DeserializeDynamic();
 
-                output.WriteLine(response.GetString());
+                _output.WriteLine(response.GetString());
 
 
                 Assert.Equal(200, (int)data.code );
@@ -99,7 +99,7 @@ namespace Imageflow.Test
 
                 var data = response.DeserializeDynamic();
 
-                output.WriteLine(response.GetString());
+                _output.WriteLine(response.GetString());
 
                 Assert.Equal(200, (int)data.code);
                 Assert.Equal(true, (bool)data.success);
@@ -120,7 +120,7 @@ namespace Imageflow.Test
 
                 var data = response.DeserializeDynamic();
 
-                output.WriteLine(response.GetString());
+                _output.WriteLine(response.GetString());
 
                 Assert.Equal(200, (int)data.code);
                 Assert.Equal(true, (bool)data.success);
@@ -172,7 +172,7 @@ namespace Imageflow.Test
 
                 var data = response.DeserializeDynamic();
 
-                output.WriteLine(response.GetString());
+                _output.WriteLine(response.GetString());
 
                 Assert.Equal(200, (int)data.code);
                 Assert.Equal(true, (bool)data.success);
@@ -188,7 +188,7 @@ namespace Imageflow.Test
             const int ResizedHeight = 99;
 
             ulong bitmap = 0;
-            using (var context = new Imageflow.Bindings.JobContext())
+            using (var context = new JobContext())
             {
 
                 context.Execute(new

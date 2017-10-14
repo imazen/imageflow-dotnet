@@ -8,7 +8,7 @@ namespace Imageflow.Bindings
 {
     public class ImageflowException : Exception
     {
-        const int MaxBufferSize = 8096;
+        private const int MaxBufferSize = 8096;
 
         private ImageflowException(string message) : base(message)
         {
