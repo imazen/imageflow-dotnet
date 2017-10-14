@@ -1,10 +1,5 @@
 using System;
-using System.Diagnostics;
 using Xunit;
-using Imageflow;
-using System.Dynamic;
-using System.IO;
-using System.Text;
 using Imageflow.Bindings;
 using Xunit.Abstractions;
 namespace Imageflow.Test

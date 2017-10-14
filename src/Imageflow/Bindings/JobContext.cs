@@ -5,7 +5,6 @@ using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text;
-using Microsoft.Win32.SafeHandles;
 using Newtonsoft.Json;
 
 namespace Imageflow.Bindings

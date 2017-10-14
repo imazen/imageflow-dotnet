@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Imageflow.Bindings;
-using Microsoft.IO;
 
 namespace Imageflow.Fluent
 {

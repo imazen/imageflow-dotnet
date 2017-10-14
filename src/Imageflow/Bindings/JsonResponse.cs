@@ -45,13 +45,13 @@ namespace Imageflow.Bindings
 
         public int GetStatusCode()
         {
-            Read(out var statusCode, out var utf8Buffer, out var bufferSize);
+            Read(out var statusCode, out var _, out var _);
             return statusCode;
         }
 
         public Stream GetStream()
         {
-            Read(out var statusCode, out var utf8Buffer, out var bufferSize);
+            Read(out var _, out var utf8Buffer, out var bufferSize);
             return new ImageflowUnmanagedReadStream(this, utf8Buffer, bufferSize);
         }
 

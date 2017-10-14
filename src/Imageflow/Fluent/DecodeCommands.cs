@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Linq;
 
 namespace Imageflow.Fluent
@@ -47,7 +45,7 @@ namespace Imageflow.Fluent
                 } 
              }: null;
             object ignore = DiscardColorProfile ? new {discard_color_profile = (string) null} : null;
-            return new object[] {downscale, ignore}.Where(obj => obj != null).ToArray();
+            return new [] {downscale, ignore}.Where(obj => obj != null).ToArray();
         }
     }
 }

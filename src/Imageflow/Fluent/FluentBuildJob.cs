@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -12,12 +10,12 @@ namespace Imageflow.Fluent
 {
     public class FluentBuildJob: IDisposable
     {
-        private bool _disposed = false;
+        private bool _disposed;
         private readonly Dictionary<int, IBytesSource> _inputs = new Dictionary<int, IBytesSource>(2);
         private readonly Dictionary<int, IOutputDestination> _outputs = new Dictionary<int, IOutputDestination>(2);
 
 
-        internal void AddInput(int ioId, IBytesSource source)
+        private void AddInput(int ioId, IBytesSource source)
         {
             if (_inputs.ContainsKey(ioId) || _outputs.ContainsKey(ioId))
                 throw new ArgumentException("ioId", $"ioId {ioId} has already been assigned");
@@ -105,8 +103,8 @@ namespace Imageflow.Fluent
                     framewise = ToFramewise()
                 });
 
-                var bufferSize = 81920;
-                byte[] buffer = new byte[bufferSize];
+                const int bufferSize = 81920;
+                var buffer = new byte[bufferSize];
                 
                 foreach (var pair in _outputs)
                 {
@@ -134,7 +132,7 @@ namespace Imageflow.Fluent
             return r;
         }
         
-        private readonly HashSet<BuildItemBase> nodesCreated = new HashSet<BuildItemBase>();
+        private readonly HashSet<BuildItemBase> _nodesCreated = new HashSet<BuildItemBase>();
        
         public BuildNode CreateCanvasBgra32(uint w, uint h, AnyColor color) =>
             CreateCanvas(w, h, color, PixelFormat.Bgra_32);
@@ -151,31 +149,31 @@ namespace Imageflow.Fluent
         {
             AssertReady();
             
-            if (!nodesCreated.Add(n))
+            if (!_nodesCreated.Add(n))
             {
                 throw new ImageflowAssertionFailed("Cannot add duplicate node");
             }
-            if (n.Canvas != null && (!nodesCreated.Contains(n.Canvas)))// || n.Canvas.Builder != this))
+            if (n.Canvas != null && !_nodesCreated.Contains(n.Canvas))// || n.Canvas.Builder != this))
             {
                 throw new ImageflowAssertionFailed("You cannot use a canvas node from a different FluentBuildJob");
             }
-            if (n.Input != null &&  (!nodesCreated.Contains(n.Input)))
+            if (n.Input != null &&  !_nodesCreated.Contains(n.Input))
             {
                 throw new ImageflowAssertionFailed("You cannot use an input node from a different FluentBuildJob");
             }
         }
-        
-        
-        enum EdgeKind
+
+
+        private enum EdgeKind
         {
             Canvas,
             Input
         }
-        
-        IEnumerable<BuildItemBase> CollectUnique() => nodesCreated;
-        
-        List<Tuple<long, long, EdgeKind>> CollectEdges(IEnumerable<BuildItemBase> forUniqueNodes){
-            var edges = new List<Tuple<long, long, EdgeKind>>(forUniqueNodes.Count());
+
+        private ICollection<BuildItemBase> CollectUnique() => _nodesCreated;
+
+        private static IEnumerable<Tuple<long, long, EdgeKind>> CollectEdges(ICollection<BuildItemBase> forUniqueNodes){
+            var edges = new List<Tuple<long, long, EdgeKind>>(forUniqueNodes.Count);
             foreach (var n in forUniqueNodes)
             {
                 if (n.Canvas != null)
@@ -190,7 +188,7 @@ namespace Imageflow.Fluent
             return edges;
         }
 
-        long? LowestUid(IEnumerable<BuildItemBase> forNodes) => forNodes.Select(n => n.Uid as long?).Min();
+        private static long? LowestUid(IEnumerable<BuildItemBase> forNodes) => forNodes.Select(n => n.Uid as long?).Min();
 
         internal object ToFramewise()
         {
@@ -205,7 +203,7 @@ namespace Imageflow.Fluent
             }
         }
 
-        object ToFramewiseGraph(IEnumerable<BuildItemBase> uniqueNodes)
+        private object ToFramewiseGraph(ICollection<BuildItemBase> uniqueNodes)
         {
             var lowestUid = LowestUid(uniqueNodes) ?? 0;
             var edges = CollectEdges(uniqueNodes);
@@ -215,7 +213,7 @@ namespace Imageflow.Fluent
                 to = t.Item2 - lowestUid,
                 kind = t.Item3.ToString().ToLowerInvariant()
             }).ToList();
-            var framewiseNodes = new Dictionary<string, object>(nodesCreated.Count);
+            var framewiseNodes = new Dictionary<string, object>(_nodesCreated.Count);
             foreach (var n in uniqueNodes)
             {
                 framewiseNodes.Add((n.Uid - lowestUid).ToString(), n.NodeData );
@@ -230,23 +228,22 @@ namespace Imageflow.Fluent
             };
         }
 
-        internal void AssertReady()
+        private void AssertReady()
         {
             if (_disposed) throw new ObjectDisposedException("FluentBuildJob");
         }
 
         public void Dispose()
         {
-            if (!_disposed)
-            {
-                _disposed = true;
-                foreach (var v in _inputs.Values)
-                    v.Dispose();
-                _inputs.Clear();
-                foreach (var v in _outputs.Values)
-                    v.Dispose();
-                _outputs.Clear();
-            }
+            if (_disposed) return;
+            
+            _disposed = true;
+            foreach (var v in _inputs.Values)
+                v.Dispose();
+            _inputs.Clear();
+            foreach (var v in _outputs.Values)
+                v.Dispose();
+            _outputs.Clear();
         }
 
         public int GenerateIoId() =>_inputs.Keys.Concat(_outputs.Keys).DefaultIfEmpty(-1).Max() + 1;

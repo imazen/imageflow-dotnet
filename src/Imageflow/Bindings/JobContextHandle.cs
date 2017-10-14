@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.ConstrainedExecution;
 using Microsoft.Win32.SafeHandles;
-using System.Diagnostics;
 
 namespace Imageflow.Bindings
 {
@@ -15,7 +14,7 @@ namespace Imageflow.Bindings
             : base(true)
         {
             //var timer = Stopwatch.StartNew();
-            IntPtr ptr = NativeLibraryLoader.FixDllNotFoundException<IntPtr>("imageflow", () => NativeMethods.imageflow_context_create(NativeMethods.ABI_MAJOR, NativeMethods.ABI_MINOR));
+            var ptr = NativeLibraryLoader.FixDllNotFoundException("imageflow", () => NativeMethods.imageflow_context_create(NativeMethods.ABI_MAJOR, NativeMethods.ABI_MINOR));
             //timer.Stop();
             //Debug.WriteLine($"{timer.ElapsedMilliseconds}ms"); //4ms (when pinvoke 'just' works) to 27ms (when we have to go looking for the binary)
             if (ptr == IntPtr.Zero)
@@ -42,22 +41,20 @@ namespace Imageflow.Bindings
 
         public ImageflowException DisposeAllowingException()
         {
-            ImageflowException e = null;
-            if (IsValid)
+            if (!IsValid) return null;
+
+            try
             {
-                try
+                if (!NativeMethods.imageflow_context_begin_terminate(this))
                 {
-                    if (!NativeMethods.imageflow_context_begin_terminate(this))
-                    {
-                        e = ImageflowException.FromContext(this);
-                    }
-                }
-                finally
-                {
-                    Dispose();
+                    return ImageflowException.FromContext(this);
                 }
             }
-            return e;
+            finally
+            {
+                Dispose();
+            }
+            return null;
         }
 
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
 using Imageflow.Bindings;
-using Newtonsoft.Json.Serialization;
 
 // ReSharper disable CheckNamespace
 namespace Imageflow.Fluent

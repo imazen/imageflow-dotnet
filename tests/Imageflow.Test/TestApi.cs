@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using Xunit;
-using Imageflow;
-using System.Dynamic;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Imageflow.Fluent;
  using Xunit.Abstractions;
