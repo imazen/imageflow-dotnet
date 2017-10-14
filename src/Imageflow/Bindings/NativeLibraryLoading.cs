@@ -263,7 +263,7 @@ namespace Imageflow.Bindings
             catch (DllNotFoundException first)
             {
                 var logger = new LoadLogger {firstException = first};
-                if (TryLoadByBasename("imageflow", logger, out var handle, customSearchDirectories))
+                if (TryLoadByBasename(basename, logger, out var _, customSearchDirectories))
                 {
                     try
                     {
