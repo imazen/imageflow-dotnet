@@ -2,6 +2,7 @@
 using System.Drawing;
 using Xunit;
 using System.Threading.Tasks;
+using Imageflow.Bindings;
 using Imageflow.Fluent;
  using Xunit.Abstractions;
 
@@ -34,14 +35,23 @@ namespace Imageflow.Test
         [Fact]
         public async Task TestBuildJobSubprocess()
         {
-            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var b = new FluentBuildJob())
-            {
-                var r = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20).ConstrainWithin(5, 5)
-                    .EncodeToBytes(new GifEncoder()).FinishWithTimeout(2000).InSubprocessAsync("/home/n/Documents/imazen/imageflow/target/release/imageflow_tool");
+            string imageflowTool = Environment.GetEnvironmentVariable("IMAGEFLOW_TOOL");
 
-                Assert.Equal(5, r.First.Width);
-                Assert.True(r.First.TryGetBytes().HasValue);
+            if (!string.IsNullOrWhiteSpace(imageflowTool))
+            {
+                var imageBytes = Convert.FromBase64String(
+                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+                using (var b = new FluentBuildJob())
+                {
+                    var r = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20).ConstrainWithin(5, 5)
+                        .EncodeToBytes(new GifEncoder()).FinishWithTimeout(2000)
+                        .InSubprocessAsync(imageflowTool);
+                           
+                    // ExecutableLocator.FindExecutable("imageflow_tool", new [] {"/home/n/Documents/imazen/imageflow/target/release/"})
+
+                    Assert.Equal(5, r.First.Width);
+                    Assert.True(r.First.TryGetBytes().HasValue);
+                }
             }
         }
         
