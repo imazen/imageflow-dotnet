@@ -23,7 +23,7 @@ namespace Imageflow.Test
             using (var b = new FluentBuildJob())
             {
                 var r = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20).ConstrainWithin(5, 5)
-                    .EncodeToBytes(new GifEncoder()).FinishAsync();
+                    .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
 
                 Assert.Equal(5, r.First.Width);
                 Assert.True(r.First.TryGetBytes().HasValue);
@@ -31,7 +31,20 @@ namespace Imageflow.Test
             
         }
 
+        [Fact]
+        public async Task TestBuildJobSubprocess()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            using (var b = new FluentBuildJob())
+            {
+                var r = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20).ConstrainWithin(5, 5)
+                    .EncodeToBytes(new GifEncoder()).FinishWithTimeout(2000).InSubprocessAsync("/home/n/Documents/imazen/imageflow/target/release/imageflow_tool");
 
+                Assert.Equal(5, r.First.Width);
+                Assert.True(r.First.TryGetBytes().HasValue);
+            }
+        }
+        
         [Fact]
         public async Task TestCustomDownscaling()
         {
@@ -47,7 +60,7 @@ namespace Imageflow.Test
                 var r = await b.Decode(new BytesSource(imageBytes), 0, cmd)
                     .Distort(30, 20, 50.0f, InterpolationFilter.RobidouxFast, InterpolationFilter.Cubic)
                     .ConstrainWithin(5, 5)
-                    .EncodeToBytes(new LibPngEncoder()).FinishAsync();
+                    .EncodeToBytes(new LibPngEncoder()).Finish().InProcessAsync();
 
                 Assert.Equal(5, r.First.Width);
                 Assert.True(r.First.TryGetBytes().HasValue);

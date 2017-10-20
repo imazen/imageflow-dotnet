@@ -78,7 +78,7 @@ namespace Imageflow.Fluent
             if (_copy == null)
             {
                 _copy = new RecyclableMemoryStream(Mgr, "StreamSource: IBytesSource", (int) length);
-                await _underlying.CopyToAsync(_copy);
+                await _underlying.CopyToAsync(_copy,81920, cancellationToken);
             }
             
             return new ArraySegment<byte>(_copy.GetBuffer(), 0,

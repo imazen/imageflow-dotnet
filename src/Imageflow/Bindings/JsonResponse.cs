@@ -5,10 +5,14 @@ using Newtonsoft.Json;
 
 namespace Imageflow.Bindings
 {
+    public interface IJsonResponseProvider : IDisposable
+    {
+        Stream GetStream();
+    }
     /// <summary>
     /// Readable even if the JobContext is in an error state.
     /// </summary>
-    public sealed class JsonResponse : IDisposable, IAssertReady
+    internal sealed class JsonResponse : IJsonResponseProvider, IAssertReady
     {
         private readonly JsonResponseHandle _handle;
 
@@ -55,20 +59,6 @@ namespace Imageflow.Bindings
             return new ImageflowUnmanagedReadStream(this, utf8Buffer, bufferSize);
         }
 
-        public T Deserialize<T>() where T : class
-        {
-            using (var reader = new StreamReader(GetStream(), Encoding.UTF8))
-                return JsonSerializer.Create().Deserialize(new JsonTextReader(reader), typeof(T)) as T;
-        }
-
-        public dynamic DeserializeDynamic()
-        {
-            using (var reader = new StreamReader(GetStream(), Encoding.UTF8))
-                return JsonSerializer.Create().Deserialize(new JsonTextReader(reader));
-        }
-
-        public string GetString() => new StreamReader(GetStream(), Encoding.UTF8).ReadToEnd();
-
 
         public bool IsDisposed => !_handle.IsValid;
 
@@ -77,6 +67,25 @@ namespace Imageflow.Bindings
             var e = _handle.DisposeAllowingException();
             if (e != null) throw e;
         }
+
+    }
+
+    public static class IJsonResponseProviderExtensions
+    {
+        
+        public static T Deserialize<T>(this IJsonResponseProvider p) where T : class
+        {
+            using (var reader = new StreamReader(p.GetStream(), Encoding.UTF8))
+                return JsonSerializer.Create().Deserialize(new JsonTextReader(reader), typeof(T)) as T;
+        }
+
+        public static dynamic DeserializeDynamic(this IJsonResponseProvider p)
+        {
+            using (var reader = new StreamReader(p.GetStream(), Encoding.UTF8))
+                return JsonSerializer.Create().Deserialize(new JsonTextReader(reader));
+        }
+
+        public static string GetString(this IJsonResponseProvider p) => new StreamReader(p.GetStream(), Encoding.UTF8).ReadToEnd();
 
     }
 }

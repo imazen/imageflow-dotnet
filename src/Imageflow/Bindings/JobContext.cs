@@ -54,17 +54,17 @@ namespace Imageflow.Bindings
             }
         }
         
-        public JsonResponse SendMessage<T>(string method, T message){
+        public IJsonResponseProvider SendMessage<T>(string method, T message){
             AssertReady();
             return SendJsonBytes(method, JobContext.SerializeToJson(message));
         }
         
-        public JsonResponse Execute<T>(T message){
+        public IJsonResponseProvider Execute<T>(T message){
             AssertReady();
             return SendJsonBytes("v0.1/execute", JobContext.SerializeToJson(message));
         }
 
-        public JsonResponse SendJsonBytes(string method, byte[] utf8Json)
+        public IJsonResponseProvider SendJsonBytes(string method, byte[] utf8Json)
         {
             AssertReady();
             var pinnedJson = GCHandle.Alloc(utf8Json, GCHandleType.Pinned);
@@ -90,7 +90,7 @@ namespace Imageflow.Bindings
             if (HasError) throw ImageflowException.FromContext(Handle);
         }
         
-        public JsonResponse ExecuteImageResizer4CommandString( int inputId, int outputId, string commands)
+        public IJsonResponseProvider ExecuteImageResizer4CommandString( int inputId, int outputId, string commands)
         {
             var message = new
             {

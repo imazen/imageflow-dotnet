@@ -58,14 +58,16 @@ namespace Imageflow.Fluent
          
         public BuildEncodeResult TryGet(int ioId) => _results.TryGetValue(ioId, out var result) ? result : null;
 
-        internal static BuildJobResult From(JsonResponse response, Dictionary<int, IOutputDestination> outputs)
+        internal static BuildJobResult From(IJsonResponseProvider response, Dictionary<int, IOutputDestination> outputs)
         {
             var v = response.DeserializeDynamic();
+            if (v == null || v.success == null) throw new ImageflowAssertionFailed("BuildJobResult.From cannot parse response " + response.GetString());
+
             if (!(bool)v.success.Value) throw new ImageflowAssertionFailed("BuildJobResult.From cannot convert a failure");
 
             IEnumerable<dynamic> encodes = (v.data.job_result ?? v.data.build_result).encodes;
 
-            var encodeResults = encodes.Select((er) => new BuildEncodeResult
+            var encodeResults = encodes.Select(er => new BuildEncodeResult
             {
                 Width = er.w,
                 Height = er.h,
@@ -75,11 +77,7 @@ namespace Imageflow.Fluent
                 Destination = outputs[(int)er.io_id.Value]
             }).OrderBy(er => er.IoId).ToList();
 
-            var dict = new Dictionary<int, BuildEncodeResult>();
-            foreach (var r in encodeResults)
-            {
-                dict.Add(r.IoId, r);
-            }
+            var dict = encodeResults.ToDictionary(r => r.IoId);
             // There may be fewer reported outputs than registered ones - encoding is conditional on input, I think
             return new BuildJobResult {EncodeResults = encodeResults, _results = dict};
         }

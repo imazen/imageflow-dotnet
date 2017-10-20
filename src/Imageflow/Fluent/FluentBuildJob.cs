@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Imageflow.Bindings;
+using Imageflow.Net.IO;
+using Newtonsoft.Json;
 
 namespace Imageflow.Fluent
 {
@@ -27,25 +32,6 @@ namespace Imageflow.Fluent
                 throw new ArgumentException("ioId", $"ioId {ioId} has already been assigned");
             _outputs.Add(ioId, destination);
         }
-        [Obsolete("Use Decode(source, ioId, commands) instead")]
-        public BuildNode DownscalingDecode(IBytesSource source, int ioId, int widthHint, int heightHint, bool scaleLumaSpatially = false, bool gammaCorrectForSrgbDuringSpatialLumaScaling = false)
-        {
-            AddInput(ioId, source);
-            return BuildNode.StartNode(this, new
-            {
-                decode = new
-                {
-                    io_id = ioId,
-                    commands = new object[] {new { jpeg_downscale_hints = new {
-                        width = widthHint,
-                        height  = heightHint,
-                         scale_luma_spatially = scaleLumaSpatially,
-                         gamma_correct_for_srgb_during_spatial_luma_scaling = gammaCorrectForSrgbDuringSpatialLumaScaling
-                    } } }
-                }
-            });
-        }
-
        
         public BuildNode Decode(IBytesSource source, int ioId, DecodeCommands commands)
         {
@@ -86,7 +72,7 @@ namespace Imageflow.Fluent
         public  Task<BuildJobResult> FinishAsync() => FinishAsync(default(CancellationToken));
         public async Task<BuildJobResult> FinishAsync(CancellationToken cancellationToken)
         {
-            var inputByteArrays = await Task.WhenAll(_inputs.Select( async (pair) => new KeyValuePair<int, ArraySegment<byte>>(pair.Key, await pair.Value.GetBytesAsync(cancellationToken))));
+            var inputByteArrays = await Task.WhenAll(_inputs.Select( async pair => new KeyValuePair<int, ArraySegment<byte>>(pair.Key, await pair.Value.GetBytesAsync(cancellationToken))));
             using (var ctx = new JobContext())
             {
                 foreach (var pair in inputByteArrays)
@@ -125,6 +111,153 @@ namespace Imageflow.Fluent
             }
             
         }
+
+        private class MemoryStreamJsonProvider : IJsonResponseProvider
+        {
+            private readonly MemoryStream _ms;
+            public MemoryStreamJsonProvider(MemoryStream ms) => _ms = ms;
+            public void Dispose() => _ms.Dispose();
+            public Stream GetStream() => _ms;
+        }
+
+
+        private object BuildJsonWithPlaceholders()
+        {
+            var inputIo = _inputs.Select(pair =>
+                new {io_id = pair.Key, direction = "in", io = new {placeholder = (string) null}});
+            var outputIo = _outputs.Select(pair =>
+                new {io_id = pair.Key, direction = "out", io = new {placeholder = (string) null}});
+            return new
+            {
+                io = inputIo.Concat(outputIo).ToArray(),
+                framewise = ToFramewise()
+            };
+        }
+
+        private static bool IsUnix => Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX;
+
+        
+        private static ITemporaryFileProvider SystemTempProvider()
+        {
+            return IsUnix ? TemporaryFile.CreateProvider() : TemporaryMemoryFile.CreateProvider();
+        }
+        public  Task<BuildJobResult> FinishInSubprocessAsync(CancellationToken cancellationToken, string imageflowToolPath) => FinishInSubprocessAsync(cancellationToken, SystemTempProvider(), imageflowToolPath);
+
+        private async Task<BuildJobResult> FinishInSubprocessAsync(CancellationToken cancellationToken, ITemporaryFileProvider provider,
+            string imageflowToolPath, long? outputBufferCapacity = null)
+        {
+            if (imageflowToolPath == null)
+            {
+                imageflowToolPath = IsUnix ? "imageflow_tool" : "imageflow_tool.exe";
+            }
+            if (!File.Exists(imageflowToolPath))
+            {
+                throw new FileNotFoundException("Cannot find imageflow_tool using path \"" + imageflowToolPath + "\" and currect folder \"" + Directory.GetCurrentDirectory() + "\"");
+            }
+            var cleanup = new List<IDisposable>();
+            try
+            {
+                var inputFiles = (await Task.WhenAll(_inputs.Select(async pair =>
+                {
+                    var bytes = await pair.Value.GetBytesAsync(cancellationToken);
+
+                    var file = provider.Create(bytes.Count);
+                    cleanup.Add(file);
+                    return new
+                    {
+                        io_id = pair.Key,
+                        direction = "in",
+                        io = new {file = file.Path},
+                        bytes,
+                        Length = bytes.Count,
+                        File = file
+                    };
+                }))).ToArray();
+                var outputCapacity = outputBufferCapacity ?? inputFiles.Max(v => v.Length) * 2;
+
+
+                var outputFiles = _outputs.Select(pair =>
+                {
+                    var file = provider.Create(outputCapacity);
+                    cleanup.Add(file);
+                    return new {io_id = pair.Key, direction = "out", io = new {file = file.Path}, Length = outputCapacity, File = file, Dest = pair.Value};
+                }).ToArray();
+
+
+                var build = new
+                {
+                    io = inputFiles.Select(v => (object)new {v.io_id, v.direction, v.io}).Concat(outputFiles.Select(v => (object)new {v.io_id, v.direction, v.io}))
+                        .ToArray(),
+                    framewise = ToFramewise()
+                };
+
+                var jsonFile = provider.Create(100000);
+                cleanup.Add(jsonFile);
+                using (var writer = new StreamWriter(jsonFile.WriteFromBeginning(), new UTF8Encoding(false)))
+                {
+                    JsonSerializer.Create().Serialize(writer, build);
+                    writer.Flush(); //Required or no bytes appear
+                }
+
+                foreach (var f in inputFiles)
+                {
+                    using (var accessor = f.File.WriteFromBeginning())
+                    {
+                        await accessor.WriteAsync(f.bytes.Array, f.bytes.Offset, f.bytes.Count, cancellationToken);
+                    }
+                }
+
+                var startInfo = new ProcessStartInfo
+                {
+                    StandardErrorEncoding = Encoding.UTF8,
+                    StandardOutputEncoding = Encoding.UTF8,
+                    Arguments = $" v0.1/build --json {jsonFile.Path}",
+                    CreateNoWindow = true,
+                    FileName = imageflowToolPath
+                };
+
+                var results = await ProcessEx.RunAsync(startInfo, cancellationToken);
+
+
+                var output = results.GetBufferedOutputStream();
+                var errors = results.GetStandardErrorString();
+
+                if (!string.IsNullOrWhiteSpace(errors) || results.ExitCode != 0)
+                {
+                    if (errors.Contains("InvalidJson"))
+                    {
+                        throw new ImageflowException(errors + $"\n{JsonConvert.SerializeObject(build)}");
+                    }
+                    else
+                    {
+                        throw new ImageflowException(errors);
+                    }
+                }
+                
+                
+                foreach (var f in outputFiles)
+                {
+                    using (var stream = f.File.ReadFromBeginning())
+                    {
+                        await f.Dest.CopyFromStreamAsync(stream, cancellationToken);
+                    }
+                }
+                
+                
+                return BuildJobResult.From(new MemoryStreamJsonProvider(output), _outputs);
+
+            }
+            finally
+            {
+                foreach(var d in cleanup)
+                    d.Dispose();
+            }
+           
+        }
+        
+        
+        
+        
         public async Task<BuildJobResult> FinishAndDisposeAsync(CancellationToken cancellationToken)
         {
             var r = await FinishAsync(cancellationToken);

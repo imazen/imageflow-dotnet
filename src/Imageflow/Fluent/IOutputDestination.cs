@@ -12,8 +12,31 @@ namespace Imageflow.Fluent
         Task WriteAsync(ArraySegment<byte> bytes, CancellationToken cancellationToken);
         Task FlushAsync(CancellationToken cancellationToken);
     }
-    
-    
+
+    public static class IOutputDestinationExtensions
+    {
+        public static async Task CopyFromStreamAsync(this IOutputDestination dest, Stream stream,
+            CancellationToken cancellationToken)
+        {
+            if (stream.CanRead && stream.CanSeek)
+            {
+                await dest.RequestCapacityAsync((int) stream.Length);
+            }
+
+            const int bufferSize = 81920;
+            var buffer = new byte[bufferSize];
+
+            int bytesRead;
+            while ((bytesRead =
+                       await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) != 0)
+            {
+                await dest.WriteAsync(new ArraySegment<byte>(buffer, 0, bytesRead), cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            await dest.FlushAsync(cancellationToken);
+        }
+    }
 
     public class BytesDestination : IOutputDestination
     {
