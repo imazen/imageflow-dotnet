@@ -49,7 +49,7 @@ namespace Imageflow.Net.IO
 
         public ITemporaryFile Create(bool cleanup,long capacity)
         {
-            if (!cleanup)  throw new InvalidOperationException("Memory Mapped Files cannot be persisted")
+            if (!cleanup) throw new InvalidOperationException("Memory Mapped Files cannot be persisted");
             var name = Guid.NewGuid().ToString();
             var file = MemoryMappedFile.CreateNew(name, capacity);
             return new TemporaryMemoryFile(file, name);
