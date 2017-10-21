@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using Xunit;
 using System.Threading.Tasks;
 using Imageflow.Bindings;
@@ -30,6 +31,28 @@ namespace Imageflow.Test
                 Assert.True(r.First.TryGetBytes().HasValue);
             }
             
+        }
+
+        [Fact]
+        public async Task TestFilesystemJobPrep()
+        {
+
+            var imageBytes = Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            using (var b = new FluentBuildJob())
+            {
+                string jsonPath;
+                using (var job = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20)
+                    .ConstrainWithin(5, 5)
+                    .EncodeToBytes(new GifEncoder()).FinishWithTimeout(2000)
+                    .WriteJsonJobAndInputs(true))
+                {
+                    jsonPath = job.JsonPath;
+
+                    Assert.True(File.Exists(jsonPath));
+                }
+                Assert.False(File.Exists(jsonPath));
+            }
         }
 
         [Fact]

@@ -68,7 +68,7 @@ namespace Imageflow.Bindings
         {
             AssertReady();
             var pinnedJson = GCHandle.Alloc(utf8Json, GCHandleType.Pinned);
-            var methodPinned = GCHandle.Alloc(Encoding.ASCII.GetBytes(method + char.MinValue), GCHandleType.Pinned);
+            var methodPinned = GCHandle.Alloc(Encoding.ASCII.GetBytes($"{method}\0"), GCHandleType.Pinned);
             try
             {
                 AssertReady();

@@ -8,7 +8,7 @@ namespace Imageflow.Net.IO
 
     internal interface ITemporaryFileProvider
     {
-        ITemporaryFile Create(long capacity);
+        ITemporaryFile Create(bool cleanup, long capacity);
     }
 
     internal interface ITemporaryFile : IDisposable
@@ -47,8 +47,9 @@ namespace Imageflow.Net.IO
             return new TemporaryMemoryFile(null, null);
         }
 
-        public ITemporaryFile Create(long capacity)
+        public ITemporaryFile Create(bool cleanup,long capacity)
         {
+            if (!cleanup)  throw new InvalidOperationException("Memory Mapped Files cannot be persisted")
             var name = Guid.NewGuid().ToString();
             var file = MemoryMappedFile.CreateNew(name, capacity);
             return new TemporaryMemoryFile(file, name);
@@ -59,14 +60,18 @@ namespace Imageflow.Net.IO
             _file?.Dispose();
         }
     }
+    
+    
 
     internal class TemporaryFile : ITemporaryFile, ITemporaryFileProvider
     {
         private readonly List<WeakReference<IDisposable>> _cleanup = new List<WeakReference<IDisposable>>(2);
+        private readonly bool _deleteOnDispose;
 
-        private TemporaryFile(string path)
+        private TemporaryFile(string path, bool deleteOnDispose)
         {
             Path = path;
+            _deleteOnDispose = deleteOnDispose;
         }
 
         public string Path { get; private set; }
@@ -85,14 +90,14 @@ namespace Imageflow.Net.IO
             return fs;
         }
 
-        public ITemporaryFile Create(long capacity)
+        public ITemporaryFile Create(bool cleanup, long capacity)
         {
-            return new TemporaryFile(System.IO.Path.GetTempFileName());
+            return new TemporaryFile(System.IO.Path.GetTempFileName(), cleanup);
         }
 
         public static ITemporaryFileProvider CreateProvider()
         {
-            return new TemporaryFile(null);
+            return new TemporaryFile(null, false);
         }
 
         public void Dispose()
@@ -105,7 +110,7 @@ namespace Imageflow.Net.IO
                 }
             }
             _cleanup.Clear();
-            if (Path != null)
+            if (Path != null && _deleteOnDispose)
             {
                 File.Delete(Path);
             }

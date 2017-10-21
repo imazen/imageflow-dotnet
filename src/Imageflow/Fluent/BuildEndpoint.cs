@@ -23,22 +23,27 @@ namespace Imageflow.Fluent
 
     public class BuildEndpointWithToken
     {
-        private FluentBuildJob builder;
-        private CancellationToken token;
+        private readonly FluentBuildJob _builder;
+        private readonly CancellationToken _token;
 
         public BuildEndpointWithToken(FluentBuildJob fluentBuildJob, CancellationToken cancellationToken)
         {
-            builder = fluentBuildJob;
-            token = cancellationToken;
+            _builder = fluentBuildJob;
+            _token = cancellationToken;
         }
 
 
-        public Task<BuildJobResult> InProcessAsync() => builder.FinishAsync(token);
+        public Task<BuildJobResult> InProcessAsync() => _builder.FinishAsync(_token);
         
-        public Task<BuildJobResult> InSubprocessAsync(string imageflowToolPath = null) => builder.FinishInSubprocessAsync(token, imageflowToolPath);
+        public Task<BuildJobResult> InSubprocessAsync(string imageflowToolPath = null) => _builder.FinishInSubprocessAsync(_token, imageflowToolPath);
 
-
-        
+        /// <summary>
+        /// Returns a prepared job that can be executed with `imageflow_tool --json [job.JsonPath]`. Supporting input/output files are also created.
+        /// If deleteFilesOnDispose is true, then the files will be deleted when the job is disposed. 
+        /// </summary>
+        /// <returns></returns>
+        public Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(bool deleteFilesOnDispose) =>
+            _builder.WriteJsonJobAndInputs(_token, deleteFilesOnDispose);
     }
     
     
