@@ -2,7 +2,7 @@
 sudo: false
 language: csharp
 mono: none
-dotnet: 2.3
+dotnet: 3.1
 
 matrix:
   fast_finish: true
