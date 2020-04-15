@@ -315,7 +315,7 @@ namespace Imageflow.Bindings
                 }
                 logger.RaiseException();
             }
-            return default(T);
+            return default;
         }
         
         private static readonly Lazy<ConcurrentDictionary<string, IntPtr>> LibraryHandlesByBasename = new Lazy<ConcurrentDictionary<string, IntPtr>>(() => new ConcurrentDictionary<string, IntPtr>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);

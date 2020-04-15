@@ -10,13 +10,15 @@ namespace Imageflow.Fluent
         internal BuildEndpoint(FluentBuildJob builder,object nodeData, BuildNode inputNode, BuildNode canvasNode) : base(builder, nodeData, inputNode,
             canvasNode){}
 
-        public BuildEndpointWithToken Finish() => new BuildEndpointWithToken(Builder, default(CancellationToken));
+        public BuildEndpointWithToken Finish() => new BuildEndpointWithToken(Builder, default);
         public BuildEndpointWithToken FinishWithToken(CancellationToken token) => new BuildEndpointWithToken(Builder, token);
 
         public BuildEndpointWithToken FinishWithTimeout(int milliseconds)
         {
-            var tokenSource = new CancellationTokenSource(milliseconds);
-            return FinishWithToken(tokenSource.Token);
+            using (var tokenSource = new CancellationTokenSource(milliseconds))
+            {
+                return FinishWithToken(tokenSource.Token);
+            }
         }
         
     }

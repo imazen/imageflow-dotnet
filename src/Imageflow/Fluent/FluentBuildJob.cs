@@ -70,7 +70,7 @@ namespace Imageflow.Fluent
         
         
 
-        public  Task<BuildJobResult> FinishAsync() => FinishAsync(default(CancellationToken));
+        public  Task<BuildJobResult> FinishAsync() => FinishAsync(default);
         public async Task<BuildJobResult> FinishAsync(CancellationToken cancellationToken)
         {
             var inputByteArrays = await Task.WhenAll(_inputs.Select( async pair => new KeyValuePair<int, ArraySegment<byte>>(pair.Key, await pair.Value.GetBytesAsync(cancellationToken))));
@@ -84,20 +84,22 @@ namespace Imageflow.Fluent
                     ctx.AddOutputBuffer(outId);
                 }
                 //TODO: Use a Semaphore to limit concurrency; and move work to threadpool
-                
-                var response = ctx.Execute(new
+
+                using (var response = ctx.Execute(new
                 {
                     framewise = ToFramewise()
-                });
-
-                foreach (var pair in _outputs)
+                }))
                 {
-                    using (var stream = ctx.GetOutputBuffer(pair.Key))
+
+                    foreach (var pair in _outputs)
                     {
-                        await pair.Value.CopyFromStreamAsync(stream, cancellationToken);
+                        using (var stream = ctx.GetOutputBuffer(pair.Key))
+                        {
+                            await pair.Value.CopyFromStreamAsync(stream, cancellationToken);
+                        }
                     }
+                    return BuildJobResult.From(response, _outputs);
                 }
-                return BuildJobResult.From(response, _outputs);
             }
         }
 
@@ -294,8 +296,9 @@ namespace Imageflow.Fluent
 
                 await job.CopyOutputsToDestinations(cancellationToken);
 
-
-                return BuildJobResult.From(new MemoryStreamJsonProvider(output), _outputs);
+                using (var jsonProvider = new MemoryStreamJsonProvider(output)) {
+                    return BuildJobResult.From(jsonProvider, _outputs);
+                }
             }
         }
         

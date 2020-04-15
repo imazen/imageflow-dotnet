@@ -78,6 +78,7 @@ namespace Imageflow.Fluent
             }).OrderBy(er => er.IoId).ToList();
 
             var dict = encodeResults.ToDictionary(r => r.IoId);
+   
             // There may be fewer reported outputs than registered ones - encoding is conditional on input, I think
             return new BuildJobResult {EncodeResults = encodeResults, _results = dict};
         }
