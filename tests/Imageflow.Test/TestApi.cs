@@ -49,9 +49,16 @@ namespace Imageflow.Test
                 {
                     jsonPath = job.JsonPath;
 
-                    Assert.True(File.Exists(jsonPath));
+                    using (var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
+                    {
+                    } // Will throw filenotfoundexception if missing 
                 }
-                Assert.False(File.Exists(jsonPath));
+                Assert.Throws<FileNotFoundException>(delegate ()
+                {
+                    using (var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
+                    {
+                    }
+                });
             }
         }
 
