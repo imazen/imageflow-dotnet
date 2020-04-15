@@ -173,18 +173,31 @@ namespace Imageflow.Bindings
 
         internal static IEnumerable<string> SearchPossibilitiesForFile(string filename, IEnumerable<string> customSearchDirectories = null)
         {
+            var attemptedPaths = new HashSet<string>();
             var subdir = ArchitectureSubdir.Value;
             foreach (var f in BaseFolders(customSearchDirectories))
             {
                 if (string.IsNullOrEmpty(f)) continue;
                 var directory = Path.GetFullPath(f);
                 // Try architecture-specific subdirectories first
+                string path;
                 if (subdir != null)
                 {
-                    yield return Path.Combine(directory, subdir, filename);
+                    path = Path.Combine(directory, subdir, filename);
+                    if (!attemptedPaths.Contains(path))
+                    {
+                        attemptedPaths.Add(path);
+                        yield return path;
+                    }
                 }
                 // Try the folder itself
-                yield return Path.Combine(directory, filename);
+                path = Path.Combine(directory, filename); ;
+                if (!attemptedPaths.Contains(path))
+                {
+
+                    attemptedPaths.Add(path);
+                    yield return path;
+                }
             }
         }
 
@@ -259,11 +272,8 @@ namespace Imageflow.Bindings
             var filename = GetFilenameWithoutDirectory(basename);
 
             exePath = null;
-            var attemptedPaths = new HashSet<string>();
             foreach (var path in RuntimeFileLocator.SearchPossibilitiesForFile(filename, customSearchDirectories))
             {
-                if (attemptedPaths.Contains(path)) continue; //Don't try the same path twice
-                attemptedPaths.Add(path);
                 if (!File.Exists(path))
                 {
                     log.NotifyAttempt(basename, path, false, false, 0);
@@ -360,11 +370,8 @@ namespace Imageflow.Bindings
         private static bool TryLoadByBasenameInternal(string basename, ILibraryLoadLogger log, out IntPtr handle, IEnumerable<string> customSearchDirectories = null)
         {
             var filename = GetFilenameWithoutDirectory(basename);
-            var attemptedPaths = new HashSet<string>();
             foreach (var path in RuntimeFileLocator.SearchPossibilitiesForFile(filename, customSearchDirectories))
             {
-                if (attemptedPaths.Contains(path)) continue; //Don't try the same path twice
-                attemptedPaths.Add(path);
                 if (!File.Exists(path))
                 {
                     log.NotifyAttempt(basename, path, false, false, 0);
