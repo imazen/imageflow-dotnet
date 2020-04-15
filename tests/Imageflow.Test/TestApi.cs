@@ -36,6 +36,7 @@ namespace Imageflow.Test
         [Fact]
         public async Task TestFilesystemJobPrep()
         {
+            var isUnix = Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX;
 
             var imageBytes = Convert.FromBase64String(
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
@@ -49,16 +50,33 @@ namespace Imageflow.Test
                 {
                     jsonPath = job.JsonPath;
 
-                    using (var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
+                    if (isUnix)
                     {
-                    } // Will throw filenotfoundexception if missing 
-                }
-                Assert.Throws<FileNotFoundException>(delegate ()
-                {
-                    using (var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
-                    {
+                        Assert.True(File.Exists(jsonPath));
                     }
-                });
+                    else
+                    {
+                        using (var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
+                        {
+                        } // Will throw filenotfoundexception if missing 
+                    }
+                }
+
+                if (isUnix)
+                {
+                    Assert.False(File.Exists(jsonPath));
+                }
+                else
+                {
+
+                    Assert.Throws<FileNotFoundException>(delegate ()
+                    {
+
+                        using (var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
+                        {
+                        }
+                    });
+                }
             }
         }
 
