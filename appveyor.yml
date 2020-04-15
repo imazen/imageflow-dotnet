@@ -94,9 +94,9 @@ dotnet_csproj:
   file: '**\*.csproj'
   version: $(FILE_VERSION)
   package_version: $(SEMVER_1) #Use SEMVER_1 instead for compatibility with older clients
-  informational_version: '{INFORMATIONAL_VERSION}'
-  assembly_version: '{ASSEMBLY_VERSION}'
-  file_version: '{FILE_VERSION}'
+  informational_version: $(INFORMATIONAL_VERSION)
+  assembly_version: $(ASSEMBLY_VERSION)
+  file_version: $(FILE_VERSION)
 
 nuget:
   disable_publish_on_pr: true     # disable publishing of .nupkg artifacts to
