@@ -130,8 +130,7 @@ namespace Imageflow.Fluent
             return RuntimeFileLocator.IsUnix ? TemporaryFile.CreateProvider() : TemporaryMemoryFile.CreateProvider();
         }
         
-        public  Task<BuildJobResult> FinishInSubprocessAsync(CancellationToken cancellationToken, string imageflowToolPath) => FinishInSubprocessAsync(cancellationToken, SystemTempProvider(), imageflowToolPath);
-
+    
         class SubprocessFilesystemJob: IPreparedFilesystemJob
         {
             public string JsonPath { get; set; }
@@ -252,7 +251,7 @@ namespace Imageflow.Fluent
             }
         }
         
-        private async Task<BuildJobResult> FinishInSubprocessAsync(CancellationToken cancellationToken, ITemporaryFileProvider provider,
+        public async Task<BuildJobResult> FinishInSubprocessAsync(CancellationToken cancellationToken,
             string imageflowToolPath, long? outputBufferCapacity = null)
         {
             if (imageflowToolPath == null)
