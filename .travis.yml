@@ -2,13 +2,13 @@
 sudo: false
 language: csharp
 mono: none
-dotnet: 2.0.0
+dotnet: 2.3
 
 matrix:
   fast_finish: true
   include:
     - os: linux
-      dist: trusty
+      dist: bionic
  #   - os: osx
  #   - os: osx
  #     osx_image: xcode9
