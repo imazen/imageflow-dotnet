@@ -259,8 +259,11 @@ namespace Imageflow.Bindings
             var filename = GetFilenameWithoutDirectory(basename);
 
             exePath = null;
+            var attemptedPaths = new HashSet<string>();
             foreach (var path in RuntimeFileLocator.SearchPossibilitiesForFile(filename, customSearchDirectories))
             {
+                if (attemptedPaths.Contains(path)) continue; //Don't try the same path twice
+                attemptedPaths.Add(path);
                 if (!File.Exists(path))
                 {
                     log.NotifyAttempt(basename, path, false, false, 0);
@@ -357,9 +360,11 @@ namespace Imageflow.Bindings
         private static bool TryLoadByBasenameInternal(string basename, ILibraryLoadLogger log, out IntPtr handle, IEnumerable<string> customSearchDirectories = null)
         {
             var filename = GetFilenameWithoutDirectory(basename);
-
+            var attemptedPaths = new HashSet<string>();
             foreach (var path in RuntimeFileLocator.SearchPossibilitiesForFile(filename, customSearchDirectories))
             {
+                if (attemptedPaths.Contains(path)) continue; //Don't try the same path twice
+                attemptedPaths.Add(path);
                 if (!File.Exists(path))
                 {
                     log.NotifyAttempt(basename, path, false, false, 0);
