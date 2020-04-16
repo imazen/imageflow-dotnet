@@ -4,3 +4,5 @@
 // a specific target and scoped to a namespace, type, member, etc.
 
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "<Pending>", Scope = "member", Target = "~M:Imageflow.Bindings.UnixLoadLibrary.dlopen(System.String,System.Int32)~System.IntPtr")]
+
+[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2219:Do not raise exceptions in finally clauses", Justification = "<Pending>", Scope = "member", Target = "~M:Imageflow.Bindings.JobContext.Dispose")]

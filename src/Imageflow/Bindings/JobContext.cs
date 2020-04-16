@@ -155,9 +155,9 @@ namespace Imageflow.Bindings
         public void AddInputBytes(int ioId, byte[] buffer, long offset, long count)
         {
             AssertReady();
-            if (offset < 0 || offset > buffer.LongLength - 1) throw new ArgumentOutOfRangeException("offset", offset, "Offset must be within array bounds");
-            if (count < 0 || offset + count > buffer.LongLength) throw new ArgumentOutOfRangeException("count", count, "offset + count must be within array bounds. count cannot be negative");
-            if (ContainsIoId(ioId)) throw new ArgumentException($"ioId {ioId} already in use", "ioId");
+            if (offset < 0 || offset > buffer.LongLength - 1) throw new ArgumentOutOfRangeException(nameof(offset), offset, "Offset must be within array bounds");
+            if (count < 0 || offset + count > buffer.LongLength) throw new ArgumentOutOfRangeException(nameof(count), count, "offset + count must be within array bounds. count cannot be negative");
+            if (ContainsIoId(ioId)) throw new ArgumentException($"ioId {ioId} already in use", nameof(ioId));
             
             var fixedBytes = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             try
@@ -189,11 +189,11 @@ namespace Imageflow.Bindings
         {
             AssertReady();
             if (offset < 0 || offset > buffer.LongLength - 1)
-                throw new ArgumentOutOfRangeException("offset", offset, "Offset must be within array bounds");
+                throw new ArgumentOutOfRangeException(nameof(offset), offset, "Offset must be within array bounds");
             if (count < 0 || offset + count > buffer.LongLength)
-                throw new ArgumentOutOfRangeException("count", count,
+                throw new ArgumentOutOfRangeException(nameof(count), count,
                     "offset + count must be within array bounds. count cannot be negative");
-            if (ContainsIoId(ioId)) throw new ArgumentException($"ioId {ioId} already in use", "ioId");
+            if (ContainsIoId(ioId)) throw new ArgumentException($"ioId {ioId} already in use", nameof(ioId));
 
             var fixedBytes = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             AddPinnedData(fixedBytes);
@@ -212,7 +212,7 @@ namespace Imageflow.Bindings
         public void AddOutputBuffer(int ioId)
         {
             AssertReady();
-            if (ContainsIoId(ioId)) throw new ArgumentException($"ioId {ioId} already in use", "ioId");
+            if (ContainsIoId(ioId)) throw new ArgumentException($"ioId {ioId} already in use", nameof(ioId));
             if (!NativeMethods.imageflow_context_add_output_buffer(Handle, ioId))
             {
                 AssertReady();
@@ -231,7 +231,7 @@ namespace Imageflow.Bindings
         {
             if (!ioSet.ContainsKey(ioId) || ioSet[ioId] != IoKind.OutputBuffer)
             {
-                throw new ArgumentException($"ioId {ioId} does not correspond to an output buffer", "ioId");
+                throw new ArgumentException($"ioId {ioId} does not correspond to an output buffer", nameof(ioId));
             }
             AssertReady();
             if (!NativeMethods.imageflow_context_get_output_buffer_by_id(Handle, ioId, out var buffer,
