@@ -417,15 +417,27 @@ namespace Imageflow.Fluent
 
         public void Dispose()
         {
+            // Dispose of unmanaged resources.
+            Dispose(true);
+            // Suppress finalization.
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
             if (_disposed) return;
-            
+
+            if (disposing)
+            {
+                foreach (var v in _inputs.Values)
+                    v.Dispose();
+                _inputs.Clear();
+                foreach (var v in _outputs.Values)
+                    v.Dispose();
+                _outputs.Clear();
+            }
+
             _disposed = true;
-            foreach (var v in _inputs.Values)
-                v.Dispose();
-            _inputs.Clear();
-            foreach (var v in _outputs.Values)
-                v.Dispose();
-            _outputs.Clear();
         }
 
         public int GenerateIoId() =>_inputs.Keys.Concat(_outputs.Keys).DefaultIfEmpty(-1).Max() + 1;
