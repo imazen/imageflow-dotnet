@@ -16,54 +16,49 @@ namespace Imageflow.Test
         [Fact]
         public void TestCreateDestroyContext()
         {
-            using (var c = new JobContext())
-            {
-                c.AssertReady();
-            }
+            using var c = new JobContext();
+            c.AssertReady();
         }
         
          [Fact]
         public void TestGetImageInfo()
         {
-            using (var c = new JobContext())
-            {
-                c.AddInputBytesPinned(0,
-                    Convert.FromBase64String(
-                        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
-                
-                var response = c.SendMessage("v0.1/get_image_info", new {io_id = 0});
+            using var c = new JobContext();
+            c.AddInputBytesPinned(0,
+Convert.FromBase64String(
+"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
 
-                var data = response.DeserializeDynamic();
+            var response = c.SendMessage("v0.1/get_image_info", new { io_id = 0 });
 
-                _output.WriteLine(response.GetString());
+            var data = response.DeserializeDynamic();
+
+            _output.WriteLine(response.GetString());
 
 
-                Assert.Equal(200, (int)data.code );
-                Assert.Equal(true, (bool)data.success);
-                Assert.Equal(1, (int)data.data.image_info.image_width);
-                Assert.Equal(1, (int)data.data.image_info.image_height);
-                Assert.Equal("image/png", (string)data.data.image_info.preferred_mime_type);
-                Assert.Equal("png", (string)data.data.image_info.preferred_extension);
-            }
+            Assert.Equal(200, (int)data.code);
+            Assert.Equal(true, (bool)data.success);
+            Assert.Equal(1, (int)data.data.image_info.image_width);
+            Assert.Equal(1, (int)data.data.image_info.image_height);
+            Assert.Equal("image/png", (string)data.data.image_info.preferred_mime_type);
+            Assert.Equal("png", (string)data.data.image_info.preferred_extension);
         }
         
         [Fact]
         public void TestExecute()
         {
-            using (var c = new JobContext())
+            using var c = new JobContext();
+            c.AddInputBytesPinned(0,
+Convert.FromBase64String(
+"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
+
+            c.AddOutputBuffer(1);
+
+            var message = new
             {
-                c.AddInputBytesPinned(0,
-                    Convert.FromBase64String(
-                        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
-                
-                c.AddOutputBuffer(1);
-                
-                var message = new
+                framewise = new
                 {
-                    framewise = new
+                    steps = new object[]
                     {
-                        steps = new object[]
-                        {
                             new
                             {
                                 decode = new
@@ -86,51 +81,47 @@ namespace Imageflow.Test
                                     }
                                 }
                             }
-                        }
                     }
-                };
-                
-                var response = c.SendMessage("v0.1/execute", message);
+                }
+            };
 
-                var data = response.DeserializeDynamic();
+            var response = c.SendMessage("v0.1/execute", message);
 
-                _output.WriteLine(response.GetString());
+            var data = response.DeserializeDynamic();
 
-                Assert.Equal(200, (int)data.code);
-                Assert.Equal(true, (bool)data.success);
-            }
+            _output.WriteLine(response.GetString());
+
+            Assert.Equal(200, (int)data.code);
+            Assert.Equal(true, (bool)data.success);
         }
         
         
         [Fact]
         public void TestIr4Execute()
         {
-            using (var c = new JobContext())
-            {
-                c.AddInputBytesPinned(0,
-                    Convert.FromBase64String(
-                        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
-                c.AddOutputBuffer(1);
-                var response = c.ExecuteImageResizer4CommandString(0, 1, "w=200&h=200&scale=both&format=jpg");
+            using var c = new JobContext();
+            c.AddInputBytesPinned(0,
+Convert.FromBase64String(
+"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
+            c.AddOutputBuffer(1);
+            var response = c.ExecuteImageResizer4CommandString(0, 1, "w=200&h=200&scale=both&format=jpg");
 
-                var data = response.DeserializeDynamic();
+            var data = response.DeserializeDynamic();
 
-                _output.WriteLine(response.GetString());
+            _output.WriteLine(response.GetString());
 
-                Assert.Equal(200, (int)data.code);
-                Assert.Equal(true, (bool)data.success);
-            }
+            Assert.Equal(200, (int)data.code);
+            Assert.Equal(true, (bool)data.success);
         }
         
         [Fact]
         public void TestIr4Build()
         {
-            using (var c = new JobContext())
+            using var c = new JobContext();
+            var message = new
             {
-                var message = new
-                {
-                    io = new object[]
-                    {
+                io = new object[]
+{
                         new {
                             direction = "in",
                             io_id = 0,
@@ -144,11 +135,11 @@ namespace Imageflow.Test
                             io_id = 1,
                             io = "output_base_64"
                         }
-                    },
-                    framewise = new
-                    {
-                        steps = new object[]
-                        {
+},
+                framewise = new
+                {
+                    steps = new object[]
+{
                             new
                             {
                                 command_string = new
@@ -159,19 +150,18 @@ namespace Imageflow.Test
                                     encode = 1
                                 }
                             }
-                        }
-                    }
-                };
+}
+                }
+            };
 
-               var response =  c.SendMessage("v0.1/build", message);
+            var response = c.SendMessage("v0.1/build", message);
 
-                var data = response.DeserializeDynamic();
+            var data = response.DeserializeDynamic();
 
-                _output.WriteLine(response.GetString());
+            _output.WriteLine(response.GetString());
 
-                Assert.Equal(200, (int)data.code);
-                Assert.Equal(true, (bool)data.success);
-            }
+            Assert.Equal(200, (int)data.code);
+            Assert.Equal(true, (bool)data.success);
         }
         [Fact]
         public unsafe void TestBitmapBgra()
@@ -183,21 +173,18 @@ namespace Imageflow.Test
             const int ResizedHeight = 99;
 
             ulong bitmap = 0;
-            using (var context = new JobContext())
+            using var context = new JobContext();
+            context.Execute(new
             {
-
-                context.Execute(new
+                framewise = new
                 {
-                    framewise = new
-                    {
-                        steps = new object[] {
+                    steps = new object[] {
                             new { create_canvas = new { w= Width, h = Height, color = "black" , format = "bgr_32" } },
                             new { constrain = new { within = new { w=ResizedWidth, h =ResizedHeight } } },
                             new { flow_bitmap_bgra_ptr = new { ptr_to_flow_bitmap_bgra_ptr =  (ulong)&bitmap  } }
                         }
-                    }
-                });
-            }
+                }
+            });
         }
 
         //        [Fact]

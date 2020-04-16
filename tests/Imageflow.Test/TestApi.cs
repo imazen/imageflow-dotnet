@@ -22,15 +22,13 @@ namespace Imageflow.Test
         public async Task TestBuildJob()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var b = new FluentBuildJob())
-            {
-                var r = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20).ConstrainWithin(5, 5)
-                    .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
+            using var b = new FluentBuildJob();
+            var r = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20).ConstrainWithin(5, 5)
+.EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
 
-                Assert.Equal(5, r.First.Width);
-                Assert.True(r.First.TryGetBytes().HasValue);
-            }
-            
+            Assert.Equal(5, r.First.Width);
+            Assert.True(r.First.TryGetBytes().HasValue);
+
         }
 
         [Fact]
@@ -40,43 +38,37 @@ namespace Imageflow.Test
 
             var imageBytes = Convert.FromBase64String(
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var b = new FluentBuildJob())
+            using var b = new FluentBuildJob();
+            string jsonPath;
+            using (var job = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20)
+                .ConstrainWithin(5, 5)
+                .EncodeToBytes(new GifEncoder()).FinishWithTimeout(2000)
+                .WriteJsonJobAndInputs(true))
             {
-                string jsonPath;
-                using (var job = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20)
-                    .ConstrainWithin(5, 5)
-                    .EncodeToBytes(new GifEncoder()).FinishWithTimeout(2000)
-                    .WriteJsonJobAndInputs(true))
-                {
-                    jsonPath = job.JsonPath;
-
-                    if (isUnix)
-                    {
-                        Assert.True(File.Exists(jsonPath));
-                    }
-                    else
-                    {
-                        using (var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
-                        {
-                        } // Will throw filenotfoundexception if missing 
-                    }
-                }
+                jsonPath = job.JsonPath;
 
                 if (isUnix)
                 {
-                    Assert.False(File.Exists(jsonPath));
+                    Assert.True(File.Exists(jsonPath));
                 }
                 else
                 {
-
-                    Assert.Throws<FileNotFoundException>(delegate ()
-                    {
-
-                        using (var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
-                        {
-                        }
-                    });
+                    using var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath);
                 }
+            }
+
+            if (isUnix)
+            {
+                Assert.False(File.Exists(jsonPath));
+            }
+            else
+            {
+
+                Assert.Throws<FileNotFoundException>(delegate ()
+                {
+
+                    using var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath);
+                });
             }
         }
 
@@ -89,17 +81,15 @@ namespace Imageflow.Test
             {
                 var imageBytes = Convert.FromBase64String(
                     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-                using (var b = new FluentBuildJob())
-                {
-                    var r = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20).ConstrainWithin(5, 5)
-                        .EncodeToBytes(new GifEncoder()).FinishWithTimeout(2000)
-                        .InSubprocessAsync(imageflowTool);
-                           
-                    // ExecutableLocator.FindExecutable("imageflow_tool", new [] {"/home/n/Documents/imazen/imageflow/target/release/"})
+                using var b = new FluentBuildJob();
+                var r = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20).ConstrainWithin(5, 5)
+.EncodeToBytes(new GifEncoder()).FinishWithTimeout(2000)
+.InSubprocessAsync(imageflowTool);
 
-                    Assert.Equal(5, r.First.Width);
-                    Assert.True(r.First.TryGetBytes().HasValue);
-                }
+                // ExecutableLocator.FindExecutable("imageflow_tool", new [] {"/home/n/Documents/imazen/imageflow/target/release/"})
+
+                Assert.Equal(5, r.First.Width);
+                Assert.True(r.First.TryGetBytes().HasValue);
             }
         }
         
@@ -107,22 +97,20 @@ namespace Imageflow.Test
         public async Task TestCustomDownscaling()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var b = new FluentBuildJob())
+            using var b = new FluentBuildJob();
+            var cmd = new DecodeCommands
             {
-                var cmd = new DecodeCommands
-                {
-                    DownscaleHint = new Size(20, 20),
-                    DownscalingMode = DecderDownscalingMode.Fastest,
-                    DiscardColorProfile = true
-                };
-                var r = await b.Decode(new BytesSource(imageBytes), 0, cmd)
-                    .Distort(30, 20, 50.0f, InterpolationFilter.RobidouxFast, InterpolationFilter.Cubic)
-                    .ConstrainWithin(5, 5)
-                    .EncodeToBytes(new LibPngEncoder()).Finish().InProcessAsync();
+                DownscaleHint = new Size(20, 20),
+                DownscalingMode = DecderDownscalingMode.Fastest,
+                DiscardColorProfile = true
+            };
+            var r = await b.Decode(new BytesSource(imageBytes), 0, cmd)
+                .Distort(30, 20, 50.0f, InterpolationFilter.RobidouxFast, InterpolationFilter.Cubic)
+                .ConstrainWithin(5, 5)
+                .EncodeToBytes(new LibPngEncoder()).Finish().InProcessAsync();
 
-                Assert.Equal(5, r.First.Width);
-                Assert.True(r.First.TryGetBytes().HasValue);
-            }
+            Assert.Equal(5, r.First.Width);
+            Assert.True(r.First.TryGetBytes().HasValue);
 
         }
     }
