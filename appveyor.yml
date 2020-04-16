@@ -148,7 +148,7 @@ deploy:
     draft: false
     prerelease: true
     auth_token:
-        secure: 3h3WYw5/HWY1FxuR89OHsoDenpQWkmGXEFzxTBxLdgID37mmThDEqFM3xyyXk+Tq
+        secure: XNXXYANEz7IQCdQpfqy55ahwrfJJ84bCjRLYjyVrAs0w7m/Nf+X1L4tODqLhBUxw
     on:
       appveyor_repo_tag: true
   - provider: NuGet
