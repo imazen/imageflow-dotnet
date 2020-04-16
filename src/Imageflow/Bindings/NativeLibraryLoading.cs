@@ -423,7 +423,7 @@ namespace Imageflow.Bindings
     internal static class UnixLoadLibrary
     {
         // TODO: unsure if this works on Mac OS X; it might be libc instead
-        [DllImport("libdl.so", SetLastError = true, CharSet = CharSet.Ansi)]
+        [DllImport("libdl.so", SetLastError = true, CharSet = CharSet.Unicode)]
         private static extern IntPtr dlopen(string fileName, int flags);
 
         public static IntPtr Execute(string fileName)
