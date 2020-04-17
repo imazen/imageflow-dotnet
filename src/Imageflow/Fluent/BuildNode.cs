@@ -41,7 +41,7 @@ namespace Imageflow.Fluent
         public BuildNode ConstrainWithin(uint? w, uint? h) => To(new { constrain = new { within = new { w, h } } });
 
     
-        public BuildNode ConstrainWithin(uint? w, uint? h, float? sharpenPercent, InterpolationFilter? downFilter, InterpolationFilter? upFilter, ScalingFloatspace? interpolationColorspace, ResampleWhen? resampleWhen, SharpenWhen? sharpenWhen)
+        public BuildNode ConstrainWithin(uint? w, uint? h, ConstraintResamplingHints hints)
             => To(new
             {
                 constrain = new
@@ -50,32 +50,19 @@ namespace Imageflow.Fluent
                     {
                         w,
                         h,
-                        hints = new
-                        {
-                            sharpen_percent = sharpenPercent,
-                            down_filter = downFilter?.ToString(),
-                            up_filter = upFilter?.ToString(),
-                            scaling_colorspace = interpolationColorspace?.ToString().ToLowerInvariant(),
-                            resample_when = resampleWhen?.ToString().ToLowerInvariant(),
-                            sharpen_when = sharpenWhen?.ToString().ToLowerInvariant()
-                        }
+                        hints = hints?.ToImageflowDynamic()
                     }
                 }
             });
-
-        public BuildNode Distort(uint w, uint h, float? sharpenPercent = null, InterpolationFilter? downFilter = null, InterpolationFilter? upFilter = null)
+        public BuildNode Distort(uint w, uint h) => Distort(w, h, null);
+        public BuildNode Distort(uint w, uint h, ConstraintResamplingHints hints)
             => To(new
             {
                 resample_2d = new
                 {
                     w,
                     h,
-                    hints = new
-                    {
-                        down_filter = downFilter?.ToString(),
-                        up_filter = upFilter?.ToString(),
-                        sharpen_percent = sharpenPercent,
-                    }
+                    hints = hints?.ToImageflowDynamic()
                 }
             });
 
