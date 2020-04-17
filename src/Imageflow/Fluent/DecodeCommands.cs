@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Imageflow.Fluent
 {
-    public enum DecderDownscalingMode
+    public enum DecoderDownscalingMode
     {
         /// <summary>
         /// Use the Imageflow default (usually highest quality)
@@ -30,7 +30,7 @@ namespace Imageflow.Fluent
     {
         public Size? DownscaleHint { get; set; } = Size.Empty;
 
-        public DecderDownscalingMode DownscalingMode { get; set; } = DecderDownscalingMode.Unspecified;
+        public DecoderDownscalingMode DownscalingMode { get; set; } = DecoderDownscalingMode.Unspecified;
 
         public bool DiscardColorProfile { get; set; }
 
@@ -40,8 +40,8 @@ namespace Imageflow.Fluent
                 jpeg_downscale_hints = new {
                     width = DownscaleHint.Value.Width,
                     height  = DownscaleHint.Value.Height,
-                    scale_luma_spatially = DownscalingMode == DecderDownscalingMode.SpatialLumaScaling || DownscalingMode == DecderDownscalingMode.GammaCorrectSpatialLumaScaling,
-                    gamma_correct_for_srgb_during_spatial_luma_scaling = DownscalingMode == DecderDownscalingMode.GammaCorrectSpatialLumaScaling
+                    scale_luma_spatially = DownscalingMode == DecoderDownscalingMode.SpatialLumaScaling || DownscalingMode == DecoderDownscalingMode.GammaCorrectSpatialLumaScaling,
+                    gamma_correct_for_srgb_during_spatial_luma_scaling = DownscalingMode == DecoderDownscalingMode.GammaCorrectSpatialLumaScaling
                 } 
              }: null;
             object ignore = DiscardColorProfile ? new {discard_color_profile = (string) null} : null;
