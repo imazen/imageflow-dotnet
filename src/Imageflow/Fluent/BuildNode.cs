@@ -105,6 +105,17 @@ namespace Imageflow.Fluent
                 }
             });
 
+
+        public BuildNode ResizerCommands(string commandString)
+            => To(new
+            {
+                command_string = new
+                {
+                    kind = "ir4",
+                    value = commandString
+                }
+            });
+
         public BuildNode FlipVertical() => To(new {flip_v = (string)null});
         public BuildNode FlipHorizontal() => To(new {flip_h = (string)null });
         

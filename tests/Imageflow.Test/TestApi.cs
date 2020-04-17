@@ -32,7 +32,20 @@ namespace Imageflow.Test
             }
             
         }
+        [Fact]
+        public async Task TestCommandStringJob()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            using (var b = new FluentBuildJob())
+            {
+                var r = await b.Decode(imageBytes).ResizerCommands("width=3&height=2&mode=stretch&scale=both")
+                    .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
 
+                Assert.Equal(3, r.First.Width);
+                Assert.True(r.First.TryGetBytes().HasValue);
+            }
+
+        }
         [Fact]
         public async Task TestFilesystemJobPrep()
         {
