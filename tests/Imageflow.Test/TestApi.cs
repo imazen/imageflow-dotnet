@@ -19,6 +19,24 @@ namespace Imageflow.Test
         }
 
         [Fact]
+        public async Task TestGetImageInfo()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            using (var c = new JobContext())
+            {
+                c.AddInputBytes(0, imageBytes);
+                var result = c.GetImageInfo(0);
+                var d = result.DeserializeDynamic();
+
+                var width = d.data.image_info.image_width.Value;
+                Assert.Equal(width, 1);
+
+
+            }
+
+        }
+
+        [Fact]
         public async Task TestBuildJob()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");

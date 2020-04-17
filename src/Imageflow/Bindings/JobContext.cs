@@ -64,6 +64,12 @@ namespace Imageflow.Bindings
             return SendJsonBytes("v0.1/execute", JobContext.SerializeToJson(message));
         }
 
+        public IJsonResponseProvider GetImageInfo(int ioId)
+        {
+            AssertReady();
+            return SendJsonBytes("v0.1/get_image_info", JobContext.SerializeToJson(new { io_id = ioId }));
+        }
+
         public IJsonResponseProvider SendJsonBytes(string method, byte[] utf8Json)
         {
             AssertReady();
