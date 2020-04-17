@@ -41,7 +41,7 @@ namespace Imageflow.Fluent
         public BuildNode ConstrainWithin(uint? w, uint? h) => To(new { constrain = new { within = new { w, h } } });
 
     
-        public BuildNode ConstrainWithin(uint? w, uint? h, ConstraintResamplingHints hints)
+        public BuildNode ConstrainWithin(uint? w, uint? h, ResampleHints hints)
             => To(new
             {
                 constrain = new
@@ -55,7 +55,7 @@ namespace Imageflow.Fluent
                 }
             });
         public BuildNode Distort(uint w, uint h) => Distort(w, h, null);
-        public BuildNode Distort(uint w, uint h, ConstraintResamplingHints hints)
+        public BuildNode Distort(uint w, uint h, ResampleHints hints)
             => To(new
             {
                 resample_2d = new

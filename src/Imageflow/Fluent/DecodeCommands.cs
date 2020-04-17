@@ -36,6 +36,7 @@ namespace Imageflow.Fluent
 
         public object[] ToImageflowDynamic()
         {
+            //TODO: Support WebP
             object downscale = DownscaleHint.HasValue ? new { 
                 jpeg_downscale_hints = new {
                     width = DownscaleHint.Value.Width,

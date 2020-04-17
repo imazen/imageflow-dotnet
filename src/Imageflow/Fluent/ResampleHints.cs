@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Imageflow.Fluent
 {
-    public class ConstraintResamplingHints
+    public class ResampleHints
     {
         public SharpenWhen? SharpenWhen { get; set; }
         public ResampleWhen? ResampleWhen { get; set; }
@@ -14,7 +14,7 @@ namespace Imageflow.Fluent
         public InterpolationFilter? DownFilter { get; set; }
         public float? SharpenPercent { get; set; }
 
-        public ConstraintResamplingHints(float? sharpenPercent, SharpenWhen? sharpenWhen, ResampleWhen? resampleWhen, InterpolationFilter? downFilter, InterpolationFilter? upFilter, ScalingFloatspace? interpolationColorspace)
+        public ResampleHints(float? sharpenPercent, SharpenWhen? sharpenWhen, ResampleWhen? resampleWhen, InterpolationFilter? downFilter, InterpolationFilter? upFilter, ScalingFloatspace? interpolationColorspace)
         {
             SharpenPercent = sharpenPercent;
             DownFilter = downFilter;
@@ -24,33 +24,33 @@ namespace Imageflow.Fluent
             SharpenWhen = sharpenWhen;
         }
 
-        public ConstraintResamplingHints()
+        public ResampleHints()
         {
 
         }
 
-        public ConstraintResamplingHints Sharpen(float? sharpenPercent, SharpenWhen? sharpenWhen)
+        public ResampleHints Sharpen(float? sharpenPercent, SharpenWhen? sharpenWhen)
         {
             SharpenPercent = sharpenPercent;
             SharpenWhen = sharpenWhen;
             return this;
         }
 
-        public ConstraintResamplingHints ResampleFilter(InterpolationFilter? downFilter, InterpolationFilter? upFilter)
+        public ResampleHints ResampleFilter(InterpolationFilter? downFilter, InterpolationFilter? upFilter)
         {
             DownFilter = downFilter;
             UpFilter = upFilter;
             return this;
         }
 
-        public ConstraintResamplingHints Resample(ResampleWhen? resampleWhen)
+        public ResampleHints Resample(ResampleWhen? resampleWhen)
         {
 
             ResampleWhen = resampleWhen;
             return this;
         }
 
-        public ConstraintResamplingHints ResampleColorspace( ScalingFloatspace? interpolationColorspace)
+        public ResampleHints ResampleColorspace( ScalingFloatspace? interpolationColorspace)
         {
             InterpolationColorspace = interpolationColorspace;
             return this;

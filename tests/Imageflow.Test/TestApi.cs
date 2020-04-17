@@ -116,7 +116,7 @@ namespace Imageflow.Test
                     DiscardColorProfile = true
                 };
                 var r = await b.Decode(new BytesSource(imageBytes), 0, cmd)
-                    .Distort(30, 20, new ConstraintResamplingHints().Sharpen(50.0f, SharpenWhen.Always).ResampleFilter(InterpolationFilter.RobidouxFast, InterpolationFilter.Cubic))
+                    .Distort(30, 20, new ResampleHints().Sharpen(50.0f, SharpenWhen.Always).ResampleFilter(InterpolationFilter.RobidouxFast, InterpolationFilter.Cubic))
                     .ConstrainWithin(5, 5)
                     .EncodeToBytes(new LibPngEncoder()).Finish().InProcessAsync();
 
