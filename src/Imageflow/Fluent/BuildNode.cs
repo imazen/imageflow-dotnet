@@ -39,7 +39,9 @@ namespace Imageflow.Fluent
 
 
         public BuildNode ConstrainWithin(uint? w, uint? h) => To(new { constrain = new { within = new { w, h } } });
-        public BuildNode ConstrainWithin(uint? w, uint? h, float? sharpenPercent, InterpolationFilter? downFilter, InterpolationFilter? upFilter, ScalingFloatspace? interpolationColorspace, ResampleWhen? resampleWhen)
+
+    
+        public BuildNode ConstrainWithin(uint? w, uint? h, float? sharpenPercent, InterpolationFilter? downFilter, InterpolationFilter? upFilter, ScalingFloatspace? interpolationColorspace, ResampleWhen? resampleWhen, SharpenWhen? sharpenWhen)
             => To(new
             {
                 constrain = new
@@ -54,7 +56,8 @@ namespace Imageflow.Fluent
                             down_filter = downFilter?.ToString(),
                             up_filter = upFilter?.ToString(),
                             scaling_colorspace = interpolationColorspace?.ToString().ToLowerInvariant(),
-                            resample_when = resampleWhen?.ToString().ToLowerInvariant()
+                            resample_when = resampleWhen?.ToString().ToLowerInvariant(),
+                            sharpen_when = sharpenWhen?.ToString().ToLowerInvariant()
                         }
                     }
                 }
@@ -67,10 +70,10 @@ namespace Imageflow.Fluent
                 {
                     w,
                     h,
-                    down_filter = downFilter?.ToString(),
-                    up_filter = upFilter?.ToString(),
                     hints = new
                     {
+                        down_filter = downFilter?.ToString(),
+                        up_filter = upFilter?.ToString(),
                         sharpen_percent = sharpenPercent,
                     }
                 }

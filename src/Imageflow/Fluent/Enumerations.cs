@@ -13,8 +13,16 @@
         Size_Differs_Or_Sharpening_Requested,
         Always
     }
+
+    public enum SharpenWhen
+    {
+        Downscaling,
+        Upscaling,
+        Size_Differs,
+        Always
+    }
     // ReSharper enable InconsistentNaming
-        
+
     public enum ScalingFloatspace {
         Srgb,
         Linear
