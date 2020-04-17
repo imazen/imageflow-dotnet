@@ -66,6 +66,44 @@ namespace Imageflow.Fluent
                 }
             });
 
+        public BuildNode Crop(int x1, int y1, int x2, int y2)
+            => To(new
+            {
+                crop = new
+                {
+                    x1,
+                    y1,
+                    x2,
+                    y2
+                }
+            });
+
+
+        public BuildNode Region(int x1, int y1, int x2, int y2, AnyColor background_color)
+            => To(new
+            {
+                region = new
+                {
+                    x1,
+                    y1,
+                    x2,
+                    y2,
+                    background_color
+                }
+            });
+
+        public BuildNode RegionPercent(float x1, float y1, float x2, float y2, AnyColor background_color)
+            => To(new
+            {
+                region = new
+                {
+                    x1,
+                    y1,
+                    x2,
+                    y2,
+                    background_color
+                }
+            });
 
         public BuildNode FlipVertical() => To(new {flip_v = (string)null});
         public BuildNode FlipHorizontal() => To(new {flip_h = (string)null });
