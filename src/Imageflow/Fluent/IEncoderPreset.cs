@@ -25,4 +25,23 @@
         
         public object ToImageflowDynamic() => new {libjpegturbo = new { quality = Quality, progressive = Progressive, optimize_huffman_coding = OptimizeHuffmanCoding}};
     }
+
+    public class WebPLossyEncoder : IEncoderPreset
+    {
+        public WebPLossyEncoder(float quality)
+        {
+            Quality = quality;
+        }
+        public float? Quality { get; set; }
+
+        public object ToImageflowDynamic() => new { webplossy = new { quality = Quality } };
+    }
+    public class WebPLosslessEncoder : IEncoderPreset
+    {
+        private class Representation
+        {
+            public object webplossless = null;
+        }
+        public object ToImageflowDynamic() => new Representation();
+    }
 }

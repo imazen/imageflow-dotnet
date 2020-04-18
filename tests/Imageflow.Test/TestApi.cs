@@ -74,8 +74,8 @@ namespace Imageflow.Test
             {
                 var r = await b.Decode(imageBytes).
                     Constrain(new Constraint(ConstraintMode.Fit, 160, 120))
-                    .Branch(f => f.ConstrainWithin(80, 60).EncodeToBytes(new GifEncoder()))
-                    .Branch(f => f.ConstrainWithin(40, 30).EncodeToBytes(new LibJpegTurboEncoder()))
+                    .Branch(f => f.ConstrainWithin(80, 60).EncodeToBytes(new WebPLosslessEncoder()))
+                    .Branch(f => f.ConstrainWithin(40, 30).EncodeToBytes(new WebPLossyEncoder(50)))
                     .EncodeToBytes(new LibPngEncoder())
                     .Finish().InProcessAsync();
 
