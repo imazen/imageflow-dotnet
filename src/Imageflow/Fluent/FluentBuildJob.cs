@@ -375,14 +375,7 @@ namespace Imageflow.Fluent
         internal object ToFramewise()
         {
             var nodes = CollectUnique();
-            if (nodes.All(n => n.Canvas == null) && nodes.Count(n => n.Canvas == null && n.Input == null) == 1)
-            {
-                return new {steps = nodes.OrderBy(n => n.Uid).Select(n => n.NodeData).ToList()};
-            }
-            else
-            {
-                return ToFramewiseGraph(nodes);
-            }
+            return ToFramewiseGraph(nodes);
         }
 
         private object ToFramewiseGraph(ICollection<BuildItemBase> uniqueNodes)

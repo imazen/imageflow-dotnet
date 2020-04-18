@@ -32,8 +32,6 @@ namespace Imageflow.Test
                 Assert.Equal(result.PreferredExtension, "png");
                 Assert.Equal(result.PreferredMimeType, "image/png");
                 Assert.Equal(result.FrameDecodesInto, PixelFormat.Bgr_32);
-
-
             }
 
         }
@@ -68,6 +66,28 @@ namespace Imageflow.Test
             }
 
         }
+        [Fact]
+        public async Task TestMultipleOutputs()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            using (var b = new FluentBuildJob())
+            {
+                var r = await b.Decode(imageBytes).
+                    Constrain(new Constraint(ConstraintMode.Fit, 160, 120))
+                    .Branch(f => f.ConstrainWithin(80, 60).EncodeToBytes(new GifEncoder()))
+                    .Branch(f => f.ConstrainWithin(40, 30).EncodeToBytes(new LibJpegTurboEncoder()))
+                    .EncodeToBytes(new LibPngEncoder())
+                    .Finish().InProcessAsync();
+
+                Assert.Equal(60, r.TryGet(1).Width);
+                Assert.Equal(30, r.TryGet(2).Width);
+                Assert.Equal(120, r.TryGet(3).Width);
+                Assert.True(r.First.TryGetBytes().HasValue);
+            }
+
+        }
+
+
 
         [Fact]
         public async Task TestCommandStringJob()
