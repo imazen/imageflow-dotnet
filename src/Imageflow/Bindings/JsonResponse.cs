@@ -85,7 +85,11 @@ namespace Imageflow.Bindings
                 return JsonSerializer.Create().Deserialize(new JsonTextReader(reader));
         }
 
-        public static string GetString(this IJsonResponseProvider p) => new StreamReader(p.GetStream(), Encoding.UTF8).ReadToEnd();
+        public static string GetString(this IJsonResponseProvider p)
+        {
+            using (var s = new StreamReader(p.GetStream(), Encoding.UTF8))
+                return s.ReadToEnd();
+        }
 
     }
 }

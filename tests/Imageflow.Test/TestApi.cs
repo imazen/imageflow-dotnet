@@ -26,10 +26,12 @@ namespace Imageflow.Test
             {
                 c.AddInputBytes(0, imageBytes);
                 var result = c.GetImageInfo(0);
-                var d = result.DeserializeDynamic();
 
-                var width = d.data.image_info.image_width.Value;
-                Assert.Equal(width, 1);
+                Assert.Equal(result.ImageWidth, 1);
+                Assert.Equal(result.ImageHeight, 1);
+                Assert.Equal(result.PreferredExtension, "png");
+                Assert.Equal(result.PreferredMimeType, "image/png");
+                Assert.Equal(result.FrameDecodesInto, PixelFormat.Bgr_32);
 
 
             }

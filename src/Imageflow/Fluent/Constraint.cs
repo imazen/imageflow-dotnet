@@ -6,7 +6,7 @@ namespace Imageflow.Fluent
 {
     public class Constraint
     {
-        public Constraint(ConstraintMode mode, uint? w, uint? h, ResampleHints hints, AnyColor canvasColor)
+        public Constraint(ConstraintMode mode, uint? w, uint? h, ResampleHints hints, AnyColor? canvasColor)
         {
             Mode = mode;
             W = w;
@@ -21,21 +21,21 @@ namespace Imageflow.Fluent
             W = w;
             H = h;
         }
-        ConstraintMode Mode { get; set; }
+        ConstraintMode Mode { get; set; } = ConstraintMode.Within;
         uint? W { get; set; }
         uint? H { get; set; }
         ResampleHints Hints { get; set; }
-        AnyColor CanvasColor { get; set; }
+        AnyColor? CanvasColor { get; set; }
 
         public object ToImageflowDynamic()
         {
             return new
             {
-                mode = Mode.ToString().ToLowerInvariant(),
+                mode = Mode.ToString()?.ToLowerInvariant(),
                 w = W,
                 h = H,
-                hints = Hints.ToImageflowDynamic(),
-                canvas_color = CanvasColor.ToImageflowDynamic()
+                hints = Hints?.ToImageflowDynamic(),
+                canvas_color = CanvasColor?.ToImageflowDynamic()
 
             };
         }

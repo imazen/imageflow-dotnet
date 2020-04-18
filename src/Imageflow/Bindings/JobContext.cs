@@ -64,10 +64,21 @@ namespace Imageflow.Bindings
             return SendJsonBytes("v0.1/execute", JobContext.SerializeToJson(message));
         }
 
-        public IJsonResponseProvider GetImageInfo(int ioId)
+        public ImageInfo GetImageInfo(int ioId)
         {
             AssertReady();
-            return SendJsonBytes("v0.1/get_image_info", JobContext.SerializeToJson(new { io_id = ioId }));
+            using (var response = SendJsonBytes("v0.1/get_image_info", JobContext.SerializeToJson(new { io_id = ioId })))
+            {
+                var responseDynamic = response.DeserializeDynamic();
+                if (responseDynamic.success.Value == true)
+                {
+                    return ImageInfo.FromDynamic(responseDynamic.data.image_info);
+                }
+                else
+                {
+                    throw ImageflowException.FromContext(this.Handle);
+                }
+            }
         }
 
         public IJsonResponseProvider SendJsonBytes(string method, byte[] utf8Json)

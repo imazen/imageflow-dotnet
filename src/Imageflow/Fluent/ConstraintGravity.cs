@@ -19,8 +19,8 @@ namespace Imageflow.Net.Fluent
             x = x_percent;
             y = y_percent;
         }
-        float x;
-        float y;
+        readonly float x;
+        readonly float y;
 
         public object ToImageflowDynamic()
         {

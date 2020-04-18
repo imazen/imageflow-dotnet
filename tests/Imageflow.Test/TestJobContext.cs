@@ -192,7 +192,7 @@ namespace Imageflow.Test
                     {
                         steps = new object[] {
                             new { create_canvas = new { w= Width, h = Height, color = "black" , format = "bgr_32" } },
-                            new { constrain = new { within = new { w=ResizedWidth, h =ResizedHeight } } },
+                            new { constrain = new { mode="within", w=ResizedWidth, h =ResizedHeight } } ,
                             new { flow_bitmap_bgra_ptr = new { ptr_to_flow_bitmap_bgra_ptr =  (ulong)&bitmap  } }
                         }
                     }
