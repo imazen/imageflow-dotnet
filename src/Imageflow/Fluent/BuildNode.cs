@@ -53,6 +53,8 @@ namespace Imageflow.Fluent
 
                 }
             });
+
+        public BuildNode Constrain(Constraint constraint) => To(constraint.ToImageflowDynamic());
         public BuildNode Distort(uint w, uint h) => Distort(w, h, null);
         public BuildNode Distort(uint w, uint h, ResampleHints hints)
             => To(new

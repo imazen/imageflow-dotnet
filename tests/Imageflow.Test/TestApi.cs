@@ -19,7 +19,7 @@ namespace Imageflow.Test
         }
 
         [Fact]
-        public async Task TestGetImageInfo()
+        public void TestGetImageInfo()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
             using (var c = new JobContext())
@@ -50,6 +50,23 @@ namespace Imageflow.Test
             }
             
         }
+        [Fact]
+        public async Task TestConstraints()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            using (var b = new FluentBuildJob())
+            {
+                var r = await b.Decode(imageBytes).
+                    Constrain(new Constraint(ConstraintMode.Fit_Crop,10,20))
+                    .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
+
+                Assert.Equal(10, r.First.Width);
+                Assert.Equal(20, r.First.Height);
+                Assert.True(r.First.TryGetBytes().HasValue);
+            }
+
+        }
+
         [Fact]
         public async Task TestCommandStringJob()
         {

@@ -75,4 +75,32 @@
         Png_32,
         Png_24,
     }
+
+
+    public enum ConstraintMode
+    {
+        /// Distort the image to exactly the given dimensions.
+        /// If only one dimension is specified, behaves like `fit`.
+        Distort,
+        /// Ensure the result fits within the provided dimensions. No upscaling.
+        Within,
+        /// Fit the image within the dimensions, upscaling if needed
+        Fit,
+        /// Ensure the image is larger than the given dimensions
+        Larger_Than,
+        /// Crop to desired aspect ratio if image is larger than requested, then downscale. Ignores smaller images.
+        /// If only one dimension is specified, behaves like `within`.
+        Within_Crop,
+        /// Crop to desired aspect ratio, then downscale or upscale to fit.
+        /// If only one dimension is specified, behaves like `fit`.
+        Fit_Crop,
+        /// Crop to desired aspect ratio, no upscaling or downscaling. If only one dimension is specified, behaves like Fit.
+        Aspect_Crop,
+        /// Pad to desired aspect ratio if image is larger than requested, then downscale. Ignores smaller images.
+        /// If only one dimension is specified, behaves like `within`
+        Within_Pad,
+        /// Pad to desired aspect ratio, then downscale or upscale to fit
+        /// If only one dimension is specified, behaves like `fit`.
+        Fit_Pad,
+    }
 }
