@@ -38,7 +38,7 @@ namespace Imageflow.Fluent
         private BuildNode NodeWithCanvas(BuildNode canvas, object data) => new BuildNode(Builder, data, this, canvas);
 
 
-        public BuildNode ConstrainWithin(uint? w, uint? h) => To(new { constrain = new { within = new { w, h } } });
+        public BuildNode ConstrainWithin(uint? w, uint? h) => To(new { constrain = new {mode="within", w, h } });
 
     
         public BuildNode ConstrainWithin(uint? w, uint? h, ResampleHints hints)
@@ -46,12 +46,11 @@ namespace Imageflow.Fluent
             {
                 constrain = new
                 {
-                    within = new
-                    {
-                        w,
-                        h,
-                        hints = hints?.ToImageflowDynamic()
-                    }
+                    mode = "within",
+                    w,
+                    h,
+                    hints = hints?.ToImageflowDynamic()
+
                 }
             });
         public BuildNode Distort(uint w, uint h) => Distort(w, h, null);
@@ -136,8 +135,8 @@ namespace Imageflow.Fluent
             {
                 from_x = area.X,
                 from_y = area.Y,
-                width = area.Width,
-                height = area.Height,
+                w = area.Width,
+                h = area.Height,
                 x = to.X,
                 y = to.Y
             }
