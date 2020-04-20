@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Imageflow.Net.Fluent
+namespace Imageflow.Fluent
 {
     public class ConstraintGravity
     {

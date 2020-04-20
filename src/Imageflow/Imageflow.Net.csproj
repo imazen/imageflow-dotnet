@@ -15,6 +15,7 @@
     <Description>Bindings for the Imageflow image processing library. Also remember to install Imageflow.NativeBinaries.[your platform]</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>7.1</LangVersion>
+    <RootNamespace>Imageflow</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.2.2" />
