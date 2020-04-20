@@ -67,8 +67,28 @@ namespace Imageflow.Fluent
         public BuildNode Decode(ArraySegment<byte> source, int ioId) => Decode( new BytesSource(source), ioId);
         public BuildNode Decode(byte[] source, int ioId) => Decode( new BytesSource(source), ioId);
         public BuildNode Decode(Stream source, bool disposeStream, int ioId) => Decode( new StreamSource(source, disposeStream), ioId);
-        
-        
+
+        public BuildEndpoint BuildCommandString(byte[] source, IOutputDestination dest, string commandString) => BuildCommandString(new BytesSource(source), dest, commandString);
+
+        public BuildEndpoint BuildCommandString(IBytesSource source, IOutputDestination dest, string commandString) => BuildCommandString(source, 0, dest, 1, commandString);
+
+        public BuildEndpoint BuildCommandString(IBytesSource source, int sourceIoId, IOutputDestination dest, int destIoId, string commandString)
+        {
+            AddInput(sourceIoId, source);
+            AddOutput(destIoId, dest);
+            dynamic nodeData = new
+            {
+                command_string = new
+                {
+                    kind = "ir4",
+                    value = commandString,
+                    decode = sourceIoId,
+                    encode = destIoId
+                }
+            };
+            return new BuildEndpoint(this, nodeData, null, null);
+            
+        }
 
         public  Task<BuildJobResult> FinishAsync() => FinishAsync(default);
         public async Task<BuildJobResult> FinishAsync(CancellationToken cancellationToken)

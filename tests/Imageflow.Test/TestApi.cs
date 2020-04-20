@@ -90,7 +90,7 @@ namespace Imageflow.Test
 
 
         [Fact]
-        public async Task TestCommandStringJob()
+        public async Task TestJobWithCommandString()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
             using (var b = new FluentBuildJob())
@@ -103,6 +103,23 @@ namespace Imageflow.Test
             }
 
         }
+
+        [Fact]
+        public async Task TestBuildCommandString()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            using (var b = new FluentBuildJob())
+            {
+                var r = await b.BuildCommandString(imageBytes, new BytesDestination(), "width=3&height=2&mode=stretch&scale=both&format=webp").Finish().InProcessAsync();
+
+                Assert.Equal(3, r.First.Width);
+                Assert.Equal("webp", r.First.PreferredExtension);
+                Assert.True(r.First.TryGetBytes().HasValue);
+            }
+
+        }
+
+
         [Fact]
         public async Task TestFilesystemJobPrep()
         {
