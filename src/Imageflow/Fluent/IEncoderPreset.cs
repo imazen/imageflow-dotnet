@@ -38,10 +38,6 @@
     }
     public class WebPLosslessEncoder : IEncoderPreset
     {
-        private class Representation
-        {
-            public object webplossless = null;
-        }
-        public object ToImageflowDynamic() => new Representation();
+        public object ToImageflowDynamic() => new { webplossless = (string)null };
     }
 }
