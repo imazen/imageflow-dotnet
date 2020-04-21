@@ -21,7 +21,7 @@ Note: You must install the [appropriate NativeRuntime(s)](https://www.nuget.org/
 [NativeRuntimes](https://www.nuget.org/packages?q=Imageflow+AND+NativeRuntime) that are suffixed with -haswell (2013, AVX2 support) require a CPU of that generation or later. 
 
 
-## [Examples are in the tests](https://github.com/imazen/imageflow-dotnet/tree/master/tests/Imageflow.Test)
+## [Examples are in the tests](https://github.com/imazen/imageflow-dotnet/blob/master/tests/Imageflow.Test/TestApi.cs)
 
 
 * [Project source and issue site](https://github.com/imazen/imageflow-dotnet)
