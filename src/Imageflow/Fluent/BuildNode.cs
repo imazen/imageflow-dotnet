@@ -107,6 +107,12 @@ namespace Imageflow.Fluent
             });
 
 
+        /// <summary>
+        /// Does not honor encoding or decoding parameters. Use FluentBuildJob.BuildCommandString() instead unless
+        /// you are actually combining this node with others in a job. 
+        /// </summary>
+        /// <param name="commandString"></param>
+        /// <returns></returns>
         public BuildNode ResizerCommands(string commandString)
             => To(new
             {
