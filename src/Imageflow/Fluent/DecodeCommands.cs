@@ -28,25 +28,38 @@ namespace Imageflow.Fluent
     
     public class DecodeCommands
     {
-        public Size? DownscaleHint { get; set; } = Size.Empty;
+        public Size? JpegDownscaleHint { get; set; }
 
-        public DecoderDownscalingMode DownscalingMode { get; set; } = DecoderDownscalingMode.Unspecified;
+        public DecoderDownscalingMode JpegDownscalingMode { get; set; } = DecoderDownscalingMode.Unspecified;
 
+        public Size? WebpDownscaleHint { get; set; }
+        
         public bool DiscardColorProfile { get; set; }
 
         public object[] ToImageflowDynamic()
         {
-            //TODO: Support WebP
-            object downscale = DownscaleHint.HasValue ? new { 
+            object downscale = JpegDownscaleHint.HasValue ? new { 
                 jpeg_downscale_hints = new {
-                    width = DownscaleHint.Value.Width,
-                    height  = DownscaleHint.Value.Height,
-                    scale_luma_spatially = DownscalingMode == DecoderDownscalingMode.SpatialLumaScaling || DownscalingMode == DecoderDownscalingMode.GammaCorrectSpatialLumaScaling,
-                    gamma_correct_for_srgb_during_spatial_luma_scaling = DownscalingMode == DecoderDownscalingMode.GammaCorrectSpatialLumaScaling
+                    width = JpegDownscaleHint.Value.Width,
+                    height  = JpegDownscaleHint.Value.Height,
+                    scale_luma_spatially = JpegDownscalingMode == DecoderDownscalingMode.SpatialLumaScaling || JpegDownscalingMode == DecoderDownscalingMode.GammaCorrectSpatialLumaScaling,
+                    gamma_correct_for_srgb_during_spatial_luma_scaling = JpegDownscalingMode == DecoderDownscalingMode.GammaCorrectSpatialLumaScaling
                 } 
              }: null;
+            object downscaleWebp = WebpDownscaleHint.HasValue
+                ? new
+                {
+                    webp_decoder_hints = new
+                    {
+                        width = WebpDownscaleHint.Value.Width,
+                        height = WebpDownscaleHint.Value.Height
+                    }
+                }
+                : null;
+            
+                
             object ignore = DiscardColorProfile ? new {discard_color_profile = (string) null} : null;
-            return new [] {downscale, ignore}.Where(obj => obj != null).ToArray();
+            return new [] {downscale, ignore, downscaleWebp}.Where(obj => obj != null).ToArray();
         }
     }
 }

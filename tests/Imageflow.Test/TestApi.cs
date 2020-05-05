@@ -198,8 +198,8 @@ namespace Imageflow.Test
             {
                 var cmd = new DecodeCommands
                 {
-                    DownscaleHint = new Size(20, 20),
-                    DownscalingMode = DecoderDownscalingMode.Fastest,
+                    JpegDownscaleHint = new Size(20, 20),
+                    JpegDownscalingMode = DecoderDownscalingMode.Fastest,
                     DiscardColorProfile = true
                 };
                 var r = await b.Decode(new BytesSource(imageBytes), 0, cmd)
