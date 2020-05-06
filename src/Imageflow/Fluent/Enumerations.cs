@@ -28,39 +28,31 @@
         Linear
     }
     public enum InterpolationFilter {
-        RobidouxFast = 1,
+        Robidoux_Fast = 1,
         Robidoux = 2,
-        RobidouxSharp = 3,
+        Robidoux_Sharp = 3,
         Ginseng = 4,
-        GinsengSharp = 5,
+        Ginseng_Sharp = 5,
         Lanczos = 6,
-        LanczosSharp = 7,
-        Lanczos2 = 8,
-        Lanczos2Sharp = 9,
-        CubicFast = 10,
+        Lanczos_Sharp = 7,
+        Lanczos_2 = 8,
+        Lanczos_2_Sharp = 9,
         Cubic = 11,
-        CubicSharp = 12,
-        CatmullRom = 13,
+        Cubic_Sharp = 12,
+        Catmull_Rom = 13,
         Mitchell = 14,
     
-        CubicBSpline = 15,
+        Cubic_B_Spline = 15,
         Hermite = 16,
         Jinc = 17,
-        RawLanczos3 = 18,
-        RawLanczos3Sharp = 19,
-        RawLanczos2 = 20,
-        RawLanczos2Sharp = 21,
         Triangle = 22,
         Linear = 23,
         Box = 24,
-        CatmullRomFast = 25,
-        CatmullRomFastSharp = 26,
-    
+
         Fastest = 27,
     
-        MitchellFast = 28,
-        NCubic = 29,
-        NCubicSharp = 30,
+        N_Cubic = 29,
+        N_Cubic_Sharp = 30,
     }
 
 

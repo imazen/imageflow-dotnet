@@ -61,8 +61,8 @@ namespace Imageflow.Fluent
             return new
             {
                 sharpen_percent = SharpenPercent,
-                down_filter = DownFilter?.ToString(),
-                up_filter = UpFilter?.ToString(),
+                down_filter = DownFilter?.ToString().ToLowerInvariant(),
+                up_filter = UpFilter?.ToString().ToLowerInvariant(),
                 scaling_colorspace = InterpolationColorspace?.ToString().ToLowerInvariant(),
                 resample_when = ResampleWhen?.ToString().ToLowerInvariant(),
                 sharpen_when = SharpenWhen?.ToString().ToLowerInvariant()
