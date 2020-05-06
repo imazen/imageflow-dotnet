@@ -124,7 +124,7 @@ namespace Imageflow.Fluent
         public BuildNode RegionPercent(float x1, float y1, float x2, float y2, AnyColor backgroundColor)
             => To(new
             {
-                region = new
+                region_percent = new
                 {
                     x1,
                     y1,
