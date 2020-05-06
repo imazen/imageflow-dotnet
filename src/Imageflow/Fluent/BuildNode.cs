@@ -67,6 +67,14 @@ namespace Imageflow.Fluent
                 }
             });
 
+        /// <summary>
+        /// Crops the image to the given coordinates
+        /// </summary>
+        /// <param name="x1"></param>
+        /// <param name="y1"></param>
+        /// <param name="x2"></param>
+        /// <param name="y2"></param>
+        /// <returns></returns>
         public BuildNode Crop(int x1, int y1, int x2, int y2)
             => To(new
             {
@@ -79,8 +87,17 @@ namespace Imageflow.Fluent
                 }
             });
 
-
-        public BuildNode Region(int x1, int y1, int x2, int y2, AnyColor background_color)
+        /// <summary>
+        /// Region is like a crop command, but you can specify coordinates outside of the image and
+        /// thereby add padding. It's like a window. Coordinates are in pixels.
+        /// </summary>
+        /// <param name="x1"></param>
+        /// <param name="y1"></param>
+        /// <param name="x2"></param>
+        /// <param name="y2"></param>
+        /// <param name="backgroundColor"></param>
+        /// <returns></returns>
+        public BuildNode Region(int x1, int y1, int x2, int y2, AnyColor backgroundColor)
             => To(new
             {
                 region = new
@@ -89,11 +106,22 @@ namespace Imageflow.Fluent
                     y1,
                     x2,
                     y2,
-                    background_color
+                    background_color = backgroundColor
                 }
             });
 
-        public BuildNode RegionPercent(float x1, float y1, float x2, float y2, AnyColor background_color)
+        /// <summary>
+        /// Region is like a crop command, but you can specify coordinates outside of the image and
+        /// thereby add padding. It's like a window.
+        /// You can specify a region as a percentage of the image's width and height.
+        /// </summary>
+        /// <param name="x1"></param>
+        /// <param name="y1"></param>
+        /// <param name="x2"></param>
+        /// <param name="y2"></param>
+        /// <param name="backgroundColor"></param>
+        /// <returns></returns>
+        public BuildNode RegionPercent(float x1, float y1, float x2, float y2, AnyColor backgroundColor)
             => To(new
             {
                 region = new
@@ -102,10 +130,27 @@ namespace Imageflow.Fluent
                     y1,
                     x2,
                     y2,
-                    background_color
+                    background_color = backgroundColor
                 }
             });
-
+        
+         /// <summary>
+         ///
+         /// </summary>
+         /// <param name="threshold">(1..255). determines how much noise/edges to tolerate before cropping
+         /// is finalized. 80 is a good starting point.</param>
+         /// <param name="percentPadding">determines how much of the image to restore after cropping to
+         /// provide some padding. 0.5 (half a percent) is a good starting point.</param>
+         /// <returns></returns>
+        public BuildNode CropWhitespace(int threshold, float percentPadding)
+            => To(new
+            {
+                crop_whitespace = new
+                {
+                    threshold,
+                    percent_padding = percentPadding
+                }
+            });
 
         /// <summary>
         /// Does not honor encoding or decoding parameters. Use FluentBuildJob.BuildCommandString() instead unless
