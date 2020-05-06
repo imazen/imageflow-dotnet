@@ -106,7 +106,7 @@ namespace Imageflow.Fluent
                     y1,
                     x2,
                     y2,
-                    background_color = backgroundColor
+                    background_color = backgroundColor.ToImageflowDynamic()
                 }
             });
 
@@ -130,7 +130,7 @@ namespace Imageflow.Fluent
                     y1,
                     x2,
                     y2,
-                    background_color = backgroundColor
+                    background_color = backgroundColor.ToImageflowDynamic()
                 }
             });
         
