@@ -281,7 +281,74 @@ namespace Imageflow.Fluent
                     threshold
                 }
             });
+        
+        /// <summary>
+        /// Set the transparency of the image from 0 (transparent) to 1 (opaque)
+        /// </summary>
+        /// <param name="opacity"></param>
+        /// <returns></returns>
+        public BuildNode TransparencySrgb(float opacity)
+            => To(new
+            {
+                color_filter_srgb = new
+                {
+                    alpha = opacity
+                }
+            });
+        
+        /// <summary>
+        /// Adjust contrast between -1 and 1. 
+        /// </summary>
+        /// <param name="amount">-1...1</param>
+        /// <returns></returns>
+        public BuildNode ContrastSrgb(float amount)
+            => To(new
+            {
+                color_filter_srgb = new
+                {
+                    contrast = amount
+                }
+            });
+        
+        /// <summary>
+        /// Adjust brightness between -1 and 1. 
+        /// </summary>
+        /// <param name="amount">-1...1</param>
+        /// <returns></returns>
+        public BuildNode BrightnessSrgb(float amount)
+            => To(new
+            {
+                color_filter_srgb = new
+                {
+                    brightness = amount
+                }
+            });
+        
+        /// <summary>
+        /// Adjust saturation between -1 and 1. 
+        /// </summary>
+        /// <param name="amount">-1...1</param>
+        /// <returns></returns>
+        public BuildNode SaturationSrgb(float amount)
+            => To(new
+            {
+                color_filter_srgb = new
+                {
+                    saturation = amount
+                }
+            });
 
+        /// <summary>
+        /// Apply filters like grayscale, sepia, or inversion in the sRGB color space
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public BuildNode ColorFilterSrgb(ColorFilterSrgb filter)
+            => To(new
+            {
+                color_filter_srgb = filter.ToString().ToLowerInvariant()
+            });
+            
 //        public BuildNode Clone() => new BuildNode(NodeData,Input,Canvas,Uid);
 //        public BuildNode Branch() => Clone();
         

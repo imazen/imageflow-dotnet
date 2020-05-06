@@ -82,6 +82,16 @@
         Overwrite
     }
 
+    public enum ColorFilterSrgb
+    {
+        Grayscale_Ntsc,
+        Grayscale_Flat,
+        Grayscale_Bt709,
+        Grayscale_Ry,
+        Sepia,
+        Invert
+    }
+
     public enum ConstraintMode
     {
         /// Distort the image to exactly the given dimensions.
