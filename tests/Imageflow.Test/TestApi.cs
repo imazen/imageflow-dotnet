@@ -31,7 +31,7 @@ namespace Imageflow.Test
                 Assert.Equal(result.ImageHeight, 1);
                 Assert.Equal(result.PreferredExtension, "png");
                 Assert.Equal(result.PreferredMimeType, "image/png");
-                Assert.Equal(result.FrameDecodesInto, PixelFormat.Bgr_32);
+                Assert.Equal(result.FrameDecodesInto, PixelFormat.Bgra_32);
             }
 
         }
