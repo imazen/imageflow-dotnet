@@ -225,6 +225,27 @@ namespace Imageflow.Fluent
                 }
             });
         
+        /// <summary>
+        /// Adds padding of the given color by enlarging the canvas on the sides specified.
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="top"></param>
+        /// <param name="right"></param>
+        /// <param name="bottom"></param>
+        /// <param name="color"></param>
+        /// <returns></returns>
+        public BuildNode ExpandCanvas(int left, int top, int right, int bottom, AnyColor color)
+            => To(new
+            {
+                expand_canvas = new
+                {
+                    left,
+                    top,
+                    right,
+                    bottom,
+                    color = color.ToImageflowDynamic()
+                }
+            });
         
 
 //        public BuildNode Clone() => new BuildNode(NodeData,Input,Canvas,Uid);
