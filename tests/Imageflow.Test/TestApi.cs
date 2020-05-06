@@ -128,6 +128,34 @@ namespace Imageflow.Test
             }
 
         }
+        [Fact]
+        public async Task TestMultipleInputs()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            using (var b = new FluentBuildJob())
+            {
+
+                var canvas = b.Decode(imageBytes)
+                    .Distort(30, 30);
+                    
+                var r = await b.Decode(imageBytes)
+                    .Distort(20, 20)
+                    .FillRectangle(5, 5, 15, 15, AnyColor.FromHexSrgb("FFEECC"))
+                    .TransparencySrgb(0.5f)
+                    .DrawImageExactTo(canvas, 
+                        new Rectangle(5,5,25,25),
+                        new ResampleHints(),
+                        CompositingMode.Compose)
+                    .EncodeToBytes(new LodePngEncoder())
+                    .Finish().InProcessAsync();
+
+                Assert.Equal(30, r.TryGet(2).Width);
+                Assert.True(r.First.TryGetBytes().HasValue);
+            }
+
+        }
+
+        
 
 
 
