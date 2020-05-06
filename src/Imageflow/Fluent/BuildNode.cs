@@ -182,6 +182,14 @@ namespace Imageflow.Fluent
             return this;
         } 
 
+        /// <summary>
+        /// Copies (not composes) the given rectangle from input to canvas.
+        /// You cannot copy from a BGRA input to a BGR canvas. 
+        /// </summary>
+        /// <param name="canvas"></param>
+        /// <param name="area"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
         public BuildNode CopyRectTo(BuildNode canvas, Rectangle area, Point to) => NodeWithCanvas(canvas, new
         {
             copy_rect_to_canvas = new
@@ -194,6 +202,30 @@ namespace Imageflow.Fluent
                 y = to.Y
             }
         });
+        
+        /// <summary>
+        /// Fills the given rectangle with the specified color
+        /// </summary>
+        /// <param name="x1"></param>
+        /// <param name="y1"></param>
+        /// <param name="x2"></param>
+        /// <param name="y2"></param>
+        /// <param name="color"></param>
+        /// <returns></returns>
+        public BuildNode FillRectangle(int x1, int y1, int x2, int y2, AnyColor color)
+            => To(new
+            {
+                fill_rect = new
+                {
+                    x1,
+                    y1,
+                    x2,
+                    y2,
+                    color = color.ToImageflowDynamic()
+                }
+            });
+        
+        
 
 //        public BuildNode Clone() => new BuildNode(NodeData,Input,Canvas,Uid);
 //        public BuildNode Branch() => Clone();
