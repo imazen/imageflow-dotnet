@@ -76,6 +76,11 @@
         Png_24,
     }
 
+    public enum CompositingMode
+    {
+        Compose,
+        Overwrite
+    }
 
     public enum ConstraintMode
     {

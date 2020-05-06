@@ -204,6 +204,28 @@ namespace Imageflow.Fluent
         });
         
         /// <summary>
+        /// Draws the input image to the given rectangle on the canvas, distorting if the aspect ratios differ.
+        /// 
+        /// </summary>
+        /// <param name="canvas"></param>
+        /// <param name="to"></param>
+        /// <param name="hints"></param>
+        /// <param name="blend"></param>
+        /// <returns></returns>
+        public BuildNode DrawImageExactTo(BuildNode canvas, Rectangle to, ResampleHints hints, CompositingMode? blend) => NodeWithCanvas(canvas, new
+        {
+            draw_image_exact = new
+            {
+                w = to.Width,
+                h = to.Height,
+                x = to.X,
+                y = to.Y,
+                blend = blend?.ToString()?.ToLowerInvariant(),
+                hints = hints?.ToImageflowDynamic()
+            }
+        });
+        
+        /// <summary>
         /// Fills the given rectangle with the specified color
         /// </summary>
         /// <param name="x1"></param>
