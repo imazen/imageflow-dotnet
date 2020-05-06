@@ -42,13 +42,55 @@ namespace Imageflow.Test
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
             using (var b = new FluentBuildJob())
             {
-                var r = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20).ConstrainWithin(5, 5)
+                var r = await b.Decode(imageBytes)
+                    .FlipHorizontal()
+                    .Rotate90()
+                    .Distort(30, 20)
+                    .ConstrainWithin(5, 5)
                     .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
 
                 Assert.Equal(5, r.First.Width);
                 Assert.True(r.First.TryGetBytes().HasValue);
             }
-            
+        }
+        
+        [Fact]
+        public async Task TestAllJob()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            using (var b = new FluentBuildJob())
+            {
+                var r = await b.Decode(imageBytes)
+                    .FlipVertical()
+                    .FlipHorizontal()
+                    .Rotate90()
+                    .Rotate180()
+                    .Rotate270()
+                    .CropWhitespace(80, 0.5f)
+                    .Distort(30, 20)
+                    .Crop(0,0,10,10)
+                    .Region(-5,-5,10,10, AnyColor.Black)
+                    .RegionPercent(-10f, -10f, 110f, 110f, AnyColor.Transparent)    
+                    .BrightnessSrgb(-1f)
+                    .ContrastSrgb(1f)
+                    .SaturationSrgb(1f)
+                    .ColorFilterSrgb(ColorFilterSrgb.Invert)
+                    .ColorFilterSrgb(ColorFilterSrgb.Sepia)
+                    .ColorFilterSrgb(ColorFilterSrgb.Grayscale_Bt709)
+                    .ColorFilterSrgb(ColorFilterSrgb.Grayscale_Flat)
+                    .ColorFilterSrgb(ColorFilterSrgb.Grayscale_Ntsc)
+                    .ColorFilterSrgb(ColorFilterSrgb.Grayscale_Ry)
+                    .ExpandCanvas(5,5,5,5,AnyColor.FromHexSrgb("FFEECCFF"))
+                    .Transpose()
+                    .FillRectangle(2,2,8,8, AnyColor.Black)
+                    .ResizerCommands("width=10&height=10&mode=crop")
+                    .WhiteBalanceSrgb(80)
+                    .ConstrainWithin(5, 5)
+                    .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
+
+                Assert.Equal(5, r.First.Width);
+                Assert.True(r.First.TryGetBytes().HasValue);
+            }
         }
         [Fact]
         public async Task TestConstraints()
