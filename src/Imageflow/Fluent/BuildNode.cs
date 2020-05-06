@@ -246,7 +246,19 @@ namespace Imageflow.Fluent
                     color = color.ToImageflowDynamic()
                 }
             });
-        
+        /// <summary>
+        /// This command is not endorsed as it operates in the sRGB space and does not produce perfect results.
+        /// </summary>
+        /// <param name="threshold"></param>
+        /// <returns></returns>
+        public BuildNode WhiteBalanceSrgb(int threshold)
+            => To(new
+            {
+                white_balance_histogram_area_threshold_srgb = new
+                {
+                    threshold
+                }
+            });
 
 //        public BuildNode Clone() => new BuildNode(NodeData,Input,Canvas,Uid);
 //        public BuildNode Branch() => Clone();
