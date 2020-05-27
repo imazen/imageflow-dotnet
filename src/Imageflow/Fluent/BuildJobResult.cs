@@ -17,7 +17,7 @@ namespace Imageflow.Fluent
         public IOutputDestination Destination { get; internal set;}
         
         /// <summary>
-        /// If this Destination is a BytesDestination, returns the ArraySegment - otherwis enull
+        /// If this Destination is a BytesDestination, returns the ArraySegment - otherwise null
         /// Returns the byte segment for the given output ID (if that output is a BytesDestination)
         /// </summary>
         public ArraySegment<byte>? TryGetBytes() => (Destination is BytesDestination d) ? d.GetBytes() : (ArraySegment<byte>?)null;
