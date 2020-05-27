@@ -94,6 +94,25 @@ namespace Imageflow.Bindings
             typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.CodeBase.Contains("Microsoft.NETCore.App")
             , LazyThreadSafetyMode.PublicationOnly);
 
+        internal static readonly Lazy<string> PlatformRuntimePrefix = new Lazy<string>(() =>
+        {
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.MacOSX:
+                    return "osx";
+                case PlatformID.Unix:
+                    return "linux";
+                case PlatformID.Win32NT:
+                case PlatformID.Win32S:
+                case PlatformID.Win32Windows:
+                case PlatformID.WinCE:
+                case PlatformID.Xbox:
+                    return "win";
+                default:
+                    return "win";
+            }
+        }, LazyThreadSafetyMode.PublicationOnly);
+
         internal static readonly Lazy<string> SharedLibraryExtension = new Lazy<string>(() =>
         {
             switch (Environment.OSVersion.Platform)
@@ -167,8 +186,13 @@ namespace Imageflow.Bindings
             }
             // Look where .NET looks for managed assemblies
             yield return AppDomain.CurrentDomain.BaseDirectory;
+
             // Look in the folder that *this* assembly is located.
             yield return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            yield return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "runtimes", PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native");
+
+            yield return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "runtimes", PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native");
         }
 
         internal static IEnumerable<string> SearchPossibilitiesForFile(string filename, IEnumerable<string> customSearchDirectories = null)
