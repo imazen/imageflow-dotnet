@@ -4,39 +4,6 @@ using System.Runtime.InteropServices;
 namespace Imageflow.Bindings
 {
 
-//    public enum IoMode
-//    {
-//
-//        /// None -> 0
-//        None = 0,
-//
-//        /// ReadSequential -> 1
-//        ReadSequential = 1,
-//
-//        /// WriteSequential -> 2
-//        WriteSequential = 2,
-//
-//        /// ReadSeekable -> 5
-//        ReadSeekable = 5,
-//
-//        /// WriteSeekable -> 6
-//        WriteSeekable = 6,
-//
-//        /// ReadWriteSeekable -> 15
-//        ReadWriteSeekable = 15,
-//    }
-//
-//    public enum Direction
-//    {
-//
-//        /// Out -> 8
-//        Out = 8,
-//
-//        /// In -> 4
-//        In = 4,
-//    }
-
-
     internal static class NativeMethods
     {
         public enum Lifetime
