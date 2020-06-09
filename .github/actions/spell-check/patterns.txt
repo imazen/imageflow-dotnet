@@ -29,4 +29,4 @@ access_key_id: [A-Z0-9]+
 # bench.sh
 \\results:
 # Embedded Base64 images
-FromBase64String("[^"]+")
+FromBase64String([ \r\n\t]*"[^"]+"[ \r\n\t]*)
