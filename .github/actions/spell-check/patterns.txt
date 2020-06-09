@@ -28,3 +28,5 @@ assert_eq!\("[a-f0-9/]+"
 access_key_id: [A-Z0-9]+
 # bench.sh
 \\results:
+# Embedded Base64 images
+FromBase64String("[^"]+")
