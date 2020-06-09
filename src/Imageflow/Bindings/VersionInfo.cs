@@ -5,15 +5,20 @@ namespace Imageflow.Bindings
 {
     public class VersionInfo
     {
-        internal VersionInfo() { }
+        private VersionInfo() { }
         internal static VersionInfo FromDynamic(dynamic versionInfo)
         {
             var info = new VersionInfo();
+            string dateTime = versionInfo.build_date.Value;
+            string longVersionString = versionInfo.long_version_string.Value;
+            string lastGitCommit = versionInfo.last_git_commit.Value;
+            bool dirtyWorkingTree = versionInfo.dirty_working_tree.Value;
+            
 
-            info.BuildDate = XmlConvert.ToDateTime(versionInfo.build_date.Value, XmlDateTimeSerializationMode.Utc);
-            info.LongVersionString = versionInfo.long_version_string.Value;
-            info.LastGitCommit = versionInfo.last_git_commit.Value;
-            info.DirtyWorkingTree = versionInfo.dirty_working_tree.Value;
+            info.BuildDate = XmlConvert.ToDateTime(dateTime, XmlDateTimeSerializationMode.Utc);
+            info.LongVersionString = longVersionString;
+            info.LastGitCommit = lastGitCommit;
+            info.DirtyWorkingTree = dirtyWorkingTree;
             return info;
         }
         
