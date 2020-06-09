@@ -81,6 +81,23 @@ namespace Imageflow.Bindings
             }
         }
 
+        public VersionInfo GetVersionInfo()
+        {
+            AssertReady();
+            using (var response = SendJsonBytes("v1/get_version_info", JobContext.SerializeToJson(new { })))
+            {
+                var responseDynamic = response.DeserializeDynamic();
+                if (responseDynamic.success.Value == true)
+                {
+                    return VersionInfo.FromDynamic(responseDynamic.data.version_info);
+                }
+                else
+                {
+                    throw ImageflowException.FromContext(this.Handle);
+                }
+            }
+        }
+        
         public IJsonResponseProvider SendJsonBytes(string method, byte[] utf8Json)
         {
             AssertReady();

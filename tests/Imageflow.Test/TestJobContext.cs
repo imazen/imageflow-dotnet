@@ -48,6 +48,17 @@ namespace Imageflow.Test
         }
         
         [Fact]
+        public void TestGetVersionInfo()
+        {
+            using (var c = new JobContext())
+            {
+                var info = c.GetVersionInfo();
+                Assert.NotNull(info.LastGitCommit);
+                Assert.NotNull(info.LongVersionString);
+            }
+        }
+        
+        [Fact]
         public void TestExecute()
         {
             using (var c = new JobContext())
