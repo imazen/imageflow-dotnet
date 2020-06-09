@@ -10,15 +10,20 @@
     <FileVersion>0.1.0</FileVersion>
     <InformationalVersion>0.1.0-pre</InformationalVersion>
     <PackageLicenseUrl>https://imageresizing.net/licenses</PackageLicenseUrl>
-    <PackageProjectUrl />
-    <RepositoryUrl>https://github.com/imazen/imageflow</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/imazen/imageflow-dotnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/imazen/imageflow-dotnet.git</RepositoryUrl>
     <Description>Bindings for the Imageflow image processing library. Also remember to install Imageflow.NativeBinaries.[your platform]</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>7.1</LangVersion>
     <RootNamespace>Imageflow</RootNamespace>
+    <Copyright>(c) 2020 Imazen LLC</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.2.2" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+
   </ItemGroup>
 </Project>
