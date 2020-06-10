@@ -348,6 +348,23 @@ namespace Imageflow.Fluent
             {
                 color_filter_srgb = filter.ToString().ToLowerInvariant()
             });
+
+        public BuildNode Watermark(IBytesSource source, WatermarkOptions watermark) =>
+            Watermark(source, null, watermark);
+        
+        public BuildNode Watermark(IBytesSource source, int? ioId, WatermarkOptions watermark)
+        {
+            if (ioId == null)
+            {
+                ioId = this.Builder.GenerateIoId();
+            }
+            this.Builder.AddInput(ioId.Value, source);
+            return To(new
+            {
+                watermark = watermark.ToImageflowDynamic(ioId.Value)
+            });
+            
+        }
             
 //        public BuildNode Clone() => new BuildNode(NodeData,Input,Canvas,Uid);
 //        public BuildNode Branch() => Clone();

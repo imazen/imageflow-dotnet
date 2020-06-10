@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using Xunit;
@@ -86,6 +87,14 @@ namespace Imageflow.Test
                     .ResizerCommands("width=10&height=10&mode=crop")
                     .WhiteBalanceSrgb(80)
                     .ConstrainWithin(5, 5)
+                    .Watermark(new BytesSource(imageBytes), 
+                        new WatermarkOptions()
+                            .LayoutWithMargins(
+                                new WatermarkMargins(WatermarkAlign.Image, 1,1,1,1), 
+                                WatermarkConstraintMode.Within, 
+                                new ConstraintGravity(90,90))
+                            .WithOpacity(0.5f)
+                            .WithHints(new ResampleHints().Sharpen(15f, SharpenWhen.Always)))
                     .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
 
                 Assert.Equal(5, r.First.Width);
@@ -188,7 +197,25 @@ namespace Imageflow.Test
             }
 
         }
+        
+        [Fact]
+        public async Task TestBuildCommandStringWithWatermarks()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            using (var b = new FluentBuildJob())
+            {
+                var watermarks = new List<InputWatermark>();
+                watermarks.Add(new InputWatermark(new BytesSource(imageBytes), new WatermarkOptions()));
+                watermarks.Add(new InputWatermark(new BytesSource(imageBytes), new WatermarkOptions().WithGravity(new ConstraintGravity(100,100))));
+                
+                var r = await b.BuildCommandString(new BytesSource(imageBytes), new BytesDestination(), "width=3&height=2&mode=stretch&scale=both&format=webp",watermarks).Finish().InProcessAsync();
 
+                Assert.Equal(3, r.First.Width);
+                Assert.Equal("webp", r.First.PreferredExtension);
+                Assert.True(r.First.TryGetBytes().HasValue);
+            }
+
+        }
 
         [Fact]
         public async Task TestFilesystemJobPrep()

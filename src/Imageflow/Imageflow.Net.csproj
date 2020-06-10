@@ -23,7 +23,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.2.2" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
 
   </ItemGroup>
 </Project>

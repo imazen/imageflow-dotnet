@@ -21,7 +21,7 @@ namespace Imageflow.Fluent
         private readonly Dictionary<int, IOutputDestination> _outputs = new Dictionary<int, IOutputDestination>(2);
 
 
-        private void AddInput(int ioId, IBytesSource source)
+        internal void AddInput(int ioId, IBytesSource source)
         {
             if (_inputs.ContainsKey(ioId) || _outputs.ContainsKey(ioId))
                 throw new ArgumentException("ioId", $"ioId {ioId} has already been assigned");
@@ -70,12 +70,34 @@ namespace Imageflow.Fluent
 
         public BuildEndpoint BuildCommandString(byte[] source, IOutputDestination dest, string commandString) => BuildCommandString(new BytesSource(source), dest, commandString);
 
-        public BuildEndpoint BuildCommandString(IBytesSource source, IOutputDestination dest, string commandString) => BuildCommandString(source, 0, dest, 1, commandString);
+        public BuildEndpoint BuildCommandString(IBytesSource source, IOutputDestination dest, string commandString) => BuildCommandString(source, null, dest, null, commandString);
 
-        public BuildEndpoint BuildCommandString(IBytesSource source, int sourceIoId, IOutputDestination dest, int destIoId, string commandString)
+
+        public BuildEndpoint BuildCommandString(IBytesSource source, int? sourceIoId, IOutputDestination dest,
+            int? destIoId, string commandString)
+            => BuildCommandString(source, sourceIoId, dest, destIoId, commandString, null);
+
+        public BuildEndpoint BuildCommandString(IBytesSource source, IOutputDestination dest, string commandString,
+            ICollection<InputWatermark> watermarks)
+            => BuildCommandString(source, null, dest, null, commandString, watermarks);
+        
+        public BuildEndpoint BuildCommandString(IBytesSource source, int? sourceIoId, IOutputDestination dest, int? destIoId, string commandString, ICollection<InputWatermark> watermarks)
         {
-            AddInput(sourceIoId, source);
-            AddOutput(destIoId, dest);
+            sourceIoId = sourceIoId ?? GenerateIoId();
+            AddInput(sourceIoId.Value, source);
+            destIoId = destIoId ?? GenerateIoId();
+            AddOutput(destIoId.Value, dest);
+            
+            if (watermarks != null)
+            {
+                foreach (var w in watermarks)
+                {
+                    if (w.IoId == null && w.Source == null) throw new ArgumentException("InputWatermark instances cannot have both a null IoId and a null Source");
+                    if (w.IoId == null) w.IoId = this.GenerateIoId();
+                    if (w.Source != null) AddInput(w.IoId.Value, w.Source);
+                }
+            }
+            
             dynamic nodeData = new
             {
                 command_string = new
@@ -83,7 +105,8 @@ namespace Imageflow.Fluent
                     kind = "ir4",
                     value = commandString,
                     decode = sourceIoId,
-                    encode = destIoId
+                    encode = destIoId,
+                    watermarks = watermarks?.Select(w => w.ToImageflowDynamic()).ToArray()
                 }
             };
             return new BuildEndpoint(this, nodeData, null, null);
