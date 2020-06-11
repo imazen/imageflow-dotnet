@@ -208,7 +208,10 @@ namespace Imageflow.Test
                 watermarks.Add(new InputWatermark(new BytesSource(imageBytes), new WatermarkOptions()));
                 watermarks.Add(new InputWatermark(new BytesSource(imageBytes), new WatermarkOptions().WithGravity(new ConstraintGravity(100,100))));
                 
-                var r = await b.BuildCommandString(new BytesSource(imageBytes), new BytesDestination(), "width=3&height=2&mode=stretch&scale=both&format=webp",watermarks).Finish().InProcessAsync();
+                var r = await b.BuildCommandString(
+                    new BytesSource(imageBytes), 
+                    new BytesDestination(), 
+                    "width=3&height=2&mode=stretch&scale=both&format=webp",watermarks).Finish().InProcessAsync();
 
                 Assert.Equal(3, r.First.Width);
                 Assert.Equal("webp", r.First.PreferredExtension);
