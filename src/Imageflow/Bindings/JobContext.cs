@@ -54,6 +54,14 @@ namespace Imageflow.Bindings
             }
         }
         
+        private static string SerializeToString<T>(T obj){
+            using (var writer = new StringWriter()){
+                JsonSerializer.Create().Serialize(writer, obj);
+                writer.Flush(); //Required or no bytes appear
+                return writer.ToString();
+            }
+        }
+        
         public IJsonResponseProvider SendMessage<T>(string method, T message){
             AssertReady();
             return SendJsonBytes(method, JobContext.SerializeToJson(message));

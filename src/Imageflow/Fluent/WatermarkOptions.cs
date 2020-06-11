@@ -17,6 +17,9 @@ namespace Imageflow.Fluent
         /// </summary>
         public float? Opacity { get; set; }
         public ResampleHints Hints { get; set; }
+        
+        public uint? MinCanvasWidth { get; set; }
+        public uint? MinCanvasHeight { get; set; }
 
         public WatermarkOptions WithHints(ResampleHints hints)
         {
@@ -77,6 +80,19 @@ namespace Imageflow.Fluent
             return this;
         }
 
+        /// <summary>
+        /// Hide the watermark if the canvas is smaller in either dimension
+        /// </summary>
+        /// <param name="minWidth"></param>
+        /// <param name="minHeight"></param>
+        /// <returns></returns>
+        public WatermarkOptions WithMinCanvasSize(uint? minWidth, uint? minHeight)
+        {
+            MinCanvasWidth = minWidth;
+            MinCanvasHeight = minHeight;
+            return this;
+        }
+
 
         public object ToImageflowDynamic(int ioId)
         {
@@ -86,6 +102,8 @@ namespace Imageflow.Fluent
                 gravity = Gravity?.ToImageflowDynamic(),
                 fit_box = FitBox?.ToImageflowDynamic(),
                 fit_mode = FitMode?.ToString().ToLowerInvariant(),
+                min_canvas_width = MinCanvasWidth,
+                min_canvas_height = MinCanvasWidth,
                 opacity = Opacity,
                 hints = Hints?.ToImageflowDynamic()
             };
