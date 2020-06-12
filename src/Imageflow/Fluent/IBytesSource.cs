@@ -60,7 +60,7 @@ namespace Imageflow.Fluent
 
         public async Task<ArraySegment<byte>> GetBytesAsync(CancellationToken cancellationToken)
         {
-            var length = _underlying.Length;
+            var length = _underlying.CanSeek ? _underlying.Length : 0;
             if (length >= int.MaxValue) throw new OverflowException("Streams cannot exceed 2GB");
             switch (_underlying)
             {
