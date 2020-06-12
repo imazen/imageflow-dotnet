@@ -4,7 +4,6 @@ using System.Drawing;
 using System.IO;
 using Xunit;
 using System.Threading.Tasks;
-using Imageflow.Bindings;
 using Imageflow.Fluent;
  using Xunit.Abstractions;
 
@@ -20,21 +19,18 @@ namespace Imageflow.Test
         }
 
         [Fact]
-        public void TestGetImageInfo()
+        public async void TestGetImageInfo()
         {
-            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var c = new JobContext())
-            {
-                c.AddInputBytes(0, imageBytes);
-                var result = c.GetImageInfo(0);
+            var imageBytes = Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
 
-                Assert.Equal(result.ImageWidth, 1);
-                Assert.Equal(result.ImageHeight, 1);
-                Assert.Equal(result.PreferredExtension, "png");
-                Assert.Equal(result.PreferredMimeType, "image/png");
-                Assert.Equal(result.FrameDecodesInto, PixelFormat.Bgra_32);
-            }
-
+            var info = await FluentBuildJob.GetImageInfo(new BytesSource(imageBytes));
+            
+            Assert.Equal(info.ImageWidth, 1);
+            Assert.Equal(info.ImageHeight, 1);
+            Assert.Equal(info.PreferredExtension, "png");
+            Assert.Equal(info.PreferredMimeType, "image/png");
+            Assert.Equal(info.FrameDecodesInto, PixelFormat.Bgra_32);
         }
 
         [Fact]
@@ -58,7 +54,8 @@ namespace Imageflow.Test
         [Fact]
         public async Task TestAllJob()
         {
-            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            var imageBytes = Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
             using (var b = new FluentBuildJob())
             {
                 var r = await b.Decode(imageBytes)
@@ -67,6 +64,7 @@ namespace Imageflow.Test
                     .Rotate90()
                     .Rotate180()
                     .Rotate270()
+                    .Transpose()
                     .CropWhitespace(80, 0.5f)
                     .Distort(30, 20)
                     .Crop(0,0,10,10)
@@ -75,6 +73,7 @@ namespace Imageflow.Test
                     .BrightnessSrgb(-1f)
                     .ContrastSrgb(1f)
                     .SaturationSrgb(1f)
+                    .WhiteBalanceSrgb(80)
                     .ColorFilterSrgb(ColorFilterSrgb.Invert)
                     .ColorFilterSrgb(ColorFilterSrgb.Sepia)
                     .ColorFilterSrgb(ColorFilterSrgb.Grayscale_Bt709)
@@ -82,10 +81,8 @@ namespace Imageflow.Test
                     .ColorFilterSrgb(ColorFilterSrgb.Grayscale_Ntsc)
                     .ColorFilterSrgb(ColorFilterSrgb.Grayscale_Ry)
                     .ExpandCanvas(5,5,5,5,AnyColor.FromHexSrgb("FFEECCFF"))
-                    .Transpose()
                     .FillRectangle(2,2,8,8, AnyColor.Black)
                     .ResizerCommands("width=10&height=10&mode=crop")
-                    .WhiteBalanceSrgb(80)
                     .ConstrainWithin(5, 5)
                     .Watermark(new BytesSource(imageBytes), 
                         new WatermarkOptions()
@@ -94,8 +91,10 @@ namespace Imageflow.Test
                                 WatermarkConstraintMode.Within, 
                                 new ConstraintGravity(90,90))
                             .WithOpacity(0.5f)
-                            .WithHints(new ResampleHints().Sharpen(15f, SharpenWhen.Always)))
-                    .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
+                            .WithHints(new ResampleHints().Sharpen(15f, SharpenWhen.Always))
+                            .WithMinCanvasSize(1,1))
+                    .EncodeToBytes(new MozJpegEncoder(80,true))
+                    .Finish().InProcessAsync();
 
                 Assert.Equal(5, r.First.Width);
                 Assert.True(r.First.TryGetBytes().HasValue);
@@ -187,15 +186,20 @@ namespace Imageflow.Test
         public async Task TestBuildCommandString()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            // We wrap the job in a using() statement to free memory faster
             using (var b = new FluentBuildJob())
             {
-                var r = await b.BuildCommandString(imageBytes, new BytesDestination(), "width=3&height=2&mode=stretch&scale=both&format=webp").Finish().InProcessAsync();
+                
+                var r = await b.BuildCommandString(
+                    new BytesSource(imageBytes), // or new StreamSource(Stream stream, bool disposeStream)
+                    new BytesDestination(), // or new StreamDestination
+                    "width=3&height=2&mode=stretch&scale=both&format=webp")
+                    .Finish().InProcessAsync();
 
                 Assert.Equal(3, r.First.Width);
                 Assert.Equal("webp", r.First.PreferredExtension);
                 Assert.True(r.First.TryGetBytes().HasValue);
             }
-
         }
         
         [Fact]

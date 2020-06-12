@@ -1,6 +1,7 @@
 using System;
 using Xunit;
 using Imageflow.Bindings;
+using Imageflow.Fluent;
 using Xunit.Abstractions;
 namespace Imageflow.Test
 {
@@ -23,7 +24,7 @@ namespace Imageflow.Test
         }
         
          [Fact]
-        public void TestGetImageInfo()
+        public void TestGetImageInfoMessage()
         {
             using (var c = new JobContext())
             {
@@ -44,6 +45,23 @@ namespace Imageflow.Test
                 Assert.Equal(1, (int)data.data.image_info.image_height);
                 Assert.Equal("image/png", (string)data.data.image_info.preferred_mime_type);
                 Assert.Equal("png", (string)data.data.image_info.preferred_extension);
+            }
+        }
+        
+        [Fact]
+        public void TestGetImageInfo()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            using (var c = new JobContext())
+            {
+                c.AddInputBytes(0, imageBytes);
+                var result = c.GetImageInfo(0);
+
+                Assert.Equal(result.ImageWidth, 1);
+                Assert.Equal(result.ImageHeight, 1);
+                Assert.Equal(result.PreferredExtension, "png");
+                Assert.Equal(result.PreferredMimeType, "image/png");
+                Assert.Equal(result.FrameDecodesInto, PixelFormat.Bgra_32);
             }
         }
         
