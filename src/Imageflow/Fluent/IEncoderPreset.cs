@@ -22,6 +22,16 @@
     
     public class PngQuantEncoder : IEncoderPreset
     {
+        /// <summary>
+        /// Try to quantize the PNG first, falling back to lossless PNG if the minimumQuality value cannot be reached
+        /// </summary>
+        /// <param name="quality">The target visual quality</param>
+        /// <param name="minimumQuality">The minimum visual quality below which to revert to lossless encoding</param>
+        public PngQuantEncoder(int? quality, int? minimumQuality)
+        {
+            Quality = quality;
+            MinimumQuality = minimumQuality;
+        }
         public int? Quality { get; set; }
         
         public int? MinimumQuality { get; set; }
@@ -65,6 +75,15 @@
 
     public class MozJpegEncoder : IEncoderPreset
     {
+        public MozJpegEncoder(int quality)
+        {
+            Quality = quality;
+        }
+        public MozJpegEncoder(int quality, bool progressive)
+        {
+            Quality = quality;
+            Progressive = progressive;
+        }
         public int? Quality { get; set; }
         public bool? Progressive { get; set; }
         
