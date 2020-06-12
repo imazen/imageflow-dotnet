@@ -477,6 +477,38 @@ namespace Imageflow.Fluent
         }
 
         public int GenerateIoId() =>_inputs.Keys.Concat(_outputs.Keys).DefaultIfEmpty(-1).Max() + 1;
+
+        /// <summary>
+        /// Returns dimensions and format of the provided image stream or byte array
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public static Task<ImageInfo> GetImageInfo(IBytesSource image)
+            => GetImageInfo(image, CancellationToken.None);
         
+        
+        /// <summary>
+        /// Returns dimensions and format of the provided image stream or byte array
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public static async Task<ImageInfo> GetImageInfo(IBytesSource image, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var inputByteArray = await image.GetBytesAsync(cancellationToken);
+                using (var ctx = new JobContext())
+                {
+                    ctx.AddInputBytesPinned(0, inputByteArray);
+                    return ctx.GetImageInfo(0);
+                }
+            }
+            finally
+            {
+                image.Dispose();
+            }
+        }
     }
 }
