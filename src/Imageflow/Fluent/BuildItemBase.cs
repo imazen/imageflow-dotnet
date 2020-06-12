@@ -2,6 +2,9 @@
 
 namespace Imageflow.Fluent
 {
+    /// <summary>
+    /// Base class for nodes in the job graph
+    /// </summary>
     public class BuildItemBase
     {
         internal FluentBuildJob Builder { get; }

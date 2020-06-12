@@ -33,7 +33,15 @@ namespace Imageflow.Fluent
                 throw new ArgumentException("ioId", $"ioId {ioId} has already been assigned");
             _outputs.Add(ioId, destination);
         }
-       
+
+        /// <summary>
+        /// Decode an image into a frame
+        /// </summary>
+        /// <param name="source">Use BytesSource or StreamSource</param>
+        /// <param name="commands">Commands to the decoder, such as JPEG or WebP block-wise downscaling for performance, or to discard the color profile</param>
+        /// <returns></returns>
+        public BuildNode Decode(IBytesSource source, DecodeCommands commands) =>
+            Decode(source, GenerateIoId(), commands);
         public BuildNode Decode(IBytesSource source, int ioId, DecodeCommands commands)
         {
             AddInput(ioId, source);
@@ -63,11 +71,27 @@ namespace Imageflow.Fluent
         public BuildNode Decode(IBytesSource source) => Decode( source, GenerateIoId());
         public BuildNode Decode(ArraySegment<byte> source) => Decode( new BytesSource(source), GenerateIoId());
         public BuildNode Decode(byte[] source) => Decode( new BytesSource(source), GenerateIoId());
+        /// <summary>
+        /// Decode an image into a frame
+        /// </summary>
+        /// <returns></returns>
         public BuildNode Decode(Stream source, bool disposeStream) => Decode( new StreamSource(source, disposeStream), GenerateIoId());
         public BuildNode Decode(ArraySegment<byte> source, int ioId) => Decode( new BytesSource(source), ioId);
         public BuildNode Decode(byte[] source, int ioId) => Decode( new BytesSource(source), ioId);
         public BuildNode Decode(Stream source, bool disposeStream, int ioId) => Decode( new StreamSource(source, disposeStream), ioId);
 
+        
+        public BuildNode CreateCanvasBgra32(uint w, uint h, AnyColor color) =>
+            CreateCanvas(w, h, color, PixelFormat.Bgra_32);
+        
+        public BuildNode CreateCanvasBgr32(uint w, uint h, AnyColor color) =>
+            CreateCanvas(w, h, color, PixelFormat.Bgr_32);
+        
+        private BuildNode CreateCanvas(uint w, uint h, AnyColor color, PixelFormat format) => 
+            BuildNode.StartNode(this, new {create_canvas = new {w, h, color, format = format.ToString().ToLowerInvariant()}});
+
+
+        
         public BuildEndpoint BuildCommandString(byte[] source, IOutputDestination dest, string commandString) => BuildCommandString(new BytesSource(source), dest, commandString);
 
         public BuildEndpoint BuildCommandString(IBytesSource source, IOutputDestination dest, string commandString) => BuildCommandString(source, null, dest, null, commandString);
@@ -77,10 +101,19 @@ namespace Imageflow.Fluent
             int? destIoId, string commandString)
             => BuildCommandString(source, sourceIoId, dest, destIoId, commandString, null);
 
+
+        
+        /// <summary>
+        /// Modify the input image (source) with the given command string and watermarks and encode to the (dest) 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="dest"></param>
+        /// <param name="commandString"></param>
+        /// <param name="watermarks"></param>
+        /// <returns></returns>
         public BuildEndpoint BuildCommandString(IBytesSource source, IOutputDestination dest, string commandString,
             ICollection<InputWatermark> watermarks)
             => BuildCommandString(source, null, dest, null, commandString, watermarks);
-        
         public BuildEndpoint BuildCommandString(IBytesSource source, int? sourceIoId, IOutputDestination dest, int? destIoId, string commandString, ICollection<InputWatermark> watermarks)
         {
             sourceIoId = sourceIoId ?? GenerateIoId();
@@ -359,16 +392,7 @@ namespace Imageflow.Fluent
         
         private readonly HashSet<BuildItemBase> _nodesCreated = new HashSet<BuildItemBase>();
        
-        public BuildNode CreateCanvasBgra32(uint w, uint h, AnyColor color) =>
-            CreateCanvas(w, h, color, PixelFormat.Bgra_32);
-        
-        public BuildNode CreateCanvasBgr32(uint w, uint h, AnyColor color) =>
-            CreateCanvas(w, h, color, PixelFormat.Bgr_32);
-        
-        private BuildNode CreateCanvas(uint w, uint h, AnyColor color, PixelFormat format) => 
-            BuildNode.StartNode(this, new {create_canvas = new {w, h, color, format = format.ToString().ToLowerInvariant()}});
 
-        
         
         internal void AddNode(BuildItemBase n)
         {
