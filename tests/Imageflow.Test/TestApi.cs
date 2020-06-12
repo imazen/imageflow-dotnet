@@ -128,7 +128,8 @@ namespace Imageflow.Test
                     .Branch(f => f.ConstrainWithin(40, 30).EncodeToBytes(new WebPLossyEncoder(50)))
                     .EncodeToBytes(new LibPngEncoder())
                     .Finish().InProcessAsync();
-
+                
+                
                 Assert.Equal(60, r.TryGet(1).Width);
                 Assert.Equal(30, r.TryGet(2).Width);
                 Assert.Equal(120, r.TryGet(3).Width);

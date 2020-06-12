@@ -8,14 +8,25 @@ namespace Imageflow.Fluent
     {
         internal static BuildNode StartNode(FluentBuildJob graph, object data) => new BuildNode(graph, data, null, null);
     
-        
+        /// <summary>
+        /// Encode the result to the given destination (such as a BytesDestination or StreamDestination)
+        /// </summary>
+        /// <param name="destination">Where to write the bytes</param>
+        /// <param name="ioId"></param>
+        /// <param name="encoderPreset">An encoder class, such as `new MozJpegEncoder()`</param>
+        /// <returns></returns>
         public BuildEndpoint Encode(IOutputDestination destination, int ioId, IEncoderPreset encoderPreset)
         {
             Builder.AddOutput(ioId, destination);
             return new BuildEndpoint(Builder,
                 new {encode = new {io_id = ioId, preset = encoderPreset?.ToImageflowDynamic()}}, this, null);
         }
-
+        /// <summary>
+        /// Encode the result to the given destination (such as a BytesDestination or StreamDestination)
+        /// </summary>
+        /// <param name="destination">Where to write the bytes</param>
+        /// <param name="encoderPreset">An encoder class, such as `new MozJpegEncoder()`</param>
+        /// <returns></returns>
         public BuildEndpoint Encode(IOutputDestination destination, IEncoderPreset encoderPreset) =>
             Encode( destination, Builder.GenerateIoId(), encoderPreset);
         
@@ -38,9 +49,21 @@ namespace Imageflow.Fluent
         private BuildNode NodeWithCanvas(BuildNode canvas, object data) => new BuildNode(Builder, data, this, canvas);
 
 
+        /// <summary>
+        /// Downscale the image to fit within the given dimensions, but do not upscale. See Constrain() for more options.
+        /// </summary>
+        /// <param name="w"></param>
+        /// <param name="h"></param>
+        /// <returns></returns>
         public BuildNode ConstrainWithin(uint? w, uint? h) => To(new { constrain = new {mode="within", w, h } });
 
-    
+        /// <summary>
+        /// Downscale the image to fit within the given dimensions, but do not upscale. See Constrain() for more options.
+        /// </summary>
+        /// <param name="w"></param>
+        /// <param name="h"></param>
+        /// <param name="hints"></param>
+        /// <returns></returns>
         public BuildNode ConstrainWithin(uint? w, uint? h, ResampleHints hints)
             => To(new
             {
@@ -54,8 +77,26 @@ namespace Imageflow.Fluent
                 }
             });
 
+        /// <summary>
+        /// Scale an image using the given Constraint object. 
+        /// </summary>
+        /// <param name="constraint"></param>
+        /// <returns></returns>
         public BuildNode Constrain(Constraint constraint) => To(new { constrain = constraint.ToImageflowDynamic() });
+        /// <summary>
+        /// Distort the image to exactly the given dimensions.
+        /// </summary>
+        /// <param name="w"></param>
+        /// <param name="h"></param>
+        /// <returns></returns>
         public BuildNode Distort(uint w, uint h) => Distort(w, h, null);
+        /// <summary>
+        /// Distort the image to exactly the given dimensions.
+        /// </summary>
+        /// <param name="w"></param>
+        /// <param name="h"></param>
+        /// <param name="hints"></param>
+        /// <returns></returns>
         public BuildNode Distort(uint w, uint h, ResampleHints hints)
             => To(new
             {
@@ -135,7 +176,7 @@ namespace Imageflow.Fluent
             });
         
          /// <summary>
-         ///
+         /// Crops away whitespace of any color at the edges of the image. 
          /// </summary>
          /// <param name="threshold">(1..255). determines how much noise/edges to tolerate before cropping
          /// is finalized. 80 is a good starting point.</param>
@@ -168,14 +209,50 @@ namespace Imageflow.Fluent
                 }
             });
 
+        /// <summary>
+        /// Flips the image vertically
+        /// </summary>
+        /// <returns></returns>
         public BuildNode FlipVertical() => To(new {flip_v = (string)null});
+        /// <summary>
+        /// Flips the image horizontally
+        /// </summary>
+        /// <returns></returns>
         public BuildNode FlipHorizontal() => To(new {flip_h = (string)null });
         
+        /// <summary>
+        /// Rotates the image 90 degrees clockwise. 
+        /// </summary>
+        /// <returns></returns>
         public BuildNode Rotate90() => To(new {rotate_90 = (string)null });
+        /// <summary>
+        /// Rotates the image 180 degrees clockwise. 
+        /// </summary>
+        /// <returns></returns>
         public BuildNode Rotate180() => To(new {rotate_180 = (string)null });
+        /// <summary>
+        /// Rotates the image 270 degrees clockwise. (same as 90 degrees counterclockwise). 
+        /// </summary>
+        /// <returns></returns>
         public BuildNode Rotate270() => To(new {rotate_270 = (string)null });
+        /// <summary>
+        /// Swaps the x and y dimensions of the image
+        /// </summary>
+        /// <returns></returns>
         public BuildNode Transpose() => To(new {transpose = (string)null });
 
+        /// <summary>
+        /// Allows you to generate multiple outputs by branching the graph
+        /// <code>
+        /// var r = await b.Decode(imageBytes)
+        ///     .Branch(f => f.EncodeToBytes(new WebPLosslessEncoder()))
+        ///     .Branch(f => f.EncodeToBytes(new WebPLossyEncoder(50)))
+        ///     .EncodeToBytes(new LibPngEncoder())
+        ///     .Finish().InProcessAsync();
+        /// </code>
+        /// </summary>
+        /// <param name="f"></param>
+        /// <returns></returns>
         public BuildNode Branch(Func<BuildNode, BuildEndpoint> f)
         {
             f(this);
@@ -349,9 +426,22 @@ namespace Imageflow.Fluent
                 color_filter_srgb = filter.ToString().ToLowerInvariant()
             });
 
+        /// <summary>
+        /// Draw a watermark from the given BytesSource or StreamSource
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="watermark"></param>
+        /// <returns></returns>
         public BuildNode Watermark(IBytesSource source, WatermarkOptions watermark) =>
             Watermark(source, null, watermark);
         
+        /// <summary>
+        /// Draw a watermark from the given BytesSource or StreamSource
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="ioId"></param>
+        /// <param name="watermark"></param>
+        /// <returns></returns>
         public BuildNode Watermark(IBytesSource source, int? ioId, WatermarkOptions watermark)
         {
             if (ioId == null)
@@ -365,11 +455,6 @@ namespace Imageflow.Fluent
             });
             
         }
-            
-//        public BuildNode Clone() => new BuildNode(NodeData,Input,Canvas,Uid);
-//        public BuildNode Branch() => Clone();
-        
-//        public FluentGraphBuilder Builder() => new FluentGraphBuilder(this);
-//        public object ToBuildMessage() => Builder().to_framewise().
+
     }
 }

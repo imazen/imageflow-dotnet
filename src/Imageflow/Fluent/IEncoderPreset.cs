@@ -1,5 +1,8 @@
 ﻿namespace Imageflow.Fluent
 {
+    /// <summary>
+    /// An interface for encode presets. Concrete examples are GifEncoder, LibPngEncoder, PngQuantEncoder, LodePngEncoder, MozJpegEncoder, WebPLossyEncoder, WebPLosslessEncoder
+    /// </summary>
     public interface IEncoderPreset
     {
         object ToImageflowDynamic();

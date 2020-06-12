@@ -15,6 +15,9 @@ namespace Imageflow.Fluent
         Task<ArraySegment<byte>> GetBytesAsync(CancellationToken cancellationToken);
     }
     
+    /// <summary>
+    /// Represents a source backed by an ArraySegment or byte[] array.
+    /// </summary>
     public struct BytesSource : IBytesSource
     {
         public BytesSource(byte[] bytes)
@@ -38,6 +41,9 @@ namespace Imageflow.Fluent
         public Task<ArraySegment<byte>> GetBytesAsync(CancellationToken cancellationToken) => Task.FromResult(bytes);
         
     }
+    /// <summary>
+    /// Represents a image source that is backed by a Stream. 
+    /// </summary>
     public class StreamSource : IBytesSource
     {
         private static readonly RecyclableMemoryStreamManager Mgr = new RecyclableMemoryStreamManager();

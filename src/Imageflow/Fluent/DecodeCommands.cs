@@ -3,28 +3,7 @@ using System.Linq;
 
 namespace Imageflow.Fluent
 {
-    public enum DecoderDownscalingMode
-    {
-        /// <summary>
-        /// Use the Imageflow default (usually highest quality)
-        /// </summary>
-        Unspecified = 0,
-        /// <summary>
-        /// Use the fastest method
-        /// </summary>
-        Fastest = 1,
-        
-        /// <summary>
-        /// A slower (but more accurate) scaling method is employed; the DCT blocks are fully decoded, then a true resampling kernel is applied.
-        /// </summary>
-        SpatialLumaScaling = 2,
-        /// <summary>
-        /// Like SpatialLumaScaling, but gamma correction is applied before the resampling kernel, then removed afterwards.
-        /// Has the effect of linear-light scaling
-        /// </summary>
-        GammaCorrectSpatialLumaScaling = 6,
-        Best = 6,
-    }
+
     
     public class DecodeCommands
     {
