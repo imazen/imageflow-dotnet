@@ -16,8 +16,8 @@
 
     public enum SharpenWhen
     {
-        Downscaling,
-        Upscaling,
+        Downscaling, //TODO: rename to DownScaling
+        Upscaling, //TODO: rename to UpScaling
         Size_Differs,
         Always
     }

@@ -30,12 +30,13 @@ namespace Imageflow.Fluent
         public BuildEndpoint Encode(IOutputDestination destination, IEncoderPreset encoderPreset) =>
             Encode( destination, Builder.GenerateIoId(), encoderPreset);
         
-
+        [Obsolete("Use Encode(IOutputDestination destination, int ioId, IEncoderPreset encoderPreset)")]
         public BuildEndpoint EncodeToBytes(int ioId, IEncoderPreset encoderPreset) =>
             Encode(new BytesDestination(), ioId, encoderPreset);
         public BuildEndpoint EncodeToBytes(IEncoderPreset encoderPreset) =>
             Encode(new BytesDestination(), encoderPreset);
         
+        [Obsolete("Use Encode(IOutputDestination destination, int ioId, IEncoderPreset encoderPreset)")]
         public BuildEndpoint EncodeToStream(Stream stream, bool disposeStream, int ioId, IEncoderPreset encoderPreset) =>
             Encode(new StreamDestination(stream, disposeStream), ioId, encoderPreset);
         public BuildEndpoint EncodeToStream(Stream stream, bool disposeStream, IEncoderPreset encoderPreset) =>

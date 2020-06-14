@@ -12,8 +12,29 @@ namespace Imageflow.Fluent
         public DecoderDownscalingMode JpegDownscalingMode { get; set; } = DecoderDownscalingMode.Unspecified;
 
         public Size? WebpDownscaleHint { get; set; }
-        
-        public bool DiscardColorProfile { get; set; }
+
+        public bool DiscardColorProfile { get; set; } = false;
+
+        public DecodeCommands SetJpegDownscaling(int targetWidthHint,
+            int targetHeightHint, DecoderDownscalingMode mode)
+        {
+            JpegDownscaleHint = new Size(targetWidthHint, targetHeightHint);
+            JpegDownscalingMode = mode;
+            return this;
+        }
+
+        public DecodeCommands SetWebpDownscaling(int targetWidthHint,
+            int targetHeightHint)
+        {
+            this.WebpDownscaleHint = new Size(targetWidthHint, targetHeightHint);
+            return this;
+        }
+
+        public DecodeCommands SetDiscardColorProfile(bool value)
+        {
+            DiscardColorProfile = value;
+            return this;
+        }
 
         public object[] ToImageflowDynamic()
         {

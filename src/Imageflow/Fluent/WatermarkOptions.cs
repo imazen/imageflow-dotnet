@@ -1,3 +1,5 @@
+using System;
+
 namespace Imageflow.Fluent
 {
     public class WatermarkOptions
@@ -21,6 +23,7 @@ namespace Imageflow.Fluent
         public uint? MinCanvasWidth { get; set; }
         public uint? MinCanvasHeight { get; set; }
 
+        [Obsolete("Use Set___ methods instead")]
         public WatermarkOptions WithHints(ResampleHints hints)
         {
             Hints = hints;
@@ -32,36 +35,37 @@ namespace Imageflow.Fluent
         /// </summary>
         /// <param name="opacity"></param>
         /// <returns></returns>
+        [Obsolete("Use Set___ methods instead")]
         public WatermarkOptions WithOpacity(float opacity)
         {
             Opacity = opacity;
             return this;
         }
-
+        [Obsolete("Use Set___ methods instead")]
         public WatermarkOptions WithMargins(WatermarkMargins margins)
         {
             FitBox = margins;
             return this;
         }
-        
+        [Obsolete("Use Set___ methods instead")]
         public WatermarkOptions WithFitBox(WatermarkFitBox fitBox)
         {
             FitBox = fitBox;
             return this;
         }
-
+        [Obsolete("Use Set___ methods instead")]
         public WatermarkOptions WithFitMode(WatermarkConstraintMode fitMode)
         {
             FitMode = fitMode;
             return this;
         }
-
+        [Obsolete("Use Set___ methods instead")]
         public WatermarkOptions WithGravity(ConstraintGravity gravity)
         {
             Gravity = gravity;
             return this;
         }
-
+        [Obsolete("Use Set___ methods instead")]
         public WatermarkOptions LayoutWithFitBox(WatermarkFitBox fitBox, WatermarkConstraintMode fitMode,
             ConstraintGravity gravity)
         {
@@ -70,7 +74,7 @@ namespace Imageflow.Fluent
             Gravity = gravity;
             return this;
         }
-        
+        [Obsolete("Use Set___ methods instead")]
         public WatermarkOptions LayoutWithMargins(WatermarkMargins margins, WatermarkConstraintMode fitMode,
             ConstraintGravity gravity)
         {
@@ -86,6 +90,7 @@ namespace Imageflow.Fluent
         /// <param name="minWidth"></param>
         /// <param name="minHeight"></param>
         /// <returns></returns>
+        [Obsolete("Use Set___ methods instead")] 
         public WatermarkOptions WithMinCanvasSize(uint? minWidth, uint? minHeight)
         {
             MinCanvasWidth = minWidth;
@@ -93,6 +98,77 @@ namespace Imageflow.Fluent
             return this;
         }
 
+         public WatermarkOptions SetHints(ResampleHints hints)
+        {
+            Hints = hints;
+            return this; 
+        }
+
+        /// <summary>
+        /// Set the opacity to a value between 0 and 1
+        /// </summary>
+        /// <param name="opacity"></param>
+        /// <returns></returns>
+        public WatermarkOptions SetOpacity(float opacity)
+        {
+            Opacity = opacity;
+            return this;
+        }
+
+        public WatermarkOptions SetMargins(WatermarkMargins margins)
+        {
+            FitBox = margins;
+            return this;
+        }
+        
+        public WatermarkOptions SetFitBox(WatermarkFitBox fitBox)
+        {
+            FitBox = fitBox;
+            return this;
+        }
+
+        public WatermarkOptions SetFitMode(WatermarkConstraintMode fitMode)
+        {
+            FitMode = fitMode;
+            return this;
+        }
+
+        public WatermarkOptions SetGravity(ConstraintGravity gravity)
+        {
+            Gravity = gravity;
+            return this;
+        }
+
+        public WatermarkOptions SetFitBoxLayout(WatermarkFitBox fitBox, WatermarkConstraintMode fitMode,
+            ConstraintGravity gravity)
+        {
+            FitBox = fitBox;
+            FitMode = fitMode;
+            Gravity = gravity;
+            return this;
+        }
+        
+        public WatermarkOptions SetMarginsLayout(WatermarkMargins margins, WatermarkConstraintMode fitMode,
+            ConstraintGravity gravity)
+        {
+            FitBox = margins;
+            FitMode = fitMode;
+            Gravity = gravity;
+            return this;
+        }
+
+        /// <summary>
+        /// Hide the watermark if the canvas is smaller in either dimension
+        /// </summary>
+        /// <param name="minWidth"></param>
+        /// <param name="minHeight"></param>
+        /// <returns></returns>
+        public WatermarkOptions SetMinCanvasSize(uint? minWidth, uint? minHeight)
+        {
+            MinCanvasWidth = minWidth;
+            MinCanvasHeight = minHeight;
+            return this;
+        }
 
         public object ToImageflowDynamic(int ioId)
         {

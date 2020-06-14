@@ -76,7 +76,9 @@ namespace Imageflow.Fluent
         /// </summary>
         /// <returns></returns>
         public BuildNode Decode(Stream source, bool disposeStream) => Decode( new StreamSource(source, disposeStream), GenerateIoId());
+        [Obsolete("Use Decode(IBytesSource source, int ioId)")]
         public BuildNode Decode(ArraySegment<byte> source, int ioId) => Decode( new BytesSource(source), ioId);
+        [Obsolete("Use Decode(IBytesSource source, int ioId)")]
         public BuildNode Decode(byte[] source, int ioId) => Decode( new BytesSource(source), ioId);
         public BuildNode Decode(Stream source, bool disposeStream, int ioId) => Decode( new StreamSource(source, disposeStream), ioId);
 

@@ -21,12 +21,24 @@ namespace Imageflow.Fluent
             W = w;
             H = h;
         }
-        ConstraintMode Mode { get; set; } = ConstraintMode.Within;
-        uint? W { get; set; }
-        uint? H { get; set; }
-        ResampleHints Hints { get; set; }
-        AnyColor? CanvasColor { get; set; }
+        public ConstraintMode Mode { get; set; }
+        public uint? W { get; set; }
+        public uint? H { get; set; }
+        public ResampleHints Hints { get; set; }
+        public AnyColor? CanvasColor { get; set; }
 
+        public Constraint SetHints(ResampleHints hints)
+        {
+            this.Hints = hints;
+            return this;
+        }
+
+        public Constraint SetCanvasColor(AnyColor? canvasColor)
+        {
+            CanvasColor = canvasColor;
+            return this;
+        }
+        
         public object ToImageflowDynamic()
         {
             return new
