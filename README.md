@@ -9,11 +9,9 @@ Imageflow.NET is a .NET API for Imageflow, the fast image optimization and proce
 PM> Install-Package Imageflow.Net
 PM> Install-Package Imageflow.NativeRuntime.win-x86 -pre
 PM> Install-Package Imageflow.NativeRuntime.win-x86_64 -pre
-PM> Install-Package Imageflow.NativeRuntime.win-x86_64-haswell -pre
 PM> Install-Package Imageflow.NativeRuntime.osx_10_11-x86_64 -pre
 PM> Install-Package Imageflow.NativeRuntime.ubuntu_16_04-x86_64 -pre
 PM> Install-Package Imageflow.NativeRuntime.ubuntu_18_04-x86_64 -pre
-PM> Install-Package Imageflow.NativeRuntime.ubuntu_18_04-x86_64-haswell -pre
 ```
 
 Note: You must install the [appropriate NativeRuntime(s)](https://www.nuget.org/packages?q=Imageflow+AND+NativeRuntime) in the project you are deploying - they have to copy imageflow.dll to the output folder. 
