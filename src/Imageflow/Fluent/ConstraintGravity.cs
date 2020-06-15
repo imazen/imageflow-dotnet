@@ -11,24 +11,25 @@ namespace Imageflow.Fluent
         /// </summary>
         public ConstraintGravity()
         {
-            x = 50;
-            y = 50;
+            XPercent = 50;
+            YPercent = 50;
         }
         public ConstraintGravity(float xPercent, float yPercent)
         {
-            x = xPercent;
-            y = yPercent;
+            XPercent = xPercent;
+            YPercent = yPercent;
         }
-        readonly float x;
-        readonly float y;
+
+        public float XPercent { get; }
+        public float YPercent { get; }
 
         public object ToImageflowDynamic()
         {
             return new
             {
                 percentage = new {
-                    x,
-                    y
+                    XPercent,
+                    YPercent
                 }
 
             };
