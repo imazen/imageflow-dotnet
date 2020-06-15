@@ -33,8 +33,8 @@ namespace Imageflow.Fluent
             return new
             {
                 percentage = new {
-                    XPercent,
-                    YPercent
+                    x = XPercent,
+                    y = YPercent
                 }
 
             };
