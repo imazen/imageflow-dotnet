@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 
-namespace Imageflow.Net.Bindings
+namespace Imageflow.Bindings
 {
     internal class PinBox : CriticalFinalizerObject, IDisposable
     {
