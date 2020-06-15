@@ -9,7 +9,6 @@
     <AssemblyVersion>0.1.0</AssemblyVersion>
     <FileVersion>0.1.0</FileVersion>
     <InformationalVersion>0.1.0-pre</InformationalVersion>
-    <PackageLicenseUrl>https://imageresizing.net/licenses</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/imazen/imageflow-dotnet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/imazen/imageflow-dotnet.git</RepositoryUrl>
     <Description>Bindings for the Imageflow image processing library. Also remember to install Imageflow.NativeBinaries.[your platform]</Description>
