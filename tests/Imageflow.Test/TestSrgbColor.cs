@@ -1,8 +1,5 @@
-using System;
 using Xunit;
-using Imageflow.Bindings;
 using Imageflow.Fluent;
-using Xunit.Abstractions;
 namespace Imageflow.Test
 {
     public class TestSrgbColor

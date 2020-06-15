@@ -1,7 +1,4 @@
-﻿using Imageflow.Fluent;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
 
 namespace Imageflow.Fluent
 {
