@@ -6,6 +6,7 @@ namespace Imageflow.Fluent
 {
     public class Constraint
     {
+        public Constraint(uint? w, uint? h) : this(ConstraintMode.Within, w, h){}
         public Constraint(ConstraintMode mode, uint? w, uint? h, ResampleHints hints, AnyColor? canvasColor)
         {
             Mode = mode;
@@ -13,6 +14,8 @@ namespace Imageflow.Fluent
             H = h;
             Hints = hints;
             CanvasColor = canvasColor;
+            if (w == null && h == null)
+                throw new ArgumentNullException(nameof(w), "Either w or h must be non-null.");
         }
 
         public Constraint(ConstraintMode mode, uint? w, uint? h)
@@ -20,6 +23,8 @@ namespace Imageflow.Fluent
             Mode = mode;
             W = w;
             H = h;
+            if (w == null && h == null)
+                throw new ArgumentNullException(nameof(w), "Either w or h must be non-null.");
         }
         public ConstraintMode Mode { get; set; }
         public uint? W { get; set; }
@@ -27,6 +32,12 @@ namespace Imageflow.Fluent
         public ResampleHints Hints { get; set; }
         public AnyColor? CanvasColor { get; set; }
 
+        public Constraint SetConstraintMode(ConstraintMode mode)
+        {
+            Mode = mode;
+            return this;
+        }
+        
         public Constraint SetHints(ResampleHints hints)
         {
             this.Hints = hints;

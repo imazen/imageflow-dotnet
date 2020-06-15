@@ -266,7 +266,8 @@ namespace Imageflow.Bindings
         public bool ContainsIoId(int ioId) => ioSet.ContainsKey(ioId);
         
         /// <summary>
-        /// Will raise an unrecoverable exception if this is not an output buffer
+        /// Will raise an unrecoverable exception if this is not an output buffer.
+        /// Stream is not valid after the JobContext is disposed
         /// </summary>
         /// <returns></returns>
         public Stream GetOutputBuffer(int ioId)

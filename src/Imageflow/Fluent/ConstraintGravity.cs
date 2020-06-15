@@ -14,10 +14,10 @@ namespace Imageflow.Fluent
             x = 50;
             y = 50;
         }
-        public ConstraintGravity(float x_percent, float y_percent)
+        public ConstraintGravity(float xPercent, float yPercent)
         {
-            x = x_percent;
-            y = y_percent;
+            x = xPercent;
+            y = yPercent;
         }
         readonly float x;
         readonly float y;

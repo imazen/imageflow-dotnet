@@ -1,5 +1,7 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Linq;
+using System.Reflection;
 
 namespace Imageflow.Fluent
 {
@@ -11,7 +13,10 @@ namespace Imageflow.Fluent
 
         public DecoderDownscalingMode JpegDownscalingMode { get; set; } = DecoderDownscalingMode.Unspecified;
 
-        public Size? WebpDownscaleHint { get; set; }
+        [Obsolete("Use WebPDownscaleHint instead")]
+        public Size? WebpDownscaleHint { get => WebPDownscaleHint; set => WebPDownscaleHint = value; }
+        
+        public Size? WebPDownscaleHint { get; set; }
 
         public bool DiscardColorProfile { get; set; } = false;
 
@@ -23,7 +28,7 @@ namespace Imageflow.Fluent
             return this;
         }
 
-        public DecodeCommands SetWebpDownscaling(int targetWidthHint,
+        public DecodeCommands SetWebPDownscaling(int targetWidthHint,
             int targetHeightHint)
         {
             this.WebpDownscaleHint = new Size(targetWidthHint, targetHeightHint);
@@ -46,7 +51,7 @@ namespace Imageflow.Fluent
                     gamma_correct_for_srgb_during_spatial_luma_scaling = JpegDownscalingMode == DecoderDownscalingMode.GammaCorrectSpatialLumaScaling
                 } 
              }: null;
-            object downscaleWebp = WebpDownscaleHint.HasValue
+            object downscaleWebP = WebpDownscaleHint.HasValue
                 ? new
                 {
                     webp_decoder_hints = new
@@ -59,7 +64,7 @@ namespace Imageflow.Fluent
             
                 
             object ignore = DiscardColorProfile ? new {discard_color_profile = (string) null} : null;
-            return new [] {downscale, ignore, downscaleWebp}.Where(obj => obj != null).ToArray();
+            return new [] {downscale, ignore, downscaleWebP}.Where(obj => obj != null).ToArray();
         }
     }
 }
