@@ -8,13 +8,18 @@ namespace Imageflow.Fluent
     /// </summary>
     public struct SrgbColor
     {
-        
-        private uint value;
+        public SrgbColor(byte r, byte g, byte b, byte a)
+        {
+            A = a;
+            R = r;
+            G = g;
+            B = b;
+        }
 
-        public byte A => Mask8(value, 0);
-        public byte R => Mask8(value, 1);
-        public byte G => Mask8(value, 2);
-        public byte B => Mask8(value, 3);
+        public byte A { get; private set; }
+        public byte R { get; private set; }
+        public byte G { get; private set; }
+        public byte B { get; private set; }
 
         private static byte Mask8(uint v, int index)
         {
@@ -55,18 +60,13 @@ namespace Imageflow.Fluent
 
         public string ToHexUnprefixed() => A == 0xff ? $"{R:x2}{G:x2}{B:x2}" : $"{R:x2}{G:x2}{B:x2}{A:x2}";
 
-        public static SrgbColor BGRA(byte b, byte g, byte r, byte a) => new SrgbColor()
-        {
-            value = (uint) (b << 24 | g << 16 | r << 8 | a)
-        };
-        public static SrgbColor RGBA(byte r, byte g, byte b, byte a) => new SrgbColor()
-        {
-            value = (uint) (b << 24 | g << 16 | r << 8 | a)
-        };
-        public static SrgbColor RGB(byte r, byte g, byte b) => new SrgbColor()
-        {
-            value = (uint) (b << 24 | g << 16 | r << 8 | 0xff)
-        };
+        public static SrgbColor BGRA(byte b, byte g, byte r, byte a) =>
+            new SrgbColor(){ A = a, R = r, G = g,  B = b};
+        public static SrgbColor RGBA(byte r, byte g, byte b, byte a) =>
+            new SrgbColor(){ A = a, R = r, G = g,  B = b};
+        public static SrgbColor RGB(byte r, byte g, byte b) =>
+            new SrgbColor(){ A = 255, R = r, G = g,  B = b};
+        
 
     }
 }
