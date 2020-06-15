@@ -1,4 +1,4 @@
-[![Travis build Status](https://travis-ci.org/imazen/imageflow-dotnet.svg?branch=master)](https://travis-ci.org/imazen/imageflow-dotnet)
+[![.NET Core](https://github.com/imazen/imageflow-dotnet/workflows/.NET%20Core/badge.svg)](https://github.com/imazen/imageflow-dotnet/actions?query=workflow%3A%22.NET+Core%22)
 [![Build status](https://ci.appveyor.com/api/projects/status/vqfofqe3bwqwdu4a?svg=true)](https://ci.appveyor.com/project/imazen/imageflow-dotnet)
 
 
