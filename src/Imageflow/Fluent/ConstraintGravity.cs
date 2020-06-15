@@ -14,6 +14,11 @@ namespace Imageflow.Fluent
             XPercent = 50;
             YPercent = 50;
         }
+        /// <summary>
+        /// Aligns the watermark so xPercent of free space is on the left and yPercent of free space is on the top
+        /// </summary>
+        /// <param name="xPercent"></param>
+        /// <param name="yPercent"></param>
         public ConstraintGravity(float xPercent, float yPercent)
         {
             XPercent = xPercent;
