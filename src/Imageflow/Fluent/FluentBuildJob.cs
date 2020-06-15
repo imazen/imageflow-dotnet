@@ -147,8 +147,11 @@ namespace Imageflow.Fluent
             
         }
 
-        public  Task<BuildJobResult> FinishAsync() => FinishAsync(default);
-        public async Task<BuildJobResult> FinishAsync(CancellationToken cancellationToken)
+        public Task<BuildJobResult> FinishAsync() => FinishAsync(default);
+
+        public Task<BuildJobResult> FinishAsync(CancellationToken cancellationToken)
+            => FinishAsync(new JobExecutionOptions(), cancellationToken);
+        internal async Task<BuildJobResult> FinishAsync(JobExecutionOptions executionOptions, CancellationToken cancellationToken)
         {
             var inputByteArrays = await Task.WhenAll(_inputs.Select( async pair => new KeyValuePair<int, ArraySegment<byte>>(pair.Key, await pair.Value.GetBytesAsync(cancellationToken))));
             using (var ctx = new JobContext())
@@ -160,12 +163,19 @@ namespace Imageflow.Fluent
                 {
                     ctx.AddOutputBuffer(outId);
                 }
-                //TODO: Use a Semaphore to limit concurrency; and move work to threadpool
+                
+                //TODO: Use a Semaphore to limit concurrency
 
-                using (var response = ctx.Execute(new
+                var message = new
                 {
                     framewise = ToFramewise()
-                }))
+                };
+
+                var response = executionOptions.OffloadCpuToThreadPool
+                    ? await Task.Run(() => ctx.Execute(message), cancellationToken)
+                    : ctx.Execute(message);
+                
+                using (response)
                 {
 
                     foreach (var pair in _outputs)
