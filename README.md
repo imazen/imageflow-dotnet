@@ -76,13 +76,13 @@ public async Task TestAllJob()
             .ConstrainWithin(5, 5)
             .Watermark(new BytesSource(imageBytes), 
                 new WatermarkOptions()
-                    .LayoutWithMargins(
+                   .SetMarginsLayout(
                         new WatermarkMargins(WatermarkAlign.Image, 1,1,1,1), 
                         WatermarkConstraintMode.Within, 
                         new ConstraintGravity(90,90))
-                    .WithOpacity(0.5f)
-                    .WithHints(new ResampleHints().Sharpen(15f, SharpenWhen.Always))
-                    .WithMinCanvasSize(1,1))
+                    .SetOpacity(0.5f)
+                    .SetHints(new ResampleHints().SetSharpen(15f, SharpenWhen.Always))
+                    .SetMinCanvasSize(1,1))
             .EncodeToBytes(new MozJpegEncoder(80,true))
             .Finish().InProcessAsync();
 
@@ -104,7 +104,7 @@ public async Task TestMultipleOutputs()
             Constrain(new Constraint(ConstraintMode.Fit, 160, 120))
             .Branch(f => f.ConstrainWithin(80, 60).EncodeToBytes(new WebPLosslessEncoder()))
             .Branch(f => f.ConstrainWithin(40, 30).EncodeToBytes(new WebPLossyEncoder(50)))
-            .EncodeToBytes(new LibPngEncoder())
+            .EncodeToBytes(new LodePngEncoder())
             .Finish().InProcessAsync();
 
         Assert.Equal(60, r.TryGet(1).Width);

@@ -86,13 +86,13 @@ namespace Imageflow.Test
                     .ConstrainWithin(5, 5)
                     .Watermark(new BytesSource(imageBytes), 
                         new WatermarkOptions()
-                            .LayoutWithMargins(
+                            .SetMarginsLayout(
                                 new WatermarkMargins(WatermarkAlign.Image, 1,1,1,1), 
                                 WatermarkConstraintMode.Within, 
                                 new ConstraintGravity(90,90))
-                            .WithOpacity(0.5f)
-                            .WithHints(new ResampleHints().Sharpen(15f, SharpenWhen.Always))
-                            .WithMinCanvasSize(1,1))
+                            .SetOpacity(0.5f)
+                            .SetHints(new ResampleHints().SetSharpen(15f, SharpenWhen.Always))
+                            .SetMinCanvasSize(1,1))
                     .EncodeToBytes(new MozJpegEncoder(80,true))
                     .Finish().InProcessAsync();
 
@@ -126,7 +126,7 @@ namespace Imageflow.Test
                     Constrain(new Constraint(ConstraintMode.Fit, 160, 120))
                     .Branch(f => f.ConstrainWithin(80, 60).EncodeToBytes(new WebPLosslessEncoder()))
                     .Branch(f => f.ConstrainWithin(40, 30).EncodeToBytes(new WebPLossyEncoder(50)))
-                    .EncodeToBytes(new LibPngEncoder())
+                    .EncodeToBytes(new LodePngEncoder())
                     .Finish().InProcessAsync();
                 
                 
@@ -211,7 +211,7 @@ namespace Imageflow.Test
             {
                 var watermarks = new List<InputWatermark>();
                 watermarks.Add(new InputWatermark(new BytesSource(imageBytes), new WatermarkOptions()));
-                watermarks.Add(new InputWatermark(new BytesSource(imageBytes), new WatermarkOptions().WithGravity(new ConstraintGravity(100,100))));
+                watermarks.Add(new InputWatermark(new BytesSource(imageBytes), new WatermarkOptions().SetGravity(new ConstraintGravity(100,100))));
                 
                 var r = await b.BuildCommandString(
                     new BytesSource(imageBytes), 
@@ -308,9 +308,9 @@ namespace Imageflow.Test
                     DiscardColorProfile = true
                 };
                 var r = await b.Decode(new BytesSource(imageBytes), 0, cmd)
-                    .Distort(30, 20, new ResampleHints().Sharpen(50.0f, SharpenWhen.Always).ResampleFilter(InterpolationFilter.Robidoux_Fast, InterpolationFilter.Cubic))
+                    .Distort(30, 20, new ResampleHints().SetSharpen(50.0f, SharpenWhen.Always).SetResampleFilters(InterpolationFilter.Robidoux_Fast, InterpolationFilter.Cubic))
                     .ConstrainWithin(5, 5)
-                    .EncodeToBytes(new LibPngEncoder()).Finish().InProcessAsync();
+                    .EncodeToBytes(new LodePngEncoder()).Finish().InProcessAsync();
 
                 Assert.Equal(5, r.First.Width);
                 Assert.True(r.First.TryGetBytes().HasValue);

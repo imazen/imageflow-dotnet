@@ -31,7 +31,7 @@ namespace Imageflow.Fluent
         public DecodeCommands SetWebPDownscaling(int targetWidthHint,
             int targetHeightHint)
         {
-            this.WebpDownscaleHint = new Size(targetWidthHint, targetHeightHint);
+            this.WebPDownscaleHint = new Size(targetWidthHint, targetHeightHint);
             return this;
         }
 
@@ -51,13 +51,13 @@ namespace Imageflow.Fluent
                     gamma_correct_for_srgb_during_spatial_luma_scaling = JpegDownscalingMode == DecoderDownscalingMode.GammaCorrectSpatialLumaScaling
                 } 
              }: null;
-            object downscaleWebP = WebpDownscaleHint.HasValue
+            object downscaleWebP = WebPDownscaleHint.HasValue
                 ? new
                 {
                     webp_decoder_hints = new
                     {
-                        width = WebpDownscaleHint.Value.Width,
-                        height = WebpDownscaleHint.Value.Height
+                        width = WebPDownscaleHint.Value.Width,
+                        height = WebPDownscaleHint.Value.Height
                     }
                 }
                 : null;
