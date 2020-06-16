@@ -2,7 +2,7 @@ version: '{build}-appveyor' # We override this during 'install'
 image: Visual Studio 2019
 branches:
   only:
-    - master
+    - main
 
 install:
   # This script is for automating releases triggered by GitHub.com - or, rather, determining all the right strings 
