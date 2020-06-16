@@ -7,7 +7,7 @@ namespace Imageflow.Fluent
     /// </summary>
     public class BuildItemBase
     {
-        internal FluentBuildJob Builder { get; }
+        internal ImageJob Builder { get; }
         internal BuildNode Input { get; }
         internal BuildNode Canvas { get; }
         internal object NodeData { get;  }
@@ -19,7 +19,7 @@ namespace Imageflow.Fluent
         private static long NextUid() => Interlocked.Increment(ref _next);
         internal bool IsEmpty => NodeData == null;
         
-        protected BuildItemBase(FluentBuildJob builder, object nodeData, BuildNode inputNode, BuildNode canvasNode)
+        protected BuildItemBase(ImageJob builder, object nodeData, BuildNode inputNode, BuildNode canvasNode)
         {
             Builder = builder;
             Input = inputNode;

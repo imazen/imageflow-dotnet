@@ -8,12 +8,12 @@ namespace Imageflow.Fluent
     /// </summary>
     public class BuildEndpointWithToken
     {
-        private readonly FluentBuildJob _builder;
+        private readonly ImageJob _builder;
         private readonly CancellationToken _token;
 
-        public BuildEndpointWithToken(FluentBuildJob fluentBuildJob, CancellationToken cancellationToken)
+        public BuildEndpointWithToken(ImageJob ImageJob, CancellationToken cancellationToken)
         {
-            _builder = fluentBuildJob;
+            _builder = ImageJob;
             _token = cancellationToken;
         }
 

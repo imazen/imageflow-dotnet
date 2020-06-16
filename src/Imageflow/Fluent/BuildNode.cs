@@ -6,7 +6,7 @@ namespace Imageflow.Fluent
 {
     public class BuildNode :BuildItemBase
     {
-        internal static BuildNode StartNode(FluentBuildJob graph, object data) => new BuildNode(graph, data, null, null);
+        internal static BuildNode StartNode(ImageJob graph, object data) => new BuildNode(graph, data, null, null);
     
         /// <summary>
         /// Encode the result to the given destination (such as a BytesDestination or StreamDestination)
@@ -43,7 +43,7 @@ namespace Imageflow.Fluent
             Encode(new StreamDestination(stream, disposeStream), encoderPreset);
         
         
-        private BuildNode(FluentBuildJob builder,object nodeData, BuildNode inputNode, BuildNode canvasNode) : base(builder, nodeData, inputNode,
+        private BuildNode(ImageJob builder,object nodeData, BuildNode inputNode, BuildNode canvasNode) : base(builder, nodeData, inputNode,
             canvasNode){}
 
         private BuildNode To(object data) => new BuildNode(Builder, data, this, null);
@@ -195,7 +195,7 @@ namespace Imageflow.Fluent
             });
 
         /// <summary>
-        /// Does not honor encoding or decoding parameters. Use FluentBuildJob.BuildCommandString() instead unless
+        /// Does not honor encoding or decoding parameters. Use ImageJob.BuildCommandString() instead unless
         /// you are actually combining this node with others in a job. 
         /// </summary>
         /// <param name="commandString"></param>

@@ -29,7 +29,7 @@ public async void TestGetImageInfo()
     var imageBytes = Convert.FromBase64String(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
 
-    var info = await FluentBuildJob.GetImageInfo(new BytesSource(imageBytes));
+    var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
     
     Assert.Equal(info.ImageWidth, 1);
     Assert.Equal(info.ImageHeight, 1);
@@ -46,7 +46,7 @@ public async Task TestAllJob()
 {
     var imageBytes = Convert.FromBase64String(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-    using (var b = new FluentBuildJob())
+    using (var b = new ImageJob())
     {
         var r = await b.Decode(imageBytes)
             .FlipVertical()
@@ -98,7 +98,7 @@ using Imageflow.Fluent;
 public async Task TestMultipleOutputs()
 {
     var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-    using (var b = new FluentBuildJob())
+    using (var b = new ImageJob())
     {
         var r = await b.Decode(imageBytes).
             Constrain(new Constraint(ConstraintMode.Fit, 160, 120))
@@ -126,7 +126,7 @@ public async Task TestBuildCommandString()
     var imageBytes = Convert.FromBase64String(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
     // We wrap the job in a using() statement to free memory faster
-    using (var b = new FluentBuildJob())
+    using (var b = new ImageJob())
     {
         
         var r = await b.BuildCommandString(

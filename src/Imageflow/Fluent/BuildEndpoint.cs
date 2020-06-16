@@ -9,7 +9,7 @@ namespace Imageflow.Fluent
     /// </summary>
     public class BuildEndpoint : BuildItemBase
     {
-        internal BuildEndpoint(FluentBuildJob builder,object nodeData, BuildNode inputNode, BuildNode canvasNode) : base(builder, nodeData, inputNode,
+        internal BuildEndpoint(ImageJob builder,object nodeData, BuildNode inputNode, BuildNode canvasNode) : base(builder, nodeData, inputNode,
             canvasNode){}
 
         public BuildEndpointWithToken Finish() => new BuildEndpointWithToken(Builder, default);

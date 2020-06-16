@@ -24,7 +24,7 @@ namespace Imageflow.Test
             var imageBytes = Convert.FromBase64String(
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
 
-            var info = await FluentBuildJob.GetImageInfo(new BytesSource(imageBytes));
+            var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
             
             Assert.Equal(info.ImageWidth, 1);
             Assert.Equal(info.ImageHeight, 1);
@@ -37,7 +37,7 @@ namespace Imageflow.Test
         public async Task TestBuildJob()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var b = new FluentBuildJob())
+            using (var b = new ImageJob())
             {
                 var r = await b.Decode(imageBytes)
                     .FlipHorizontal()
@@ -56,7 +56,7 @@ namespace Imageflow.Test
         {
             var imageBytes = Convert.FromBase64String(
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var b = new FluentBuildJob())
+            using (var b = new ImageJob())
             {
                 var r = await b.Decode(imageBytes)
                     .FlipVertical()
@@ -104,7 +104,7 @@ namespace Imageflow.Test
         public async Task TestConstraints()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var b = new FluentBuildJob())
+            using (var b = new ImageJob())
             {
                 var r = await b.Decode(imageBytes).
                     Constrain(new Constraint(ConstraintMode.Fit_Crop,10,20))
@@ -120,7 +120,7 @@ namespace Imageflow.Test
         public async Task TestMultipleOutputs()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var b = new FluentBuildJob())
+            using (var b = new ImageJob())
             {
                 var r = await b.Decode(imageBytes).
                     Constrain(new Constraint(ConstraintMode.Fit, 160, 120))
@@ -141,7 +141,7 @@ namespace Imageflow.Test
         public async Task TestMultipleInputs()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var b = new FluentBuildJob())
+            using (var b = new ImageJob())
             {
 
                 var canvas = b.Decode(imageBytes)
@@ -172,7 +172,7 @@ namespace Imageflow.Test
         public async Task TestJobWithCommandString()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var b = new FluentBuildJob())
+            using (var b = new ImageJob())
             {
                 var r = await b.Decode(imageBytes).ResizerCommands("width=3&height=2&mode=stretch&scale=both")
                     .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
@@ -188,7 +188,7 @@ namespace Imageflow.Test
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
             // We wrap the job in a using() statement to free memory faster
-            using (var b = new FluentBuildJob())
+            using (var b = new ImageJob())
             {
                 
                 var r = await b.BuildCommandString(
@@ -207,7 +207,7 @@ namespace Imageflow.Test
         public async Task TestBuildCommandStringWithWatermarks()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var b = new FluentBuildJob())
+            using (var b = new ImageJob())
             {
                 var watermarks = new List<InputWatermark>();
                 watermarks.Add(new InputWatermark(new BytesSource(imageBytes), new WatermarkOptions()));
@@ -232,7 +232,7 @@ namespace Imageflow.Test
 
             var imageBytes = Convert.FromBase64String(
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var b = new FluentBuildJob())
+            using (var b = new ImageJob())
             {
                 string jsonPath;
                 using (var job = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20)
@@ -281,7 +281,7 @@ namespace Imageflow.Test
             {
                 var imageBytes = Convert.FromBase64String(
                     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-                using (var b = new FluentBuildJob())
+                using (var b = new ImageJob())
                 {
                     var r = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20).ConstrainWithin(5, 5)
                         .EncodeToBytes(new GifEncoder()).FinishWithTimeout(2000)
@@ -299,7 +299,7 @@ namespace Imageflow.Test
         public async Task TestCustomDownscaling()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-            using (var b = new FluentBuildJob())
+            using (var b = new ImageJob())
             {
                 var cmd = new DecodeCommands
                 {

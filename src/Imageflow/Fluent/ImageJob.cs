@@ -13,7 +13,12 @@ using Newtonsoft.Json;
 
 namespace Imageflow.Fluent
 {
-    public partial class FluentBuildJob: IDisposable
+    public class FluentBuildJob : ImageJob
+    {
+        
+    }
+        
+    public class ImageJob: IDisposable
     {
         private bool _disposed;
         private readonly Dictionary<int, IBytesSource> _inputs = new Dictionary<int, IBytesSource>(2);
@@ -415,11 +420,11 @@ namespace Imageflow.Fluent
             }
             if (n.Canvas != null && !_nodesCreated.Contains(n.Canvas))// || n.Canvas.Builder != this))
             {
-                throw new ImageflowAssertionFailed("You cannot use a canvas node from a different FluentBuildJob");
+                throw new ImageflowAssertionFailed("You cannot use a canvas node from a different ImageJob");
             }
             if (n.Input != null &&  !_nodesCreated.Contains(n.Input))
             {
-                throw new ImageflowAssertionFailed("You cannot use an input node from a different FluentBuildJob");
+                throw new ImageflowAssertionFailed("You cannot use an input node from a different ImageJob");
             }
         }
 
@@ -483,7 +488,7 @@ namespace Imageflow.Fluent
 
         private void AssertReady()
         {
-            if (_disposed) throw new ObjectDisposedException("FluentBuildJob");
+            if (_disposed) throw new ObjectDisposedException("ImageJob");
         }
 
         public void Dispose()
