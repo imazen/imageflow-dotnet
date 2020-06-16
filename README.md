@@ -18,6 +18,9 @@ Note: You must install the [appropriate NativeRuntime(s)](https://www.nuget.org/
 
 [NativeRuntimes](https://www.nuget.org/packages?q=Imageflow+AND+NativeRuntime) that are suffixed with -haswell (2013, AVX2 support) require a CPU of that generation or later. 
 
+We offer commercial licenses at https://imageresizing.net/pricing, or you can use
+Imageflow, Imageflow.NET and Imageflow.NET Server under the terms of the AGPLv3.
+
 ## Examples
 ### Getting image dimensions and format
 
