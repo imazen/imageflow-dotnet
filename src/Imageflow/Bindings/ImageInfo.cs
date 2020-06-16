@@ -10,7 +10,7 @@ namespace Imageflow.Bindings
             var info = new ImageInfo();
 
             info.ImageWidth = imageInfo.image_width.Value;
-            info.ImageHeight = imageInfo.image_width.Value;
+            info.ImageHeight = imageInfo.image_height.Value;
             info.PreferredMimeType = imageInfo.preferred_mime_type.Value;
             info.PreferredExtension = imageInfo.preferred_extension.Value;
             info.FrameDecodesInto = Enum.Parse(typeof(Imageflow.Fluent.PixelFormat), imageInfo.frame_decodes_into.Value, true);
