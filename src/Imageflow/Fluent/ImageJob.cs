@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 
 namespace Imageflow.Fluent
 {
+    [Obsolete("Use ImageJob instead")]
     public class FluentBuildJob : ImageJob
     {
         
