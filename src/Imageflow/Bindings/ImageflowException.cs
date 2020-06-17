@@ -7,55 +7,78 @@ namespace Imageflow.Bindings
 {
     public class ImageflowException : Exception
     {
-        private const int MaxBufferSize = 8096;
+        private const int MaxBufferSize = 8096 * 4;
 
         internal ImageflowException(string message) : base(message)
         {
             
         }
 
-        internal static ImageflowException FromContext(JobContextHandle c, ulong defaultBufferSize = 2048)
+        internal enum ErrorFetchResult
         {
-            if (c.IsClosed || c.IsInvalid || !NativeMethods.imageflow_context_has_error(c))
+            BufferTooSmall,
+            ContextInvalid,
+            NoError,
+            Success
+        }
+        private static ErrorFetchResult TryGetErrorString(JobContextHandle c, ulong bufferSize, out string message)
+        {
+            message = null;
+            if (c.IsClosed || c.IsInvalid)
             {
-                return null;
+                return ErrorFetchResult.ContextInvalid;
             }
-            var buffer = new byte[defaultBufferSize];
+            if (!NativeMethods.imageflow_context_has_error(c))
+            {
+                return ErrorFetchResult.NoError;
+            }
+            var buffer = new byte[bufferSize];
             var pinned = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-
             
-            bool everythingWritten;
-            
-            string message = null;
             try
             {
-               
-                everythingWritten = NativeMethods.imageflow_context_error_write_to_buffer(c,
+                var everythingWritten = NativeMethods.imageflow_context_error_write_to_buffer(c,
                     pinned.AddrOfPinnedObject(), new UIntPtr((ulong) buffer.LongLength), out var bytesWritten);
 
-                if (bytesWritten.ToUInt64() > 0)
-                {
-                    
-                    message = Encoding.UTF8.GetString(buffer, 0, (int)Math.Min(bytesWritten.ToUInt64(), defaultBufferSize)).Replace("\n", "");
-                    message = message + message.Length;
-                    Debug.WriteLine(message);
-                    Console.WriteLine(message);
-                }
+                message = bytesWritten.ToUInt64() > 0 
+                    ? Encoding.UTF8.GetString(buffer, 0, (int)Math.Min(bytesWritten.ToUInt64(), bufferSize)) 
+                    : "";
+
+                return everythingWritten ? ErrorFetchResult.Success : ErrorFetchResult.BufferTooSmall;
             }
             finally
             {
                 pinned.Free();
             }
-
-            if (everythingWritten) return new ImageflowException(message ?? "Empty error and stacktrace");
-
-            if (defaultBufferSize < MaxBufferSize)
+        }
+        
+        internal static ImageflowException FromContext(JobContextHandle c, ulong defaultBufferSize = 2048)
+        {
+            var result = ErrorFetchResult.BufferTooSmall;
+            for (var bufferSize = defaultBufferSize; bufferSize < MaxBufferSize; bufferSize *= 2)
             {
-                return FromContext(c, MaxBufferSize);
+                result = TryGetErrorString(c, bufferSize, out var message);
+                switch (result)
+                {
+                    case ErrorFetchResult.Success:
+                        return new ImageflowException(message);
+                    case ErrorFetchResult.ContextInvalid:
+                        return null;
+                    case ErrorFetchResult.NoError:
+                        return null;
+                    case ErrorFetchResult.BufferTooSmall: break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
-            throw new ImageflowAssertionFailed(
-                $"Imageflow error and stacktrace exceeded {MaxBufferSize} bytes");
 
+            if (result == ErrorFetchResult.BufferTooSmall)
+            {
+                throw new ImageflowAssertionFailed(
+                    $"Imageflow error and stacktrace exceeded {MaxBufferSize} bytes");
+            }
+
+            return null;
         }
     }
 }
