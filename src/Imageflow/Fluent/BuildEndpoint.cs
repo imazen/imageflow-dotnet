@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 namespace Imageflow.Fluent
 {
@@ -11,11 +12,14 @@ namespace Imageflow.Fluent
     {
         internal BuildEndpoint(ImageJob builder,object nodeData, BuildNode inputNode, BuildNode canvasNode) : base(builder, nodeData, inputNode,
             canvasNode){}
+        
+        public FinishJobBuilder Finish() => new FinishJobBuilder(Builder, default);
+        
+        [Obsolete("Use Finish().WithCancellationToken")]
+        public FinishJobBuilder FinishWithToken(CancellationToken token) => new FinishJobBuilder(Builder, token);
 
-        public BuildEndpointWithToken Finish() => new BuildEndpointWithToken(Builder, default);
-        public BuildEndpointWithToken FinishWithToken(CancellationToken token) => new BuildEndpointWithToken(Builder, token);
-
-        public BuildEndpointWithToken FinishWithTimeout(int milliseconds)
+        [Obsolete("Use Finish().WithCancellationTimeout")]
+        public FinishJobBuilder FinishWithTimeout(int milliseconds)
         {
             using (var tokenSource = new CancellationTokenSource(milliseconds))
             {

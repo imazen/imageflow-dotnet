@@ -152,12 +152,36 @@ namespace Imageflow.Fluent
             return new BuildEndpoint(this, nodeData, null, null);
             
         }
+        
+        /// <summary>
+        /// Complete the job and set execution options
+        /// </summary>
+        /// <returns></returns>
+        public FinishJobBuilder Finish() => new FinishJobBuilder(this, default);
 
-        public Task<BuildJobResult> FinishAsync() => FinishAsync(default);
+        [Obsolete("Use .Finish().InProcessAsync()")]
+        public Task<BuildJobResult> FinishAsync() => this.Finish().InProcessAsync();
 
+        [Obsolete("Use .Finish().SetCancellationToken(t).InProcessAsync()")]
         public Task<BuildJobResult> FinishAsync(CancellationToken cancellationToken)
-            => FinishAsync(new JobExecutionOptions(), cancellationToken);
-        internal async Task<BuildJobResult> FinishAsync(JobExecutionOptions executionOptions, CancellationToken cancellationToken)
+            => this.Finish().SetCancellationToken(cancellationToken).InProcessAsync();
+        
+        [Obsolete("Use .Finish().SetCancellationToken(cancellationToken).InSubprocessAsync(imageflowToolPath, outputBufferCapacity)")]
+        public Task<BuildJobResult> FinishInSubprocessAsync(CancellationToken cancellationToken,
+            string imageflowToolPath, long? outputBufferCapacity = null) =>
+            this.Finish().SetCancellationToken(cancellationToken)
+                .InSubprocessAsync(imageflowToolPath, outputBufferCapacity);
+        
+        [Obsolete("Use .Finish().SetCancellationToken(cancellationToken).WriteJsonJobAndInputs(deleteFilesOnDispose)")]
+        public Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(CancellationToken cancellationToken, bool deleteFilesOnDispose)
+            => this.Finish().SetCancellationToken(cancellationToken).WriteJsonJobAndInputs(deleteFilesOnDispose);
+        
+        [Obsolete("Use .Finish().SetCancellationToken(cancellationToken).InProcessAndDisposeAsync()")]
+        public Task<BuildJobResult> FinishAndDisposeAsync(CancellationToken cancellationToken)
+            => this.Finish().SetCancellationToken(cancellationToken).InProcessAndDisposeAsync();
+        
+    
+        internal async Task<BuildJobResult> FinishAsync(JobExecutionOptions executionOptions, SecurityOptions securityOptions, CancellationToken cancellationToken)
         {
             var inputByteArrays = await Task.WhenAll(_inputs.Select( async pair => new KeyValuePair<int, ArraySegment<byte>>(pair.Key, await pair.Value.GetBytesAsync(cancellationToken))));
             using (var ctx = new JobContext())
@@ -174,6 +198,7 @@ namespace Imageflow.Fluent
 
                 var message = new
                 {
+                    security = securityOptions?.ToImageflowDynamic(),
                     framewise = ToFramewise()
                 };
 
@@ -258,7 +283,7 @@ namespace Imageflow.Fluent
                 Dispose();
             }
         }
-        private async Task<SubprocessFilesystemJob> PrepareForSubprocessAsync(CancellationToken cancellationToken, bool cleanupFiles, long? outputBufferCapacity = null)
+        private async Task<SubprocessFilesystemJob> PrepareForSubprocessAsync(CancellationToken cancellationToken, SecurityOptions securityOptions, bool cleanupFiles, long? outputBufferCapacity = null)
         {
             var job = new SubprocessFilesystemJob { Provider = cleanupFiles ? SystemTempProvider() : TemporaryFile.CreateProvider()};
             try
@@ -310,6 +335,10 @@ namespace Imageflow.Fluent
                     io = inputFiles.Select(v => (object) new {v.io_id, v.direction, v.io})
                         .Concat(outputFiles.Select(v => (object) new {v.io_id, v.direction, v.io}))
                         .ToArray(),
+                    builder_config = new
+                    {
+                        security = securityOptions?.ToImageflowDynamic()
+                    },
                     framewise = ToFramewise()
                 };
             
@@ -343,9 +372,14 @@ namespace Imageflow.Fluent
                 throw; 
             }
         }
-        
-        public async Task<BuildJobResult> FinishInSubprocessAsync(CancellationToken cancellationToken,
-            string imageflowToolPath, long? outputBufferCapacity = null)
+
+
+
+
+
+
+        internal async Task<BuildJobResult> FinishInSubprocessAsync(SecurityOptions securityOptions, 
+            string imageflowToolPath, long? outputBufferCapacity = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (imageflowToolPath == null)
             {
@@ -356,7 +390,7 @@ namespace Imageflow.Fluent
                 throw new FileNotFoundException("Cannot find imageflow_tool using path \"" + imageflowToolPath + "\" and currect folder \"" + Directory.GetCurrentDirectory() + "\"");
             }
 
-            using (var job = await PrepareForSubprocessAsync(cancellationToken, true, outputBufferCapacity))
+            using (var job = await PrepareForSubprocessAsync(cancellationToken, securityOptions, true, outputBufferCapacity))
             {
                 
                 var startInfo = new ProcessStartInfo
@@ -394,18 +428,12 @@ namespace Imageflow.Fluent
             }
         }
         
-        public async Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(CancellationToken cancellationToken, bool deleteFilesOnDispose)
+        internal async Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(CancellationToken cancellationToken, SecurityOptions securityOptions,  bool deleteFilesOnDispose)
         {
-            return await PrepareForSubprocessAsync(cancellationToken, deleteFilesOnDispose);
+            return await PrepareForSubprocessAsync(cancellationToken, securityOptions, deleteFilesOnDispose);
         }
-        
-        
-        public async Task<BuildJobResult> FinishAndDisposeAsync(CancellationToken cancellationToken)
-        {
-            var r = await FinishAsync(cancellationToken);
-            Dispose();
-            return r;
-        }
+
+     
         
         private readonly HashSet<BuildItemBase> _nodesCreated = new HashSet<BuildItemBase>();
        

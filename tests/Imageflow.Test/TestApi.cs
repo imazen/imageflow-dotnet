@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using Xunit;
 using System.Threading.Tasks;
+using Imageflow.Bindings;
 using Imageflow.Fluent;
  using Xunit.Abstractions;
 
@@ -182,6 +183,28 @@ namespace Imageflow.Test
             }
 
         }
+        
+        [Fact]
+        public async Task TestEncodeSizeLimit()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            using (var b = new ImageJob())
+            {
+                var e = await Assert.ThrowsAsync<ImageflowException>(async () =>
+                {
+                    var r = await b.Decode(imageBytes)
+                        .ResizerCommands("width=3&height=2&mode=stretch&scale=both")
+                        .EncodeToBytes(new GifEncoder())
+                        .Finish()
+                        .SetSecurityOptions(new SecurityOptions().SetMaxEncodeSize(new FrameSizeLimit(1, 1, 1)))
+                        .InProcessAsync();
+                    
+                });
+                Assert.StartsWith("ArgumentInvalid: SizeLimitExceeded: Frame width 3 exceeds max_encode_size.w",e.Message);
+            }
+
+        }
+        
 
         [Fact]
         public async Task TestBuildCommandString()
@@ -237,7 +260,7 @@ namespace Imageflow.Test
                 string jsonPath;
                 using (var job = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20)
                     .ConstrainWithin(5, 5)
-                    .EncodeToBytes(new GifEncoder()).FinishWithTimeout(2000)
+                    .EncodeToBytes(new GifEncoder()).Finish().WithCancellationTimeout(2000)
                     .WriteJsonJobAndInputs(true))
                 {
                     jsonPath = job.JsonPath;
@@ -284,7 +307,9 @@ namespace Imageflow.Test
                 using (var b = new ImageJob())
                 {
                     var r = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20).ConstrainWithin(5, 5)
-                        .EncodeToBytes(new GifEncoder()).FinishWithTimeout(2000)
+                        .EncodeToBytes(new GifEncoder())
+                        .Finish()
+                        .WithCancellationTimeout(2000)
                         .InSubprocessAsync(imageflowTool);
                            
                     // ExecutableLocator.FindExecutable("imageflow_tool", new [] {"/home/n/Documents/imazen/imageflow/target/release/"})
