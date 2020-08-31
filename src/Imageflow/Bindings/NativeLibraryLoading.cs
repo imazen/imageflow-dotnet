@@ -193,6 +193,12 @@ namespace Imageflow.Bindings
             yield return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "runtimes", PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native");
 
             yield return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "runtimes", PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native");
+
+            //Issue #17 - Azure Functions 2.0 - https://github.com/imazen/imageflow-dotnet/issues/17
+            if(AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).EndsWith("bin"))
+            {
+                yield return Path.Combine(Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).FullName, "runtimes", PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native");
+            }
         }
 
         internal static IEnumerable<string> SearchPossibilitiesForFile(string filename, IEnumerable<string> customSearchDirectories = null)
