@@ -49,10 +49,12 @@ namespace Imageflow.Bindings
         {
             var sb = new StringBuilder(_log.Select((e) => e.basename?.Length ?? 0 + e.fullPath?.Length ?? 0 + 20)
                 .Sum());
-            sb.AppendFormat("Looking for \"{0}\" Subdir=\"{1}\", IsUnix={2}, IsDotNetCore={3}\n",
+            sb.AppendFormat("Looking for \"{0}\" RID=\"{1}-{2}\", IsUnix={3}, IsDotNetCore={4} RelativeSearchPath=\"{5}\"\n",
                 filename,
+                RuntimeFileLocator.PlatformRuntimePrefix.Value,
                 RuntimeFileLocator.ArchitectureSubdir.Value, RuntimeFileLocator.IsUnix,
-                RuntimeFileLocator.IsDotNetCore.Value);
+                RuntimeFileLocator.IsDotNetCore.Value,
+                AppDomain.CurrentDomain.RelativeSearchPath);
             if (firstException != null) sb.AppendFormat("Before searching: {0}\n", firstException.Message);
             foreach (var e in _log)
             {
@@ -174,60 +176,90 @@ namespace Imageflow.Bindings
             return Environment.Is64BitProcess ? "x64" : "x86";
         }, LazyThreadSafetyMode.PublicationOnly);
 
-        private static IEnumerable<string> BaseFolders(IEnumerable<string> customSearchDirectories = null)
+        /// <summary>
+        /// Enumerates a set of folders to search within. If the boolean value of the tuple is true,
+        /// specific subdirectories can be searched.
+        /// </summary>
+        /// <param name="customSearchDirectories"></param>
+        /// <returns></returns>
+        private static IEnumerable<Tuple<bool,string>> BaseFolders(IEnumerable<string> customSearchDirectories = null)
         {
             // Prioritize user suggestions
             if (customSearchDirectories != null)
             {
                 foreach (var d in customSearchDirectories)
                 {
-                    yield return d;
+                    yield return Tuple.Create(true, d);
                 }
             }
-            // Look where .NET looks for managed assemblies
-            yield return AppDomain.CurrentDomain.BaseDirectory;
-
-            // Look in the folder that *this* assembly is located.
-            yield return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-            yield return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "runtimes", PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native");
-
-            yield return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "runtimes", PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native");
-
+            
+            // First look in AppDomain.CurrentDomain.RelativeSearchPath - if it is within the BaseDirectory
+            if (!string.IsNullOrEmpty(AppDomain.CurrentDomain.RelativeSearchPath) &&
+                AppDomain.CurrentDomain.RelativeSearchPath.StartsWith(AppDomain.CurrentDomain.BaseDirectory))
+            {
+                yield return Tuple.Create(true, AppDomain.CurrentDomain.RelativeSearchPath);
+            }
+            
+            // Look in the base directory from which .NET looks for managed assemblies
+            yield return Tuple.Create(true, AppDomain.CurrentDomain.BaseDirectory);
+            
             //Issue #17 - Azure Functions 2.0 - https://github.com/imazen/imageflow-dotnet/issues/17
+            // If the BaseDirectory is /bin/, look one step outside of it.
             if(AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).EndsWith("bin"))
             {
-                yield return Path.Combine(Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).FullName, "runtimes", PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native");
+                //Look in the parent directory if we're in /bin/, but only look in ../runtimes/:rid:/native
+                yield return Tuple.Create(false, Path.Combine(Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).FullName, 
+                    "runtimes", PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native"));
+                
             }
+
+            // Look in the folder that *this* assembly is located.
+            yield return Tuple.Create(true, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
         }
 
         internal static IEnumerable<string> SearchPossibilitiesForFile(string filename, IEnumerable<string> customSearchDirectories = null)
         {
             var attemptedPaths = new HashSet<string>();
-            var subdir = ArchitectureSubdir.Value;
-            foreach (var f in BaseFolders(customSearchDirectories))
+            foreach (var t in BaseFolders(customSearchDirectories))
             {
-                if (string.IsNullOrEmpty(f)) continue;
-                var directory = Path.GetFullPath(f);
+                if (string.IsNullOrEmpty(t.Item2)) continue;
+                var directory = Path.GetFullPath(t.Item2);
+                var searchSubDirs = t.Item1;
                 // Try architecture-specific subdirectories first
                 string path;
-                if (subdir != null)
+
+                if (searchSubDirs)
                 {
-                    path = Path.Combine(directory, subdir, filename);
+                    // First try the simple arch subdir since that is where the nuget native packages unpack
+                    path = Path.Combine(directory, ArchitectureSubdir.Value, filename);
                     if (!attemptedPaths.Contains(path))
                     {
                         attemptedPaths.Add(path);
                         yield return path;
                     }
                 }
+
                 // Try the folder itself
-                path = Path.Combine(directory, filename); ;
+                path = Path.Combine(directory, filename);
+                
                 if (!attemptedPaths.Contains(path))
                 {
-
                     attemptedPaths.Add(path);
                     yield return path;
                 }
+
+                if (searchSubDirs)
+                {
+                    // Last try native runtimes directory in case this is happening in .NET Core
+                    path = Path.Combine(directory, "runtimes",
+                        PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native");
+                    if (!attemptedPaths.Contains(path))
+                    {
+                        attemptedPaths.Add(path);
+                        yield return path;
+                    }
+                }
+
             }
         }
 
