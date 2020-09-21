@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -68,8 +69,33 @@ namespace Imageflow.Bindings
                 }
                 else if (e.loadErrorCode.HasValue)
                 {
-                    sb.AppendFormat("Error {0} loading {1} from {2}", new Win32Exception(e.loadErrorCode.Value).Message,
+                    string errorCode = e.loadErrorCode.Value < 0
+                        ? string.Format(CultureInfo.InvariantCulture, "0x{0:X8}", e.loadErrorCode.Value)
+                        : e.loadErrorCode.Value.ToString(CultureInfo.InvariantCulture);
+                    
+                    sb.AppendFormat("Error \"{0}\" {1} loading {2} from {3}", 
+                        new Win32Exception(e.loadErrorCode.Value).Message,
+                        errorCode,
                         e.basename, e.fullPath);
+
+                    if ((uint)e.loadErrorCode.Value == 0x8007000B &&
+                        RuntimeFileLocator.PlatformRuntimePrefix.Value == "win")
+                    {
+                        var installed = Environment.Is64BitProcess ? "32-bit (x86)" : "64-bit (x86_64)" ;
+                        var needed = Environment.Is64BitProcess ? "64-bit (x86_64)" : "32-bit (x86)";
+
+                        sb.AppendFormat("\n> You have installed a {0} copy of imageflow.dll but need the {1} version",
+                            installed, needed);
+                    }
+
+                    if ((uint)e.loadErrorCode.Value == 0x8007007E &&
+                        RuntimeFileLocator.PlatformRuntimePrefix.Value == "win")
+                    {
+                        var crtLink = "https://aka.ms/vs/16/release/vc_redist." 
+                                      + (Environment.Is64BitProcess ? "x64.exe" : "x86.exe");
+
+                        sb.Append("\n> You may need to install the C Runtime from {0}");
+                    }
                 }
                 else
                 {

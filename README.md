@@ -16,6 +16,10 @@ PM> Install-Package Imageflow.NativeRuntime.ubuntu_18_04-x86_64 -pre
 
 Note: You must install the [appropriate NativeRuntime(s)](https://www.nuget.org/packages?q=Imageflow+AND+NativeRuntime) in the project you are deploying - they have to copy imageflow.dll to the output folder. 
 
+Also note: Older versions of Windows may not have the C Runtime 
+installed ([Install 32-bit](https://aka.ms/vs/16/release/vc_redist.x86.exe) or [64-bit](https://aka.ms/vs/16/release/vc_redist.x64.exe)). 
+
+
 [NativeRuntimes](https://www.nuget.org/packages?q=Imageflow+AND+NativeRuntime) that are suffixed with -haswell (2013, AVX2 support) require a CPU of that generation or later. 
 
 ### License 
