@@ -252,7 +252,7 @@ namespace Imageflow.Bindings
                 {
                     // Last try native runtimes directory in case this is happening in .NET Core
                     path = Path.Combine(directory, "runtimes",
-                        PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native");
+                        PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native", filename);
                     if (!attemptedPaths.Contains(path))
                     {
                         attemptedPaths.Add(path);
