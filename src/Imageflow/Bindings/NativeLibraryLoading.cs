@@ -73,12 +73,12 @@ namespace Imageflow.Bindings
                         ? string.Format(CultureInfo.InvariantCulture, "0x{0:X8}", e.loadErrorCode.Value)
                         : e.loadErrorCode.Value.ToString(CultureInfo.InvariantCulture);
                     
-                    sb.AppendFormat("Error \"{0}\" {1} loading {2} from {3}", 
+                    sb.AppendFormat("Error \"{0}\" ({1}) loading {2} from {3}", 
                         new Win32Exception(e.loadErrorCode.Value).Message,
                         errorCode,
                         e.basename, e.fullPath);
 
-                    if ((uint)e.loadErrorCode.Value == 0x8007000B &&
+                    if (e.loadErrorCode.Value == 193 &&
                         RuntimeFileLocator.PlatformRuntimePrefix.Value == "win")
                     {
                         var installed = Environment.Is64BitProcess ? "32-bit (x86)" : "64-bit (x86_64)" ;
@@ -88,7 +88,7 @@ namespace Imageflow.Bindings
                             installed, needed);
                     }
 
-                    if ((uint)e.loadErrorCode.Value == 0x8007007E &&
+                    if (e.loadErrorCode.Value == 126 &&
                         RuntimeFileLocator.PlatformRuntimePrefix.Value == "win")
                     {
                         var crtLink = "https://aka.ms/vs/16/release/vc_redist." 
