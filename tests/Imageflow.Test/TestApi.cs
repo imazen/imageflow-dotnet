@@ -220,6 +220,7 @@ namespace Imageflow.Test
                     "width=3&height=2&mode=stretch&scale=both&format=webp")
                     .Finish().InProcessAsync();
 
+                Assert.NotEmpty(r.PerformanceDetails.GetFirstFrameSummary());
                 Assert.Equal(3, r.First.Width);
                 Assert.Equal("webp", r.First.PreferredExtension);
                 Assert.True(r.First.TryGetBytes().HasValue);

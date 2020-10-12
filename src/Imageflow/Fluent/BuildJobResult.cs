@@ -15,6 +15,11 @@ namespace Imageflow.Fluent
         /// A collection of the encoded images produced by the job
         /// </summary>
         public IReadOnlyCollection<BuildEncodeResult> EncodeResults { get; private set; }
+        
+        /// <summary>
+        /// Details about the runtime performance of the job
+        /// </summary>
+        public PerformanceDetails PerformanceDetails { get; private set; }
 
         /// <summary>
         /// The first encoded image produced by the job (with the lowest io_id)
@@ -50,9 +55,11 @@ namespace Imageflow.Fluent
             }).OrderBy(er => er.IoId).ToList();
 
             var dict = encodeResults.ToDictionary(r => r.IoId);
-   
+            
+            var perfDetails = new PerformanceDetails((v.data.job_result ?? v.data.build_result).performance);
+
             // There may be fewer reported outputs than registered ones - encoding is conditional on input, I think
-            return new BuildJobResult {EncodeResults = encodeResults, _results = dict};
+            return new BuildJobResult {EncodeResults = encodeResults, _results = dict, PerformanceDetails = perfDetails};
         }
     }
 }
