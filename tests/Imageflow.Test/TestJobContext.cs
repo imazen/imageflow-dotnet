@@ -202,32 +202,6 @@ namespace Imageflow.Test
                 Assert.Equal(true, (bool)data.success);
             }
         }
-        [Fact]
-        public unsafe void TestBitmapBgra()
-        {
-
-            const int Width = 1280;
-            const int Height = 853;
-            const int ResizedWidth = 150;
-            const int ResizedHeight = 99;
-
-            ulong bitmap = 0;
-            using (var context = new JobContext())
-            {
-
-                context.Execute(new
-                {
-                    framewise = new
-                    {
-                        steps = new object[] {
-                            new { create_canvas = new { w= Width, h = Height, color = "black" , format = "bgr_32" } },
-                            new { constrain = new { mode="within", w=ResizedWidth, h =ResizedHeight } } ,
-                            new { flow_bitmap_bgra_ptr = new { ptr_to_flow_bitmap_bgra_ptr =  (ulong)&bitmap  } }
-                        }
-                    }
-                });
-            }
-        }
 
         //        [Fact]
         //        public void TestFileIo()
