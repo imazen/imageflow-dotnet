@@ -343,5 +343,31 @@ namespace Imageflow.Test
             }
 
         }
+        
+        
+        [Fact]
+        public void TestContentTypeDetection()
+        {
+            var pngBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            Assert.Equal("image/png", ImageJob.GetContentTypeForBytes(pngBytes));
+            Assert.True(ImageJob.CanDecodeBytes(pngBytes));
+            
+            var jpegBytes = new byte[] {0xFF,0xD8,0xFF,0,0,0,0,0,0,0,0,0};
+            Assert.Equal("image/jpeg", ImageJob.GetContentTypeForBytes(jpegBytes));
+            Assert.True(ImageJob.CanDecodeBytes(jpegBytes));
+
+            var gifBytes = new byte[] {(byte)'G', (byte)'I', (byte)'F',(byte)'8', (byte)'9', (byte)'a',0,0,0,0,0,0,0};
+            Assert.Equal("image/gif", ImageJob.GetContentTypeForBytes(gifBytes));
+            Assert.True(ImageJob.CanDecodeBytes(gifBytes));
+            
+            var webpBytes = new byte[] {(byte)'R',(byte)'I',(byte)'F',(byte)'F',0,0,0,0,(byte)'W',(byte)'E',(byte)'B',(byte)'P'};
+            Assert.Equal("image/webp", ImageJob.GetContentTypeForBytes(webpBytes));
+            Assert.True(ImageJob.CanDecodeBytes(webpBytes));
+            
+            var nonsenseBytes = new byte[] {(byte)'A', (byte)'B', (byte)'C',(byte)'D', (byte)'E', (byte)'F',0,0,0,0,0,0,0};
+            Assert.Equal(null, ImageJob.GetContentTypeForBytes(nonsenseBytes));
+            Assert.False(ImageJob.CanDecodeBytes(nonsenseBytes));
+
+        }
     }
 }

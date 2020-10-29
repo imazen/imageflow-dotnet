@@ -579,5 +579,27 @@ namespace Imageflow.Fluent
                 image.Dispose();
             }
         }
+
+        /// <summary>
+        /// Returns true if it is likely that Imageflow can decode the given image based on the first 12 bytes of the file. 
+        /// </summary>
+        /// <param name="first12Bytes">The first 12 or more bytes of the file</param>
+        /// <returns></returns>
+        public static bool CanDecodeBytes(byte[] first12Bytes)
+        {
+            return MagicBytes.IsDecodable(first12Bytes);
+        }
+
+        /// <summary>
+        /// Returns a MIME type string such as "image/jpeg" based on the provided first 12 bytes of the file.
+        /// Only guaranteed to work for image types Imageflow supports, but support for more file types may be added
+        /// later. 
+        /// </summary>
+        /// <param name="first12Bytes">The first 12 or more bytes of the file</param>
+        /// <returns></returns>
+        public static string GetContentTypeForBytes(byte[] first12Bytes)
+        {
+            return MagicBytes.GetImageContentType(first12Bytes);
+        }
     }
 }
