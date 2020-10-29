@@ -483,7 +483,7 @@ namespace Imageflow.Bindings
             handle = RuntimeFileLocator.IsUnix ? UnixLoadLibrary.Execute(fullPath) : WindowsLoadLibrary.Execute(fullPath);
             if (handle == IntPtr.Zero)
             {
-                errorCode = Marshal.GetLastWin32Error();
+                errorCode = Marshal.GetLastWin32Error(); 
                 return false;
             }
             errorCode = null;

@@ -202,41 +202,6 @@ namespace Imageflow.Test
                 Assert.Equal(true, (bool)data.success);
             }
         }
-
-        //        [Fact]
-        //        public void TestFileIo()
-        //        {
-        //            string from = null;
-        //            string to = null;
-        //            try
-        //            {
-        //                from = Path.GetTempFileName();
-        //                to = Path.GetTempFileName();
-        //                File.WriteAllBytes(from,  Convert.FromBase64String(
-        //                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
-        //
-        //                using (var c = new JobContext())
-        //                {
-        //
-        //                    c.AddInputFile(0,from);
-        //                    c.AddOutputFile(1, to);
-        //                    var response = c.ExecuteImageResizer4CommandString(0, 1, "w=200&h=200&scale=both&format=jpg");
-        //
-        //                    var data = response.DeserializeDynamic();
-        //
-        //                    output.WriteLine(response.GetString());
-        //
-        //                    Assert.Equal(200, (int) data.code);
-        //                    Assert.Equal(true, (bool) data.success);
-        //                    Assert.True(File.ReadAllBytes(to).Length > 0);
-        //                }
-        //            }
-        //            finally
-        //            {
-        //                if (from != null) File.Delete(from);
-        //                if (to != null) File.Delete(to);
-        //            }
-        //            
-        //        }
+        
     }
 }
