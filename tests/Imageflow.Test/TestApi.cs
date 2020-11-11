@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using Xunit;
 using System.Threading.Tasks;
 using Imageflow.Bindings;
@@ -322,7 +323,7 @@ namespace Imageflow.Test
         }
         
         [Fact]
-        public async Task TestCustomDownscaling()
+        public async Task TestCustomDownscalingAndDecodeResults()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
             using (var b = new ImageJob())
@@ -340,6 +341,10 @@ namespace Imageflow.Test
 
                 Assert.Equal(5, r.First.Width);
                 Assert.True(r.First.TryGetBytes().HasValue);
+                Assert.Equal(r.DecodeResults.First().Width, 1);
+                Assert.Equal(r.DecodeResults.First().Height, 1);
+                Assert.Equal(r.DecodeResults.First().PreferredExtension, "png");
+                Assert.Equal(r.DecodeResults.First().PreferredMimeType, "image/png");
             }
 
         }

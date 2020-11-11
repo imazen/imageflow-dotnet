@@ -9,8 +9,13 @@ namespace Imageflow.Fluent
 
     public class BuildJobResult
     {
-        private Dictionary<int, BuildEncodeResult> _results;
+        private Dictionary<int, BuildEncodeResult> _encodeResults;
 
+        /// <summary>
+        /// A collection of the decoded image details produced by the job
+        /// </summary>
+        public IReadOnlyCollection<BuildDecodeResult> DecodeResults { get; private set; }
+        
         /// <summary>
         /// A collection of the encoded images produced by the job
         /// </summary>
@@ -26,14 +31,14 @@ namespace Imageflow.Fluent
         /// </summary>
         public BuildEncodeResult First => EncodeResults.FirstOrDefault();
         
-        public BuildEncodeResult this[int ioId] => _results[ioId];
+        public BuildEncodeResult this[int ioId] => _encodeResults[ioId];
         
         /// <summary>
         /// Returns null if the encode result by the given io_id doesn't exist. 
         /// </summary>
         /// <param name="ioId"></param>
         /// <returns></returns>
-        public BuildEncodeResult TryGet(int ioId) => _results.TryGetValue(ioId, out var result) ? result : null;
+        public BuildEncodeResult TryGet(int ioId) => _encodeResults.TryGetValue(ioId, out var result) ? result : null;
 
         internal static BuildJobResult From(IJsonResponseProvider response, Dictionary<int, IOutputDestination> outputs)
         {
@@ -53,13 +58,25 @@ namespace Imageflow.Fluent
                 PreferredMimeType = er.preferred_mime_type,
                 Destination = outputs[(int)er.io_id.Value]
             }).OrderBy(er => er.IoId).ToList();
+            
+            IEnumerable<dynamic> decodes = (v.data.job_result ?? v.data.build_result).decodes ?? Enumerable.Empty<dynamic>();
+
+            var decodeResults = decodes.Select(er => new BuildDecodeResult
+            {
+                Width = er.w,
+                Height = er.h,
+                IoId = er.io_id,
+                PreferredExtension = er.preferred_extension,
+                PreferredMimeType = er.preferred_mime_type,
+            }).OrderBy(er => er.IoId).ToList();
+            
 
             var dict = encodeResults.ToDictionary(r => r.IoId);
             
             var perfDetails = new PerformanceDetails((v.data.job_result ?? v.data.build_result).performance);
 
             // There may be fewer reported outputs than registered ones - encoding is conditional on input, I think
-            return new BuildJobResult {EncodeResults = encodeResults, _results = dict, PerformanceDetails = perfDetails};
+            return new BuildJobResult {DecodeResults = decodeResults, EncodeResults = encodeResults, _encodeResults = dict, PerformanceDetails = perfDetails};
         }
     }
 }
