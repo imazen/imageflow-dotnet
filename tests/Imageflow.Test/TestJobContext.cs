@@ -73,6 +73,7 @@ namespace Imageflow.Test
                 var info = c.GetVersionInfo();
                 Assert.NotNull(info.LastGitCommit);
                 Assert.NotNull(info.LongVersionString);
+                Assert.NotNull(info.GitDescribeAlways);
             }
         }
         
