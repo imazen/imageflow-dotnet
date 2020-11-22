@@ -140,6 +140,9 @@ after_test:
 
 #TODO: consider DocFx integration https://github.com/docascode/docfx-seed
 
+artifacts:
+  - path: '**\Imageflow.Net.*nupkg'
+    type: NuGetPackage
 
 deploy:
   - provider: GitHub
