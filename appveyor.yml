@@ -117,7 +117,8 @@ build:
   project: src/Imageflow.dnfull.sln     # path to Visual Studio solution or project
   publish_nuget: true             # package projects with .nuspec files and push to artifacts
   publish_nuget_symbols: true     # generate and publish NuGet symbol packages
-
+  use_snupkg_format: true
+  
 test_script:
   - dotnet test tests/Imageflow.Test/ -c Debug
   - dotnet test tests/Imageflow.Test/ -c Release
