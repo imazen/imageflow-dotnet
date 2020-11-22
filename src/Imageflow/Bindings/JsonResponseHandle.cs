@@ -9,7 +9,7 @@ namespace Imageflow.Bindings
         public JsonResponseHandle(JobContextHandle parent, IntPtr ptr)
             : base(true)
         {
-            ParentContext = parent ?? throw new ArgumentNullException("parent");
+            ParentContext = parent ?? throw new ArgumentNullException(nameof(parent));
             SetHandle(ptr);
 
         }

@@ -15,7 +15,7 @@ namespace Imageflow.Fluent
         public override bool Equals(object obj) => Uid == (obj as BuildItemBase)?.Uid;
         public override int GetHashCode() => (int) Uid; //We probably don't need to worry about more than 2 billion instances? 
         
-        private static long _next = 0;
+        private static long _next;
         private static long NextUid() => Interlocked.Increment(ref _next);
         internal bool IsEmpty => NodeData == null;
         

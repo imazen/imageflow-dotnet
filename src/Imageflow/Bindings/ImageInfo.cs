@@ -4,20 +4,23 @@ namespace Imageflow.Bindings
 {
     public class ImageInfo
     {
-        internal ImageInfo() { }
+        private ImageInfo() { }
         internal static ImageInfo FromDynamic(dynamic imageInfo)
         {
-            var info = new ImageInfo();
+            var info = new ImageInfo
+            {
+                ImageWidth = imageInfo.image_width.Value,
+                ImageHeight = imageInfo.image_height.Value,
+                PreferredMimeType = imageInfo.preferred_mime_type.Value,
+                PreferredExtension = imageInfo.preferred_extension.Value,
+                FrameDecodesInto = Enum.Parse(typeof(Imageflow.Fluent.PixelFormat), imageInfo.frame_decodes_into.Value,
+                    true)
+            };
 
-            info.ImageWidth = imageInfo.image_width.Value;
-            info.ImageHeight = imageInfo.image_height.Value;
-            info.PreferredMimeType = imageInfo.preferred_mime_type.Value;
-            info.PreferredExtension = imageInfo.preferred_extension.Value;
-            info.FrameDecodesInto = Enum.Parse(typeof(Imageflow.Fluent.PixelFormat), imageInfo.frame_decodes_into.Value, true);
             return info;
         }
 
-        public Imageflow.Fluent.PixelFormat FrameDecodesInto { get; private set; }
+        public Fluent.PixelFormat FrameDecodesInto { get; private set; }
         public long ImageWidth { get; private set; }
         public long ImageHeight { get; private set; }
         public string PreferredMimeType { get; private set; }

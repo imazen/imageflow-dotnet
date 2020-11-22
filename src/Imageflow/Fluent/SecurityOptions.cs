@@ -2,11 +2,7 @@ namespace Imageflow.Fluent
 {
     public class SecurityOptions
     {
-        public SecurityOptions()
-        {
-            
-        }
-        
+
         public FrameSizeLimit? MaxDecodeSize { get; set; }
         
         public FrameSizeLimit? MaxFrameSize { get; set; }

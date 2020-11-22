@@ -18,7 +18,7 @@ namespace Imageflow.Fluent
         /// <param name="first12Bytes">First 12 or more bytes of the file</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        internal static ImageFormat? GetImageFormat(byte[] first12Bytes)
+        private static ImageFormat? GetImageFormat(byte[] first12Bytes)
         {
             var bytes = first12Bytes;
             if (bytes.Length < 12) throw new ArgumentException("The byte array must contain at least 12 bytes", 

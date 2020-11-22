@@ -21,7 +21,7 @@ namespace Imageflow.Bindings
         
         [DllImport("imageflow")] 
         [return: MarshalAs(UnmanagedType.I1)]
-        public static extern bool imageflow_abi_compatible(uint imageflow_abi_ver_major, uint imageflow_abi_ver_minor);
+        public static extern bool imageflow_abi_compatible(uint imageflowAbiVerMajor, uint imageflowAbiVerMinor);
 
         [DllImport("imageflow")] 
         public static extern uint imageflow_abi_version_major();
@@ -30,7 +30,7 @@ namespace Imageflow.Bindings
         public static extern uint imageflow_abi_version_minor();
         
         [DllImport("imageflow")] 
-        public static extern IntPtr imageflow_context_create(uint imageflow_abi_ver_major, uint imageflow_abi_ver_minor);
+        public static extern IntPtr imageflow_context_create(uint imageflowAbiVerMajor, uint imageflowAbiVerMinor);
 
         [DllImport("imageflow")] 
         [return: MarshalAs(UnmanagedType.I1)]
@@ -74,8 +74,8 @@ namespace Imageflow.Bindings
         ///buffer_size_out: size_t*
         [DllImport("imageflow")] 
         [return: MarshalAs(UnmanagedType.I1)]
-        public static extern bool imageflow_json_response_read(JobContextHandle context, JsonResponseHandle response_in,
-            out int status_code_out, out IntPtr buffer_utf8_no_nulls_out, out UIntPtr buffer_size_out);
+        public static extern bool imageflow_json_response_read(JobContextHandle context, JsonResponseHandle responseIn,
+            out int statusCodeOut, out IntPtr bufferUtf8NoNullsOut, out UIntPtr bufferSizeOut);
 
 
      
@@ -98,13 +98,13 @@ namespace Imageflow.Bindings
         [DllImport("imageflow")] 
         [return: MarshalAs(UnmanagedType.I1)]
         public static extern bool imageflow_context_error_write_to_buffer(JobContextHandle context, IntPtr buffer,
-            UIntPtr buffer_length,
-            out UIntPtr bytes_written);
+            UIntPtr bufferLength,
+            out UIntPtr bytesWritten);
 
 
         [DllImport("imageflow")] 
         public static extern IntPtr imageflow_context_send_json(JobContextHandle context, IntPtr method,
-            IntPtr json_buffer, UIntPtr json_buffer_size);
+            IntPtr jsonBuffer, UIntPtr jsonBufferSize);
 
 
         
@@ -116,12 +116,12 @@ namespace Imageflow.Bindings
         
         [DllImport("imageflow")] 
         [return: MarshalAs(UnmanagedType.I1)]
-        public static extern bool  imageflow_context_add_input_buffer(JobContextHandle context, int io_id, IntPtr buffer,
-            UIntPtr buffer_byte_count, Lifetime lifetime);
+        public static extern bool  imageflow_context_add_input_buffer(JobContextHandle context, int ioId, IntPtr buffer,
+            UIntPtr bufferByteCount, Lifetime lifetime);
 
         [DllImport("imageflow")] 
         [return: MarshalAs(UnmanagedType.I1)]
-        public static extern bool imageflow_context_add_output_buffer(JobContextHandle context, int io_id);
+        public static extern bool imageflow_context_add_output_buffer(JobContextHandle context, int ioId);
         
 //        [DllImport("imageflow")] 
 //        [return: MarshalAs(UnmanagedType.I1)]
@@ -133,7 +133,7 @@ namespace Imageflow.Bindings
         [DllImport("imageflow")] 
         [return: MarshalAs(UnmanagedType.I1)]
         public static extern bool imageflow_context_get_output_buffer_by_id(JobContextHandle context,
-            int io_id, out IntPtr result_buffer, out UIntPtr result_buffer_length);
+            int ioId, out IntPtr resultBuffer, out UIntPtr resultBufferLength);
 
 
     }

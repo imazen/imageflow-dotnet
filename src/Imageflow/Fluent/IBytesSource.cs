@@ -22,23 +22,23 @@ namespace Imageflow.Fluent
     {
         public BytesSource(byte[] bytes)
         {
-            this.bytes = new ArraySegment<byte>(bytes, 0, bytes.Length);
+            this._bytes = new ArraySegment<byte>(bytes, 0, bytes.Length);
         }
         public BytesSource(byte[] bytes, int offset, int length)
         {
-            this.bytes = new ArraySegment<byte>(bytes, offset, length);
+            this._bytes = new ArraySegment<byte>(bytes, offset, length);
         }
         public BytesSource(ArraySegment<byte> bytes)
         {
-            this.bytes = bytes;
+            this._bytes = bytes;
         }
         
-        private readonly ArraySegment<byte> bytes;
+        private readonly ArraySegment<byte> _bytes;
 
         public void Dispose()
         {
         }
-        public Task<ArraySegment<byte>> GetBytesAsync(CancellationToken cancellationToken) => Task.FromResult(bytes);
+        public Task<ArraySegment<byte>> GetBytesAsync(CancellationToken cancellationToken) => Task.FromResult(_bytes);
         
     }
     /// <summary>

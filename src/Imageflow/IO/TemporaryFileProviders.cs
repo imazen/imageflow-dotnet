@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 
-namespace Imageflow.Net.IO
+namespace Imageflow.IO
 {
 
     internal interface ITemporaryFileProvider

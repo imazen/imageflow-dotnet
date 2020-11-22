@@ -11,7 +11,7 @@ namespace Imageflow.Fluent
         private readonly ImageJob _builder;
         private CancellationToken _token;
         private CancellationTokenSource _tokenSource;
-        private SecurityOptions _security = null;
+        private SecurityOptions _security;
 
         internal FinishJobBuilder(ImageJob imageJob,  CancellationToken cancellationToken)
         {

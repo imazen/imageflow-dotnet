@@ -1,5 +1,3 @@
-using System;
-
 namespace Imageflow.Fluent
 {
     public class BuildDecodeResult

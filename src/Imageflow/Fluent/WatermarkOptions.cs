@@ -4,11 +4,6 @@ namespace Imageflow.Fluent
 {
     public class WatermarkOptions
     {
-        public WatermarkOptions()
-        {
-            
-        }
-        
         
         public ConstraintGravity Gravity { get; set; }
         public IWatermarkConstraintBox FitBox { get; set; }
@@ -170,7 +165,7 @@ namespace Imageflow.Fluent
             return this;
         }
 
-        public object ToImageflowDynamic(int ioId)
+        public object ToImageflowDynamic(int? ioId)
         {
             return new
             {

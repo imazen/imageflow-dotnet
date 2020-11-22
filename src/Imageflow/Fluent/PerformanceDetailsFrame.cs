@@ -8,7 +8,7 @@ namespace Imageflow.Fluent
         {
             foreach (var n in frame.nodes)
             {
-                nodes.Add(new PerformanceDetailsNode()
+                _nodes.Add(new PerformanceDetailsNode()
                 {
                     Name = n.name,
                     WallMicroseconds = n.wall_microseconds
@@ -16,8 +16,8 @@ namespace Imageflow.Fluent
             }
         }
 
-        private List<PerformanceDetailsNode> nodes = new List<PerformanceDetailsNode>();
+        private readonly List<PerformanceDetailsNode> _nodes = new List<PerformanceDetailsNode>();
 
-        public ICollection<PerformanceDetailsNode> Nodes => nodes;
+        public ICollection<PerformanceDetailsNode> Nodes => _nodes;
     }
 }

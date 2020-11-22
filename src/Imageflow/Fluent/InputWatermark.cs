@@ -1,3 +1,5 @@
+using System;
+
 namespace Imageflow.Fluent
 {
     public class InputWatermark
@@ -21,7 +23,7 @@ namespace Imageflow.Fluent
 
         public object ToImageflowDynamic()
         {
-            return Watermark.ToImageflowDynamic(IoId.Value);
+            return Watermark.ToImageflowDynamic(IoId ?? throw new InvalidOperationException("InputWatermark.ToImageflowDynamic() cannot be called without an IoId value assigned"));
         }
     }
 }

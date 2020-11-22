@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.IO;
 
-namespace Imageflow.Net.IO
+namespace Imageflow.IO
 {
     internal sealed
         class ProcessResults : IDisposable

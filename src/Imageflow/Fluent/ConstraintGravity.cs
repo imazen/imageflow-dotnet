@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Imageflow.Fluent
+﻿namespace Imageflow.Fluent
 {
     public class ConstraintGravity
     {

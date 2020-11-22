@@ -16,21 +16,21 @@ namespace Imageflow.Bindings
 {
     internal class LoadLogger : ILibraryLoadLogger
     {
-        internal string verb = "loaded";
-        internal string filename = $"{ RuntimeFileLocator.SharedLibraryPrefix.Value}";
+        internal string Verb = "loaded";
+        internal string Filename = $"{ RuntimeFileLocator.SharedLibraryPrefix.Value}";
         
-        internal Exception firstException;
-        internal Exception lastException;
+        internal Exception FirstException;
+        internal Exception LastException;
 
         private readonly List<LogEntry> _log = new List<LogEntry>(7);
 
         private struct LogEntry
         {
-            internal string basename;
-            internal string fullPath;
-            internal bool fileExists;
-            internal bool previouslyLoaded;
-            internal int? loadErrorCode;
+            internal string Basename;
+            internal string FullPath;
+            internal bool FileExists;
+            internal bool PreviouslyLoaded;
+            internal int? LoadErrorCode;
         }
 
         public void NotifyAttempt(string basename, string fullPath, bool fileExists, bool previouslyLoaded,
@@ -38,47 +38,47 @@ namespace Imageflow.Bindings
         {
             _log.Add(new LogEntry
             {
-                basename = basename,
-                fullPath = fullPath,
-                fileExists = fileExists,
-                previouslyLoaded = previouslyLoaded,
-                loadErrorCode = loadErrorCode
+                Basename = basename,
+                FullPath = fullPath,
+                FileExists = fileExists,
+                PreviouslyLoaded = previouslyLoaded,
+                LoadErrorCode = loadErrorCode
             });
         }
 
         internal void RaiseException()
         {
-            var sb = new StringBuilder(_log.Select((e) => e.basename?.Length ?? 0 + e.fullPath?.Length ?? 0 + 20)
+            var sb = new StringBuilder(_log.Select((e) => e.Basename?.Length ?? 0 + e.FullPath?.Length ?? 0 + 20)
                 .Sum());
             sb.AppendFormat("Looking for \"{0}\" RID=\"{1}-{2}\", IsUnix={3}, IsDotNetCore={4} RelativeSearchPath=\"{5}\"\n",
-                filename,
+                Filename,
                 RuntimeFileLocator.PlatformRuntimePrefix.Value,
                 RuntimeFileLocator.ArchitectureSubdir.Value, RuntimeFileLocator.IsUnix,
                 RuntimeFileLocator.IsDotNetCore.Value,
                 AppDomain.CurrentDomain.RelativeSearchPath);
-            if (firstException != null) sb.AppendFormat("Before searching: {0}\n", firstException.Message);
+            if (FirstException != null) sb.AppendFormat("Before searching: {0}\n", FirstException.Message);
             foreach (var e in _log)
             {
-                if (e.previouslyLoaded)
+                if (e.PreviouslyLoaded)
                 {
-                    sb.AppendFormat("\"{0}\" is already {1}", e.basename, verb);
+                    sb.AppendFormat("\"{0}\" is already {1}", e.Basename, Verb);
                 }
-                else if (!e.fileExists)
+                else if (!e.FileExists)
                 {
-                    sb.AppendFormat("File not found: {0}", e.fullPath);
+                    sb.AppendFormat("File not found: {0}", e.FullPath);
                 }
-                else if (e.loadErrorCode.HasValue)
+                else if (e.LoadErrorCode.HasValue)
                 {
-                    string errorCode = e.loadErrorCode.Value < 0
-                        ? string.Format(CultureInfo.InvariantCulture, "0x{0:X8}", e.loadErrorCode.Value)
-                        : e.loadErrorCode.Value.ToString(CultureInfo.InvariantCulture);
+                    string errorCode = e.LoadErrorCode.Value < 0
+                        ? string.Format(CultureInfo.InvariantCulture, "0x{0:X8}", e.LoadErrorCode.Value)
+                        : e.LoadErrorCode.Value.ToString(CultureInfo.InvariantCulture);
                     
                     sb.AppendFormat("Error \"{0}\" ({1}) loading {2} from {3}", 
-                        new Win32Exception(e.loadErrorCode.Value).Message,
+                        new Win32Exception(e.LoadErrorCode.Value).Message,
                         errorCode,
-                        e.basename, e.fullPath);
+                        e.Basename, e.FullPath);
 
-                    if (e.loadErrorCode.Value == 193 &&
+                    if (e.LoadErrorCode.Value == 193 &&
                         RuntimeFileLocator.PlatformRuntimePrefix.Value == "win")
                     {
                         var installed = Environment.Is64BitProcess ? "32-bit (x86)" : "64-bit (x86_64)" ;
@@ -88,23 +88,23 @@ namespace Imageflow.Bindings
                             installed, needed);
                     }
 
-                    if (e.loadErrorCode.Value == 126 &&
+                    if (e.LoadErrorCode.Value == 126 &&
                         RuntimeFileLocator.PlatformRuntimePrefix.Value == "win")
                     {
                         var crtLink = "https://aka.ms/vs/16/release/vc_redist." 
                                       + (Environment.Is64BitProcess ? "x64.exe" : "x86.exe");
 
-                        sb.Append("\n> You may need to install the C Runtime from {0}");
+                        sb.AppendFormat("\n> You may need to install the C Runtime from {0}",crtLink);
                     }
                 }
                 else
                 {
-                    sb.AppendFormat("{0} {1} in {2}", verb, e.basename, e.fullPath);
+                    sb.AppendFormat("{0} {1} in {2}", Verb, e.Basename, e.FullPath);
                 }
                 sb.Append('\n');
             }
-            if (lastException != null) sb.AppendLine(lastException.Message);
-            var stackTrace = (firstException ?? lastException)?.StackTrace;
+            if (LastException != null) sb.AppendLine(LastException.Message);
+            var stackTrace = (FirstException ?? LastException)?.StackTrace;
             if (stackTrace != null) sb.AppendLine(stackTrace);
 
             throw new DllNotFoundException(sb.ToString());
@@ -323,7 +323,7 @@ namespace Imageflow.Bindings
         /// <returns></returns>
         public static string FindExecutable(string basename, IEnumerable<string> customSearchDirectories = null)
         {
-            var logger = new LoadLogger { verb = "located", filename = GetFilenameWithoutDirectory(basename) };
+            var logger = new LoadLogger { Verb = "located", Filename = GetFilenameWithoutDirectory(basename) };
             if (TryLoadByBasename(basename, logger, out var exePath, customSearchDirectories))
             {
                 return exePath;
@@ -344,13 +344,14 @@ namespace Imageflow.Bindings
         /// </summary>
         /// <param name="basename">The executable name sans extension</param>
         /// <param name="log">Where to log attempts at assembly search and load</param>
-        /// <param name="customSearchDirectory">Provide this if you want a custom search folder</param>
+        /// <param name="exePath"></param>
+        /// <param name="customSearchDirectories">Provide this if you want a custom search folder</param>
         /// <returns>True if previously or successfully loaded</returns>
         internal static bool TryLoadByBasename(string basename, ILibraryLoadLogger log, out string exePath,
             IEnumerable<string> customSearchDirectories = null)
         {
             if (string.IsNullOrEmpty(basename))
-                throw new ArgumentNullException("filenameWithoutExtension");
+                throw new ArgumentNullException(nameof(basename));
 
             if (ExecutablePathsByName.Value.TryGetValue(basename, out exePath))
             {
@@ -399,7 +400,7 @@ namespace Imageflow.Bindings
             }
             catch (DllNotFoundException first)
             {
-                var logger = new LoadLogger {firstException = first, filename = GetFilenameWithoutDirectory(basename) };
+                var logger = new LoadLogger {FirstException = first, Filename = GetFilenameWithoutDirectory(basename) };
                 if (TryLoadByBasename(basename, logger, out var _, customSearchDirectories))
                 {
                     try
@@ -408,7 +409,7 @@ namespace Imageflow.Bindings
                     }
                     catch (DllNotFoundException last)
                     {
-                        logger.lastException = last;
+                        logger.LastException = last;
                     }
                 }
                 logger.RaiseException();
@@ -429,12 +430,12 @@ namespace Imageflow.Bindings
         /// <param name="basename">The library name sans extension or "lib" prefix</param>
         /// <param name="log">Where to log attempts at assembly search and load</param>
         /// <param name="handle">Where to store the loaded library handle</param>
-        /// <param name="customSearchDirectory">Provide this if you want a custom search folder</param>
+        /// <param name="customSearchDirectories">Provide this if you want a custom search folder</param>
         /// <returns>True if previously or successfully loaded</returns>
         public static bool TryLoadByBasename(string basename, ILibraryLoadLogger log, out IntPtr handle, IEnumerable<string> customSearchDirectories = null)
         {
             if (string.IsNullOrEmpty(basename))
-                throw new ArgumentNullException("filenameWithoutExtension");
+                throw new ArgumentNullException(nameof(basename));
 
             if (LibraryHandlesByBasename.Value.TryGetValue(basename, out handle))
             {
@@ -501,8 +502,8 @@ namespace Imageflow.Bindings
         public static IntPtr Execute(string fileName)
         {
             // Look in the library dir instead of the process dir 
-            const uint LOAD_WITH_ALTERED_SEARCH_PATH = 0x00000008;
-            return LoadLibraryEx(fileName, IntPtr.Zero, LOAD_WITH_ALTERED_SEARCH_PATH);
+            const uint loadWithAlteredSearchPath = 0x00000008;
+            return LoadLibraryEx(fileName, IntPtr.Zero, loadWithAlteredSearchPath);
         }
     }
 
@@ -516,8 +517,8 @@ namespace Imageflow.Bindings
 
         public static IntPtr Execute(string fileName)
         {
-            const int RTLD_NOW = 2;
-            return dlopen(fileName, RTLD_NOW);
+            const int rtldNow = 2;
+            return dlopen(fileName, rtldNow);
         }
     }
 

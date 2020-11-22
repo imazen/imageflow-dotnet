@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Imageflow.Bindings;
-using Imageflow.Net.IO;
+using Imageflow.IO;
 using Newtonsoft.Json;
 
 namespace Imageflow.Fluent
@@ -410,7 +410,7 @@ namespace Imageflow.Fluent
 
                 if (!string.IsNullOrWhiteSpace(errors) || results.ExitCode != 0)
                 {
-                    if (errors.Contains("InvalidJson"))
+                    if (errors?.Contains("InvalidJson") ?? false)
                     {
                         throw new ImageflowException(errors + $"\n{JsonConvert.SerializeObject(job.JobMessage)}");
                     }
@@ -551,7 +551,6 @@ namespace Imageflow.Fluent
         /// Returns dimensions and format of the provided image stream or byte array
         /// </summary>
         /// <param name="image"></param>
-        /// <param name="cancellationToken"></param>
         /// <returns></returns>
         public static Task<ImageInfo> GetImageInfo(IBytesSource image)
             => GetImageInfo(image, CancellationToken.None);

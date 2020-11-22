@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -14,7 +13,7 @@ namespace Imageflow.Bindings
             
         }
 
-        internal enum ErrorFetchResult
+        private enum ErrorFetchResult
         {
             BufferTooSmall,
             ContextInvalid,
@@ -72,13 +71,8 @@ namespace Imageflow.Bindings
                 }
             }
 
-            if (result == ErrorFetchResult.BufferTooSmall)
-            {
-                throw new ImageflowAssertionFailed(
+            throw new ImageflowAssertionFailed(
                     $"Imageflow error and stacktrace exceeded {MaxBufferSize} bytes");
-            }
-
-            return null;
         }
     }
 }

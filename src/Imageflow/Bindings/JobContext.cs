@@ -26,11 +26,11 @@ namespace Imageflow.Bindings
         }
         private enum IoKind { InputBuffer, OutputBuffer}
 
-        internal bool IsInput(int ioId) => ioSet.ContainsKey(ioId) && ioSet[ioId] == IoKind.InputBuffer;
-        internal bool IsOutput(int ioId) => ioSet.ContainsKey(ioId) && ioSet[ioId] == IoKind.OutputBuffer;
-        internal int LargestIoId => ioSet.Keys.DefaultIfEmpty().Max();
+        internal bool IsInput(int ioId) => _ioSet.ContainsKey(ioId) && _ioSet[ioId] == IoKind.InputBuffer;
+        internal bool IsOutput(int ioId) => _ioSet.ContainsKey(ioId) && _ioSet[ioId] == IoKind.OutputBuffer;
+        internal int LargestIoId => _ioSet.Keys.DefaultIfEmpty().Max();
         
-        private readonly Dictionary<int, IoKind> ioSet = new Dictionary<int, IoKind>();
+        private readonly Dictionary<int, IoKind> _ioSet = new Dictionary<int, IoKind>();
 
         public JobContext()
         {
@@ -165,27 +165,6 @@ namespace Imageflow.Bindings
             _toDispose.Add(d);
         }
         
-        
-//        internal void AddFile(int ioId, Direction direction,  IoMode mode, string path)
-//        {
-//            AssertReady();
-//            var cpath = GCHandle.Alloc(Encoding.ASCII.GetBytes(path + char.MinValue), GCHandleType.Pinned);
-//            try
-//            {
-//                if (!NativeMethods.imageflow_context_add_file(Handle, ioId, direction, mode,
-//                    cpath.AddrOfPinnedObject()))
-//                {
-//                    AssertReady();
-//                    throw new ImageflowAssertionFailed("AssertReady should raise an exception if method fails");
-//                }
-//            } finally{
-//                cpath.Free();
-//            }
-//        }
-//
-//        public void AddOutputFile(int ioId, string path) => AddFile(ioId,  Direction.Out, IoMode.WriteSeekable, path);
-//        public void AddInputFile(int ioId, string path) => AddFile(ioId,  Direction.In, IoMode.ReadSeekable, path);
-
         public void AddInputBytes(int ioId, byte[] buffer)
         {
             AddInputBytes(ioId, buffer, 0, buffer.LongLength);
@@ -212,7 +191,7 @@ namespace Imageflow.Bindings
                     AssertReady();
                     throw new ImageflowAssertionFailed("AssertReady should raise an exception if method fails");
                 }
-                ioSet.Add(ioId, IoKind.InputBuffer);
+                _ioSet.Add(ioId, IoKind.InputBuffer);
             } finally{
                 fixedBytes.Free();
             }
@@ -247,7 +226,7 @@ namespace Imageflow.Bindings
                 AssertReady();
                 throw new ImageflowAssertionFailed("AssertReady should raise an exception if method fails");
             }
-            ioSet.Add(ioId, IoKind.InputBuffer);
+            _ioSet.Add(ioId, IoKind.InputBuffer);
         }
 
 
@@ -260,10 +239,10 @@ namespace Imageflow.Bindings
                 AssertReady();
                 throw new ImageflowAssertionFailed("AssertReady should raise an exception if method fails");
             }
-            ioSet.Add(ioId, IoKind.OutputBuffer);
+            _ioSet.Add(ioId, IoKind.OutputBuffer);
         }
 
-        public bool ContainsIoId(int ioId) => ioSet.ContainsKey(ioId);
+        public bool ContainsIoId(int ioId) => _ioSet.ContainsKey(ioId);
         
         /// <summary>
         /// Will raise an unrecoverable exception if this is not an output buffer.
@@ -272,7 +251,7 @@ namespace Imageflow.Bindings
         /// <returns></returns>
         public Stream GetOutputBuffer(int ioId)
         {
-            if (!ioSet.ContainsKey(ioId) || ioSet[ioId] != IoKind.OutputBuffer)
+            if (!_ioSet.ContainsKey(ioId) || _ioSet[ioId] != IoKind.OutputBuffer)
             {
                 throw new ArgumentException($"ioId {ioId} does not correspond to an output buffer", nameof(ioId));
             }
@@ -317,14 +296,13 @@ namespace Imageflow.Bindings
         private void UnpinAll()
         {
             //Unpin GCHandles
-            if (_pinned != null)
+            if (_pinned == null) return;
+            
+            foreach (var active in _pinned)
             {
-                foreach (var active in _pinned)
-                {
-                    if (active.IsAllocated) active.Free();
-                }
-                _pinned = null;
+                if (active.IsAllocated) active.Free();
             }
+            _pinned = null;
         }
 
         ~JobContext()

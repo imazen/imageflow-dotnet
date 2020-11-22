@@ -8,18 +8,20 @@ namespace Imageflow.Bindings
         private VersionInfo() { }
         internal static VersionInfo FromDynamic(dynamic versionInfo)
         {
-            var info = new VersionInfo();
-            info.LongVersionString = versionInfo.long_version_string.Value;
-            info.LastGitCommit = versionInfo.last_git_commit.Value;
-            info.DirtyWorkingTree = versionInfo.dirty_working_tree.Value;
-            info.GitTag= versionInfo.git_tag?.Value;
-            info.GitDescribeAlways = versionInfo.git_describe_always?.Value;
+            var info = new VersionInfo
+            {
+                LongVersionString = versionInfo.long_version_string.Value,
+                LastGitCommit = versionInfo.last_git_commit.Value,
+                DirtyWorkingTree = versionInfo.dirty_working_tree.Value,
+                GitTag = versionInfo.git_tag?.Value,
+                GitDescribeAlways = versionInfo.git_describe_always?.Value
+            };
 
             // Sometimes Newtonsoft gives us a DateTime, other times a string.
             object dateTime = versionInfo.build_date.Value;
-            if (dateTime is string)
+            if (dateTime is string time)
             {
-                info.BuildDate = XmlConvert.ToDateTime(dateTime as string, XmlDateTimeSerializationMode.Utc);
+                info.BuildDate = XmlConvert.ToDateTime(time, XmlDateTimeSerializationMode.Utc);
             }
             else if (dateTime is DateTime)
             {

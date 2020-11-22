@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -109,7 +110,22 @@ namespace Imageflow.Test
             using (var b = new ImageJob())
             {
                 var r = await b.Decode(imageBytes).
-                    Constrain(new Constraint(ConstraintMode.Fit_Crop,10,20))
+                    Constrain(new Constraint(ConstraintMode.Fit_Crop,10,20)
+                    {
+                        CanvasColor = null,
+                        H = 20,
+                        W = 10,
+                        Hints = new ResampleHints()
+                        {
+                            InterpolationColorspace = ScalingFloatspace.Linear,
+                            DownFilter = InterpolationFilter.Mitchell,
+                            ResampleWhen = ResampleWhen.Size_Differs_Or_Sharpening_Requested,
+                            SharpenWhen = SharpenWhen.Always, 
+                            SharpenPercent = 15,
+                            UpFilter = InterpolationFilter.Ginseng
+                        },
+                        Mode = ConstraintMode.Fit_Crop
+                    })
                     .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
 
                 Assert.Equal(10, r.First.Width);
@@ -323,7 +339,7 @@ namespace Imageflow.Test
         }
         
         [Fact]
-        public async Task TestCustomDownscalingAndDecodeResults()
+        public async Task TestCustomDownscalingAndDecodeEncodeResults()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
             using (var b = new ImageJob())
@@ -345,6 +361,11 @@ namespace Imageflow.Test
                 Assert.Equal(r.DecodeResults.First().Height, 1);
                 Assert.Equal(r.DecodeResults.First().PreferredExtension, "png");
                 Assert.Equal(r.DecodeResults.First().PreferredMimeType, "image/png");
+                
+                Assert.Equal(r.EncodeResults.First().Width, 5);
+                Assert.Equal(r.EncodeResults.First().Height, 3);
+                Assert.Equal(r.EncodeResults.First().PreferredExtension, "png");
+                Assert.Equal(r.EncodeResults.First().PreferredMimeType, "image/png");
             }
 
         }
