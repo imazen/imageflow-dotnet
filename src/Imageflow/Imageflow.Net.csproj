@@ -9,22 +9,33 @@
     <AssemblyVersion>0.1.0</AssemblyVersion>
     <FileVersion>0.1.0</FileVersion>
     <InformationalVersion>0.1.0-pre</InformationalVersion>
+    
+    
     <PackageProjectUrl>https://github.com/imazen/imageflow-dotnet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/imazen/imageflow-dotnet.git</RepositoryUrl>
+    <RepositoryBranch>main</RepositoryBranch>
     <Description>Bindings for the Imageflow image processing library. Also remember to install Imageflow.NativeBinaries.[your platform]</Description>
+    <PackageTags>Image;Resize;Optimize;Crop;Gif;Jpg;Jpeg;Bitmap;Png;Core;WebP;ImageResizer;Imageflow;Rotate;Imaging;Crunch</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <LangVersion>7.1</LangVersion>
+    <Authors>Lilith River</Authors>
+    <Company>Imazen LLC</Company>
     <RootNamespace>Imageflow</RootNamespace>
     <Copyright>(c) 2020 Imazen LLC</Copyright>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageLicenseExpression>(AGPL-3.0-or-later OR Apache-2.0+)</PackageLicenseExpression>
+    <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.2.2" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
 
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="images\icon.png" Pack="true" PackagePath=""/>
   </ItemGroup>
 </Project>
