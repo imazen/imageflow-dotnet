@@ -64,6 +64,12 @@ namespace Imageflow.Fluent
             _copy?.Dispose();
         }
 
+        /// <summary>
+        /// Note that bytes will not be valid after StreamSource is disposed
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="OverflowException"></exception>
         public async Task<ArraySegment<byte>> GetBytesAsync(CancellationToken cancellationToken)
         {
             var length = _underlying.CanSeek ? _underlying.Length : 0;

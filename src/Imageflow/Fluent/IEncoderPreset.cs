@@ -148,8 +148,9 @@ namespace Imageflow.Fluent
         public bool? Progressive { get; set; }
         public bool? OptimizeHuffmanCoding { get; set; }
         
+        public AnyColor? Matte { get; set; }
         
-        public object ToImageflowDynamic() => new {libjpegturbo = new { quality = Quality, progressive = Progressive, optimize_huffman_coding = OptimizeHuffmanCoding}};
+        public object ToImageflowDynamic() => new {libjpegturbo = new { quality = Quality, progressive = Progressive, optimize_huffman_coding = OptimizeHuffmanCoding, matte = Matte?.ToImageflowDynamic()}};
     }
 
     public class MozJpegEncoder : IEncoderPreset
@@ -166,13 +167,14 @@ namespace Imageflow.Fluent
         public int? Quality { get; set; }
         public bool? Progressive { get; set; }
 
+        public AnyColor? Matte { get; set; }
         public MozJpegEncoder SetProgressive(bool progressive)
         {
             Progressive = progressive;
             return this;
         }
         
-        public object ToImageflowDynamic() => new {mozjpeg = new { quality = Quality, progressive = Progressive}};
+        public object ToImageflowDynamic() => new {mozjpeg = new { quality = Quality, progressive = Progressive, matte = Matte?.ToImageflowDynamic()}};
     }
 
     
