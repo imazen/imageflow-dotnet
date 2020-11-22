@@ -18,6 +18,8 @@
     <Copyright>(c) 2020 Imazen LLC</Copyright>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.2.2" />
