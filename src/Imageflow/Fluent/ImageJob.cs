@@ -43,7 +43,7 @@ namespace Imageflow.Fluent
         /// Decode an image into a frame
         /// </summary>
         /// <param name="source">Use BytesSource or StreamSource</param>
-        /// <param name="commands">Commands to the decoder, such as JPEG or WebP block-wise downscaling for performance, or to discard the color profile</param>
+        /// <param name="commands">Commands to the decoder, such as JPEG or WebP block-wise downscaling for performance, or to discard the color profile or ignore color profile errors</param>
         /// <returns></returns>
         public BuildNode Decode(IBytesSource source, DecodeCommands commands) =>
             Decode(source, GenerateIoId(), commands);

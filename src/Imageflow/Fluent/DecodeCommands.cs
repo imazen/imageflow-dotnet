@@ -19,6 +19,8 @@ namespace Imageflow.Fluent
 
         public bool DiscardColorProfile { get; set; } = false;
 
+        public bool IgnoreColorProfileErrors { get; set; } = false;
+
         public DecodeCommands SetJpegDownscaling(int targetWidthHint,
             int targetHeightHint, DecoderDownscalingMode mode)
         {
@@ -37,6 +39,11 @@ namespace Imageflow.Fluent
         public DecodeCommands SetDiscardColorProfile(bool value)
         {
             DiscardColorProfile = value;
+            return this;
+        }
+        public DecodeCommands SetIgnoreColorProfileErrors(bool value)
+        {
+            IgnoreColorProfileErrors = value;
             return this;
         }
 
@@ -63,7 +70,8 @@ namespace Imageflow.Fluent
             
                 
             object ignore = DiscardColorProfile ? new {discard_color_profile = (string) null} : null;
-            return new [] {downscale, ignore, downscaleWebP}.Where(obj => obj != null).ToArray();
+            object ignoreErrors = IgnoreColorProfileErrors ? new {ignore_color_profile_errors = (string) null} : null;
+            return new [] {downscale, ignore, ignoreErrors, downscaleWebP}.Where(obj => obj != null).ToArray();
         }
     }
 }
