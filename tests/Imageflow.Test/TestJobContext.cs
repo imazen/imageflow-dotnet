@@ -34,7 +34,7 @@ namespace Imageflow.Test
                 
                 var response = c.SendMessage("v0.1/get_image_info", new {io_id = 0});
 
-                var data = response.DeserializeDynamic();
+                dynamic data = response.DeserializeDynamic();
 
                 _output.WriteLine(response.GetString());
 
@@ -125,7 +125,7 @@ namespace Imageflow.Test
                 
                 var response = c.SendMessage("v0.1/execute", message);
 
-                var data = response.DeserializeDynamic();
+                dynamic data = response.DeserializeDynamic();
 
                 _output.WriteLine(response.GetString());
 
@@ -146,7 +146,7 @@ namespace Imageflow.Test
                 c.AddOutputBuffer(1);
                 var response = c.ExecuteImageResizer4CommandString(0, 1, "w=200&h=200&scale=both&format=jpg");
 
-                var data = response.DeserializeDynamic();
+                dynamic data = response.DeserializeDynamic();
 
                 _output.WriteLine(response.GetString());
 
@@ -164,15 +164,18 @@ namespace Imageflow.Test
                 {
                     io = new object[]
                     {
-                        new {
+                        new
+                        {
                             direction = "in",
                             io_id = 0,
                             io = new
                             {
-                                base_64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="
+                                base_64 =
+                                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="
                             }
                         },
-                        new {
+                        new
+                        {
                             direction = "out",
                             io_id = 1,
                             io = "output_base_64"
@@ -196,14 +199,14 @@ namespace Imageflow.Test
                     }
                 };
 
-               var response =  c.SendMessage("v0.1/build", message);
+                var response = c.SendMessage("v0.1/build", message);
 
-                var data = response.DeserializeDynamic();
+                dynamic data = response.DeserializeDynamic();
 
                 _output.WriteLine(response.GetString());
 
-                Assert.Equal(200, (int)data.code);
-                Assert.Equal(true, (bool)data.success);
+                Assert.Equal(200, (int) data.code);
+                Assert.Equal(true, (bool) data.success);
             }
         }
         
