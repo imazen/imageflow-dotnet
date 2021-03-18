@@ -95,7 +95,7 @@ namespace Imageflow.Fluent
             CreateCanvas(w, h, color, PixelFormat.Bgr_32);
         
         private BuildNode CreateCanvas(uint w, uint h, AnyColor color, PixelFormat format) => 
-            BuildNode.StartNode(this, new {create_canvas = new {w, h, color, format = format.ToString().ToLowerInvariant()}});
+            BuildNode.StartNode(this, new {create_canvas = new {w, h, color = color.ToImageflowDynamic(), format = format.ToString().ToLowerInvariant()}});
 
 
         
