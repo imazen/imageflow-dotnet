@@ -29,10 +29,10 @@ namespace Imageflow.Fluent
         }
 
         public WatermarkAlign RelativeTo { get; set; } = WatermarkAlign.Image;
-        public uint Left { get; set; } = 0;
-        public uint Top { get; set; } = 0;
-        public uint Right { get; set; } = 0;
-        public uint Bottom { get; set; } = 0;
+        public uint Left { get; set; }
+        public uint Top { get; set; }
+        public uint Right { get; set; }
+        public uint Bottom { get; set; }
 
         public WatermarkMargins SetRelativeTo(WatermarkAlign relativeTo)
         {

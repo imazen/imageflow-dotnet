@@ -17,9 +17,9 @@ namespace Imageflow.Fluent
         
         public Size? WebPDownscaleHint { get; set; }
 
-        public bool DiscardColorProfile { get; set; } = false;
+        public bool DiscardColorProfile { get; set; }
 
-        public bool IgnoreColorProfileErrors { get; set; } = false;
+        public bool IgnoreColorProfileErrors { get; set; }
 
         public DecodeCommands SetJpegDownscaling(int targetWidthHint,
             int targetHeightHint, DecoderDownscalingMode mode)

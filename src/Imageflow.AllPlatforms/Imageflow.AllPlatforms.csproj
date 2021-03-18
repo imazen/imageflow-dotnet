@@ -14,7 +14,7 @@
         <PackageProjectUrl>https://github.com/imazen/imageflow-dotnet</PackageProjectUrl>
         <RepositoryUrl>https://github.com/imazen/imageflow-dotnet.git</RepositoryUrl>
         <RepositoryBranch>main</RepositoryBranch>
-        <Description>Imageflow processes and optimizes images at incredible speeds. Imageflow.AllPlatforms is Compatible with .NET Core and .NET 5+.  For .NET 4.x and earlier, use the Imageflow.Net and Imageflow.NativeRuntime.[your platform] packages separately.</Description>
+        <Description>Imageflow processes and optimizes images at incredible speeds. Imageflow.AllPlatforms is compatible with .NET Core and .NET 5+.  For .NET 4.x and earlier, use the Imageflow.Net and Imageflow.NativeRuntime.[your platform] packages separately.</Description>
         <PackageTags>Image;Resize;Optimize;Crop;Gif;Jpg;Jpeg;Bitmap;Png;Core;WebP;ImageResizer;Imageflow;Rotate;Imaging;Crunch</PackageTags>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Authors>lilith;imazen</Authors>

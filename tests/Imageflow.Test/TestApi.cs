@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -209,7 +208,7 @@ namespace Imageflow.Test
             {
                 var e = await Assert.ThrowsAsync<ImageflowException>(async () =>
                 {
-                    var r = await b.Decode(imageBytes)
+                    await b.Decode(imageBytes)
                         .ResizerCommands("width=3&height=2&mode=stretch&scale=both")
                         .EncodeToBytes(new GifEncoder())
                         .Finish()

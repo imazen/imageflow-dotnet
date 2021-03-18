@@ -13,7 +13,7 @@ namespace Imageflow.Bindings
                 ImageHeight = imageInfo.image_height.Value,
                 PreferredMimeType = imageInfo.preferred_mime_type.Value,
                 PreferredExtension = imageInfo.preferred_extension.Value,
-                FrameDecodesInto = Enum.Parse(typeof(Imageflow.Fluent.PixelFormat), imageInfo.frame_decodes_into.Value,
+                FrameDecodesInto = Enum.Parse(typeof(Fluent.PixelFormat), imageInfo.frame_decodes_into.Value,
                     true)
             };
 

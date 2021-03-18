@@ -389,6 +389,7 @@ namespace Imageflow.Bindings
         /// <typeparam name="T"></typeparam>
         /// <param name="basename"></param>
         /// <param name="invokingOperation"></param>
+        /// <param name="customSearchDirectories"></param>
         /// <returns></returns>
         public static T FixDllNotFoundException<T>(string basename, Func<T> invokingOperation, IEnumerable<string> customSearchDirectories = null)
         {
