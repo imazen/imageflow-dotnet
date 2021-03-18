@@ -4,22 +4,25 @@
 
 Imageflow.NET is a .NET API for Imageflow, the fast image optimization and processing library for web servers. Imageflow focuses on security, quality, and performance - in that order.
 
+### On .NET Core 3.x and .NET 5/6
 
+```
+dotnet add package Imageflow.AllPlatforms
+```
+
+### On .NET 4.x (.NET Framework)
 ```
 PM> Install-Package Imageflow.Net
 PM> Install-Package Imageflow.NativeRuntime.win-x86 -pre
 PM> Install-Package Imageflow.NativeRuntime.win-x86_64 -pre
-PM> Install-Package Imageflow.NativeRuntime.osx_10_11-x86_64 -pre
+PM> Install-Package Imageflow.NativeRuntime.osx-x86_64 -pre
 PM> Install-Package Imageflow.NativeRuntime.ubuntu_16_04-x86_64 -pre
 ```
 
-Note: You must install the [appropriate NativeRuntime(s)](https://www.nuget.org/packages?q=Imageflow+AND+NativeRuntime) in the project you are deploying - they have to copy imageflow.dll to the output folder. 
+Note: On .NET 4.x you must install the [appropriate NativeRuntime(s)](https://www.nuget.org/packages?q=Imageflow+AND+NativeRuntime) in the project you are deploying - they have to copy imageflow.dll to the output folder. They are not copied transitively. 
 
 Also note: Older versions of Windows may not have the C Runtime 
 installed ([Install 32-bit](https://aka.ms/vs/16/release/vc_redist.x86.exe) or [64-bit](https://aka.ms/vs/16/release/vc_redist.x64.exe)). 
-
-
-[NativeRuntimes](https://www.nuget.org/packages?q=Imageflow+AND+NativeRuntime) that are suffixed with -haswell (2013, AVX2 support) require a CPU of that generation or later. 
 
 ### License 
 

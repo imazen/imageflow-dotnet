@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <AssemblyName>Imageflow.AllPlatforms</AssemblyName>
+        <Version>0.1.0-pre</Version>
+        <PackageVersion>0.1.0-pre</PackageVersion>
+        <AssemblyVersion>0.1.0</AssemblyVersion>
+        <FileVersion>0.1.0</FileVersion>
+        <InformationalVersion>0.1.0-pre</InformationalVersion>
+        <LangVersion>7.1</LangVersion>
+        <RootNamespace>Imageflow</RootNamespace>
+
+        <PackageProjectUrl>https://github.com/imazen/imageflow-dotnet</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/imazen/imageflow-dotnet.git</RepositoryUrl>
+        <RepositoryBranch>main</RepositoryBranch>
+        <Description>Imageflow processes and optimizes images at incredible speeds. Imageflow.AllPlatforms is Compatible with .NET Core and .NET 5+.  For .NET 4.x and earlier, use the Imageflow.Net and Imageflow.NativeRuntime.[your platform] packages separately.</Description>
+        <PackageTags>Image;Resize;Optimize;Crop;Gif;Jpg;Jpeg;Bitmap;Png;Core;WebP;ImageResizer;Imageflow;Rotate;Imaging;Crunch</PackageTags>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>lilith;imazen</Authors>
+        <Company>Imazen LLC</Company>
+        <Copyright>(c) 2020 Imazen LLC</Copyright>
+        <RepositoryType>git</RepositoryType>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageLicenseExpression>(AGPL-3.0-or-later OR Apache-2.0+)</PackageLicenseExpression>
+        <PackageIcon>icon.png</PackageIcon>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Imageflow\Imageflow.Net.csproj" />
+    </ItemGroup>
+    <PropertyGroup Condition="'$(CI)' == 'True'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(CI)' == 'true'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="Imageflow.NativeRuntime.osx-x86_64" Version="1.5.7-rc61" />
+      <PackageReference Include="Imageflow.NativeRuntime.ubuntu_16_04-x86_64" Version="1.5.7-rc61" />
+      <PackageReference Include="Imageflow.NativeRuntime.win-x86" Version="1.5.7-rc61" />
+      <PackageReference Include="Imageflow.NativeRuntime.win-x86_64" Version="1.5.7-rc61" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="images\icon.png" Pack="true" PackagePath=""/>
+    </ItemGroup>
+</Project>
