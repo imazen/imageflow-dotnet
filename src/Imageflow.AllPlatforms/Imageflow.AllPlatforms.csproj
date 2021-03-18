@@ -23,8 +23,6 @@
         <RepositoryType>git</RepositoryType>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PackageLicenseExpression>(AGPL-3.0-or-later OR Apache-2.0+)</PackageLicenseExpression>
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
@@ -32,12 +30,6 @@
     <ItemGroup>
       <ProjectReference Include="..\Imageflow\Imageflow.Net.csproj" />
     </ItemGroup>
-    <PropertyGroup Condition="'$(CI)' == 'True'">
-        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(CI)' == 'true'">
-        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    </PropertyGroup>
     <ItemGroup>
       <PackageReference Include="Imageflow.NativeRuntime.osx-x86_64" Version="1.5.7-rc61" />
       <PackageReference Include="Imageflow.NativeRuntime.ubuntu_16_04-x86_64" Version="1.5.7-rc61" />
