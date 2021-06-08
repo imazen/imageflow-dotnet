@@ -30,7 +30,9 @@ namespace Imageflow.Fluent
         public ResampleHints Hints { get; set; }
         public AnyColor? CanvasColor { get; set; }
 
-        public Constraint SetConstraintMode(ConstraintMode mode)
+		public ConstraintGravity Gravity { get; set; }
+
+		public Constraint SetConstraintMode(ConstraintMode mode)
         {
             Mode = mode;
             return this;
@@ -47,6 +49,13 @@ namespace Imageflow.Fluent
             CanvasColor = canvasColor;
             return this;
         }
+
+        public Constraint SetGravity(ConstraintGravity gravity)
+		{
+            Gravity = gravity;
+
+            return this;
+		}
         
         public object ToImageflowDynamic()
         {
@@ -56,8 +65,8 @@ namespace Imageflow.Fluent
                 w = W,
                 h = H,
                 hints = Hints?.ToImageflowDynamic(),
-                canvas_color = CanvasColor?.ToImageflowDynamic()
-
+                canvas_color = CanvasColor?.ToImageflowDynamic(),
+                gravity = Gravity?.ToImageflowDynamic()
             };
         }
     }
