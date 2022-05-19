@@ -303,6 +303,46 @@ namespace Imageflow.Fluent
             }
         });
         
+        
+
+        /// <summary>
+        /// Rounds all 4 corners using the given radius in pixels
+        /// </summary>
+        /// <param name="radiusPixels"></param>
+        /// <param name="backgroundColor"></param>
+        /// <returns></returns>
+        public BuildNode RoundAllImageCorners(int radiusPixels, AnyColor backgroundColor)
+            => To(new
+            {
+                round_image_corners = new
+                {
+                    radius = new
+                    {
+                        pixels = radiusPixels
+                    },
+                    background_color = backgroundColor.ToImageflowDynamic()
+                }
+            });
+        
+        /// <summary>
+        /// Rounds all 4 corners by a percentage. 100% would make a circle if the image was square.
+        /// </summary>
+        /// <param name="radiusPercent"></param>
+        /// <param name="backgroundColor"></param>
+        /// <returns></returns>
+        public BuildNode RoundAllImageCornersPercent(float radiusPercent, AnyColor backgroundColor)
+            => To(new
+            {
+                round_image_corners = new
+                {
+                    radius = new
+                    {
+                        percentage = radiusPercent
+                    },
+                    background_color = backgroundColor.ToImageflowDynamic()
+                }
+            });
+        
         /// <summary>
         /// Fills the given rectangle with the specified color
         /// </summary>
