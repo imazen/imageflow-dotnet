@@ -16,7 +16,7 @@ PM> Install-Package Imageflow.Net
 PM> Install-Package Imageflow.NativeRuntime.win-x86 -pre
 PM> Install-Package Imageflow.NativeRuntime.win-x86_64 -pre
 PM> Install-Package Imageflow.NativeRuntime.osx-x86_64 -pre
-PM> Install-Package Imageflow.NativeRuntime.ubuntu_16_04-x86_64 -pre
+PM> Install-Package Imageflow.NativeRuntime.ubuntu-x86_64 -pre
 ```
 
 Note: On .NET 4.x you must install the [appropriate NativeRuntime(s)](https://www.nuget.org/packages?q=Imageflow+AND+NativeRuntime) in the project you are deploying - they have to copy imageflow.dll to the output folder. They are not copied transitively. 
