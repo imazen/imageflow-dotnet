@@ -39,12 +39,13 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.2.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.*" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="[1.2.*,3)" />
+    <PackageReference Include="Newtonsoft.Json" Version="[10.*,14)" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.*" PrivateAssets="All" />
 
   </ItemGroup>
   <ItemGroup>
-    <None Include="images\icon.png" Pack="true" PackagePath=""/>
+    <None Include="images\icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
