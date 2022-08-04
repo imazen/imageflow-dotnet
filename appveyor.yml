@@ -108,6 +108,7 @@ configuration: Release
 before_build: 
   - dotnet restore src/Imageflow.dncore.sln 
   - nuget restore  tests/Imageflow.TestDotNetFull/Imageflow.TestDotNetFull.csproj -SolutionDirectory src
+  - nuget restore  tests/Imageflow.TestDotNetFullPackageReference/Imageflow.TestDotNetFullPackageReference.csproj -SolutionDirectory src
   - choco install opencover.portable
   - choco install codecov
 
