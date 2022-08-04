@@ -34,6 +34,8 @@ namespace Imageflow.Test
             Assert.Equal(info.PreferredMimeType, "image/png");
             Assert.Equal(info.FrameDecodesInto, PixelFormat.Bgra_32);
         }
+        
+
 
         [Fact]
         public async Task TestBuildJob()
@@ -85,6 +87,8 @@ namespace Imageflow.Test
                     .ExpandCanvas(5,5,5,5,AnyColor.FromHexSrgb("FFEECCFF"))
                     .FillRectangle(2,2,8,8, AnyColor.Black)
                     .ResizerCommands("width=10&height=10&mode=crop")
+                    .RoundAllImageCornersPercent(100, AnyColor.Black)
+                    .RoundAllImageCorners(1, AnyColor.Transparent)
                     .ConstrainWithin(5, 5)
                     .Watermark(new BytesSource(imageBytes), 
                         new WatermarkOptions()
