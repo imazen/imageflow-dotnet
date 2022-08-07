@@ -126,7 +126,7 @@ test_script:
   - vstest.console /logger:Appveyor tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
   - vstest.console /logger:Appveyor /Platform:x86 tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
   - vstest.console /logger:Appveyor /Platform:x64 tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
-  - vstest.console /logger:Appveyor tests\Imageflow.TestDotNetFullProjectReference\bin\Release\Imageflow.TestDotNetFullProjectReference.dll
+  - vstest.console /logger:Appveyor tests\Imageflow.TestDotNetFullPackageReference\bin\Release\Imageflow.TestDotNetFullPackageReference.dll
   - vstest.console /logger:Appveyor /Platform:x86 tests\Imageflow.TestDotNetFullPackageReference\bin\Release\Imageflow.TestDotNetFullPackageReference.dll
   - vstest.console /logger:Appveyor /Platform:x64 tests\Imageflow.TestDotNetFullPackageReference\bin\Release\Imageflow.TestDotNetFullPackageReference.dll
   - OpenCover.Console.exe -register:user -target:"C:/Program Files/dotnet/dotnet.exe" -targetargs:test -output:".\coverage.xml" -oldstyle
