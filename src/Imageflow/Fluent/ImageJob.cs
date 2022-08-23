@@ -584,6 +584,7 @@ namespace Imageflow.Fluent
         /// </summary>
         /// <param name="first12Bytes">The first 12 or more bytes of the file</param>
         /// <returns></returns>
+        [Obsolete("Bad idea: imageflow may eventually support formats via OS codecs, so this is not predictable. Use Imazen.Common.FileTypeDetection.FileTypeDetector().GuessMimeType(data) with your own allowlist instead.")]
         public static bool CanDecodeBytes(byte[] first12Bytes)
         {
             return MagicBytes.IsDecodable(first12Bytes);
@@ -596,6 +597,7 @@ namespace Imageflow.Fluent
         /// </summary>
         /// <param name="first12Bytes">The first 12 or more bytes of the file</param>
         /// <returns></returns>
+        [Obsolete("Use new Imazen.Common.FileTypeDetection.FileTypeDetector().GuessMimeType(data) instead")]
         public static string GetContentTypeForBytes(byte[] first12Bytes)
         {
             return MagicBytes.GetImageContentType(first12Bytes);

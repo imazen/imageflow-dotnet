@@ -4,6 +4,7 @@ using System.Text;
 
 namespace Imageflow.Fluent
 {
+    [Obsolete("Use new Imazen.Common.FileTypeDetection.FileTypeDetector().GuessMimeType(data) instead")]
     internal static class MagicBytes
     {
         internal enum ImageFormat
@@ -376,6 +377,7 @@ namespace Imageflow.Fluent
             return null;
         }
 
+        [Obsolete("Use new Imazen.Common.FileTypeDetection.FileTypeDetector().GuessMimeType(data) instead")]
         internal static string GetImageContentType(byte[] first12Bytes)
         {
             switch (GetImageFormat(first12Bytes))
@@ -483,6 +485,7 @@ namespace Imageflow.Fluent
         /// <param name="first12Bytes"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
+        [Obsolete("Bad idea: imageflow may eventually support formats via OS codecs, so this is not predictable")]
         internal static bool IsDecodable(byte[] first12Bytes)
         {
             switch (GetImageFormat(first12Bytes))
