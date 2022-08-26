@@ -199,6 +199,7 @@ namespace Imageflow.Bindings
                 }
                 // We don't currently support unlisted/unknown architectures. We default to x86/x64 as backup
             }
+            //TODO: Add support for arm/arm64 on linux
             return Environment.Is64BitProcess ? "x64" : "x86";
         }, LazyThreadSafetyMode.PublicationOnly);
 
@@ -382,42 +383,52 @@ namespace Imageflow.Bindings
     internal static class NativeLibraryLoader
     {
         private static string GetFilenameWithoutDirectory(string basename) =>  $"{RuntimeFileLocator.SharedLibraryPrefix.Value}{basename}.{RuntimeFileLocator.SharedLibraryExtension.Value}";
-        
+
         /// <summary>
-        /// Attempts to resolve DllNotFoundException
+        /// Attempts to resolve DllNotFoundException and BadImageFormatExceptions
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="basename"></param>
         /// <param name="invokingOperation"></param>
         /// <param name="customSearchDirectories"></param>
         /// <returns></returns>
-        public static T FixDllNotFoundException<T>(string basename, Func<T> invokingOperation, IEnumerable<string> customSearchDirectories = null)
+        public static T FixDllNotFoundException<T>(string basename, Func<T> invokingOperation,
+            IEnumerable<string> customSearchDirectories = null)
         {
             // It turns out that trying to do it "before" is 4-5x slower in cases where the standard loading mechanism works
             // And catching the DllNotFoundException does not seem to measurably slow us down. So no "preventative" stuff.
+            Exception caughtException = null;
             try
             {
                 return invokingOperation();
             }
-            catch (DllNotFoundException first)
+            catch (BadImageFormatException a)
             {
-                var logger = new LoadLogger {FirstException = first, Filename = GetFilenameWithoutDirectory(basename) };
-                if (TryLoadByBasename(basename, logger, out var _, customSearchDirectories))
-                {
-                    try
-                    {
-                        return invokingOperation();
-                    }
-                    catch (DllNotFoundException last)
-                    {
-                        logger.LastException = last;
-                    }
-                }
-                logger.RaiseException();
+                caughtException = a;
             }
+            catch (DllNotFoundException b)
+            {
+                caughtException = b;
+            }
+            
+            //Try loading 
+            var logger = new LoadLogger
+                { FirstException = caughtException, Filename = GetFilenameWithoutDirectory(basename) };
+            if (TryLoadByBasename(basename, logger, out var _, customSearchDirectories))
+            {
+                try
+                {
+                    return invokingOperation();
+                }
+                catch (DllNotFoundException last)
+                {
+                    logger.LastException = last;
+                }
+            }
+            logger.RaiseException();
             return default;
         }
-        
+
         private static readonly Lazy<ConcurrentDictionary<string, IntPtr>> LibraryHandlesByBasename = new Lazy<ConcurrentDictionary<string, IntPtr>>(() => new ConcurrentDictionary<string, IntPtr>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);
 
         // Not yet implemented. 
