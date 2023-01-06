@@ -15,7 +15,7 @@
     <PackageProjectUrl>https://github.com/imazen/imageflow-dotnet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/imazen/imageflow-dotnet.git</RepositoryUrl>
     <RepositoryBranch>main</RepositoryBranch>
-    <Description>Bindings for the Imageflow image processing library. Also remember to install Imageflow.NativeRuntime.[your platform]</Description>
+    <Description>Bindings for the Imageflow image processing library. Also remember to install Imageflow.NativeRuntime.[your platform] or use Imageflow.AllPlatforms instead.</Description>
     <PackageTags>Image;Resize;Optimize;Crop;Gif;Jpg;Jpeg;Bitmap;Png;Core;WebP;ImageResizer;Imageflow;Rotate;Imaging;Crunch</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>lilith;imazen</Authors>
