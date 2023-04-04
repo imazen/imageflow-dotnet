@@ -12,8 +12,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Imageflow.NativeTool.win-x86" Version="2.0.0-preview3" />
-    <PackageReference Include="Imageflow.NativeTool.win-x86_64" Version="2.0.0-preview3" />
+    <PackageReference Include="Imageflow.NativeTool.win-x86" Version="2.0.0-preview5" />
+    <PackageReference Include="Imageflow.NativeTool.win-x86_64" Version="2.0.0-preview5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170628-02" />
     <PackageReference Include="xunit" Version="2.2.0" />
     <PackageReference Include="xunit.extensibility.execution" Version="2.2.0" />

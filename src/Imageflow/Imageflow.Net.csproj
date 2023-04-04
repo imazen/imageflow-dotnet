@@ -41,7 +41,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.*" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="[1.2.*,3)" />
-    <PackageReference Include="Newtonsoft.Json" Version="[10.*,14)" />
+    <PackageReference Include="Newtonsoft.Json" Version="[13.0.3,14)" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.*" PrivateAssets="All" />
 
   </ItemGroup>
