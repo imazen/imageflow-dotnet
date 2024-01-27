@@ -1,40 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
         <AssemblyName>Imageflow.AllPlatforms</AssemblyName>
-        <Version>0.1.0-pre</Version>
-        <PackageVersion>0.1.0-pre</PackageVersion>
-        <AssemblyVersion>0.1.0</AssemblyVersion>
-        <FileVersion>0.1.0</FileVersion>
-        <InformationalVersion>0.1.0-pre</InformationalVersion>
-        <LangVersion>7.1</LangVersion>
-        <RootNamespace>Imageflow</RootNamespace>
-
-        <PackageProjectUrl>https://github.com/imazen/imageflow-dotnet</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/imazen/imageflow-dotnet.git</RepositoryUrl>
-        <RepositoryBranch>main</RepositoryBranch>
-        <Description>Imageflow processes and optimizes images at incredible speeds. Imageflow.AllPlatforms is supported on .NET 6 and higher (and generally comaptible with .NET Core 3.1+) .NET 4.x and earlier, use the Imageflow.Net and Imageflow.NativeRuntime.[your platform] packages separately.</Description>
-        <PackageTags>Image;Resize;Optimize;Crop;Gif;Jpg;Jpeg;Bitmap;Png;Core;WebP;ImageResizer;Imageflow;Rotate;Imaging;Crunch</PackageTags>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Authors>lilith;imazen</Authors>
-        <Company>Imazen LLC</Company>
-        <Copyright>(c) 2022 Imazen LLC</Copyright>
-        <RepositoryType>git</RepositoryType>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-        <PackageLicenseExpression>(AGPL-3.0-or-later OR Apache-2.0+)</PackageLicenseExpression>
+        <Description>Imageflow processes and optimizes images at incredible speeds. Works well with with .NET 8,7,6.. anything with .NET Standard 2.0. NOTE: For .NET 4.x projects, use the Imageflow.Net and Imageflow.NativeRuntime.[your platform] packages separately.</Description>
+        
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <IsPackable>true</IsPackable>
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="PolySharp" Version="1.*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    <ItemGroup>
       <ProjectReference Include="..\Imageflow\Imageflow.Net.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="Imageflow.NativeRuntime.osx-x86_64" Version="2.0.0-preview8" />
-      <PackageReference Include="Imageflow.NativeRuntime.ubuntu-x86_64" Version="2.0.0-preview8" />
-      <PackageReference Include="Imageflow.NativeRuntime.win-x86" Version="2.0.0-preview8" />
-      <PackageReference Include="Imageflow.NativeRuntime.win-x86_64" Version="2.0.0-preview8" />
+      <PackageReference Include="Imageflow.NativeRuntime.osx-x86_64" Version="2.*" />
+      <PackageReference Include="Imageflow.NativeRuntime.ubuntu-x86_64" Version="2.*" />
+      <PackageReference Include="Imageflow.NativeRuntime.win-x86" Version="2.*" />
+      <PackageReference Include="Imageflow.NativeRuntime.win-x86_64" Version="2.*" />
     </ItemGroup>
     <ItemGroup>  
         <None Include="images\icon.png" Pack="true" PackagePath="" />

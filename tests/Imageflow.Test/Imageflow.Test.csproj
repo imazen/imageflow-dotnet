@@ -2,8 +2,10 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <Platforms>AnyCPU;x64;x86</Platforms>
-    <LangVersion>7.1</LangVersion>
-    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+    
+<!--    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">net7.0;net48;net6.0</TargetFrameworks>-->
+<!--    -->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -12,12 +14,18 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Imageflow.NativeTool.win-x86" Version="2.0.0-preview8" />
-    <PackageReference Include="Imageflow.NativeTool.win-x86_64" Version="2.0.0-preview8" />
+    <PackageReference Include="PolySharp" Version="1.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Imageflow.NativeTool.win-x86" Version="2.*" />
+    <PackageReference Include="Imageflow.NativeTool.win-x86_64" Version="2.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0-preview-20170628-02" />
-    <PackageReference Include="xunit" Version="2.2.0" />
-    <PackageReference Include="xunit.extensibility.execution" Version="2.2.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="xunit" Version="2.*" />
+    <PackageReference Include="xunit.extensibility.execution" Version="2.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.*" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Imageflow.AllPlatforms\Imageflow.AllPlatforms.csproj" />

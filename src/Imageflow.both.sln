@@ -12,9 +12,14 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A08DA97E-FCD2-4ACD-AC62-413A05BBDB0E}"
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
-		..\.github\workflows\codeql-analysis.yml = ..\.github\workflows\codeql-analysis.yml
 		..\.github\workflows\dotnet-core.yml = ..\.github\workflows\dotnet-core.yml
 		..\README.md = ..\README.md
+		..\.gitattributes = ..\.gitattributes
+		..\.gitignore = ..\.gitignore
+		..\AUTHORS.txt = ..\AUTHORS.txt
+		..\Directory.Build.props = ..\Directory.Build.props
+		..\LICENSE.txt = ..\LICENSE.txt
+		..\SECURITY.md = ..\SECURITY.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Imageflow.AllPlatforms", "Imageflow.AllPlatforms\Imageflow.AllPlatforms.csproj", "{88C05C97-B3B9-473F-804D-EC1CDF936953}"
