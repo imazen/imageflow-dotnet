@@ -1,29 +1,135 @@
 name: .NET Core
-
 on:
   push:
-    branches: [ main ]
   pull_request:
-    branches: [ main ]
-
+  release:
+    types: [ created, published ] # for now, github won't let us listen to created/draft, only published
+    
 jobs:
   build:
-
-    runs-on: ubuntu-latest
-
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-11.0
+            sln: ./src/Imageflow.dncore.sln
+            INSTALL_DOTNET: '6\n7\n8\n'
+          - os: ubuntu-latest
+            sln: ./src/Imageflow.dncore.sln
+            INSTALL_DOTNET: '6\n7\n8\n'
+          - os: windows-latest
+            pack: true
+            docs: true
+            coverage: true
+            sln: ./src/Imageflow.both.sln
+            INSTALL_DOTNET: '6\n7\n8\n4.8.1\n'
+    runs-on: ${{matrix.os}}
+    
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET 6
-      uses: actions/setup-dotnet@v1
+    - uses: actions/checkout@v3
+    - uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 6.x
-    - name: Setup .NET 7 
-      uses: actions/setup-dotnet@v1
+        cache: ${{ github.event_name != 'release' }}
+        dotnet-version: ${{ matrix.INSTALL_DOTNET }}
+        
+    - uses: nowsprinting/check-version-format-action@v3
+      id: version
       with:
-        dotnet-version: 7.x
+        prefix: 'v'
+        
+    - name: For releases only - set TAGGED_VERSION and ARTIFACT_VERSION
+      run: |
+        echo "TAGGED_VERSION=${{ steps.version.outputs.full_without_prefix }}" >> $GITHUB_ENV
+        echo "ARTIFACT_VERSION=${{ steps.version.outputs.full_without_prefix }}" >> $GITHUB_ENV
+        echo Set version to ${{ steps.version.outputs.full_without_prefix }}
+      shell: bash
+      if: steps.version.outputs.is_valid == 'true' && github.event_name == 'release'
+    - name: Set ARTIFACT_VERSION to commit-${{ github.sha }} for non-release builds
+      run: |
+        echo "ARTIFACT_VERSION=commit-${{ github.sha }}" >> $GITHUB_ENV
+        echo Set ARTIFACT_VERSION to commit-${{ github.sha }}
+      shell: bash
+      if: steps.version.outputs.is_valid == 'false' || github.event_name != 'release'
+
+    - run: |
+        dotnet clean ./src/Imageflow.both.sln --configuration Release
+        dotnet clean ./src/Imageflow.dncore.sln --configuration Release
+        dotnet clean ./src/Imageflow.dnfull.sln --configuration Release
+        dotnet nuget locals all --clear
+      if: github.event_name == 'release'
+
+
     - name: Install dependencies
-      run: dotnet restore ./src/Imageflow.dncore.sln
-    - name: Build
-      run: dotnet build --configuration Release --no-restore ./src/Imageflow.dncore.sln
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal ./src/Imageflow.dncore.sln
+      run: dotnet restore ${{ matrix.sln }} --force-evaluate
+
+    - name: Build all - relying on solution to handle excluding Windows-only TestDotNetFull* projects
+      run: dotnet build ${{ sln }} --maxcpucount:1 -c Release
+
+    - name: Test, relying on projects to only conditionally enable net48 TFMs on windows
+      run: |
+        dotnet test ${{ SLN_FILE }} -c Release
+
+    - uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: TestResults-${{matrix.os}}-${{ env.ARTIFACT_VERSION }}
+        path: TestResults/
+
+#    - name: Test .NET 8, 6, and 4.8.1 with Coverage
+#      if: matrix.os == 'windows-latest'
+#      run: |
+#        dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/coverage.net48.opencover.xml --framework net48
+#        dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/coverage.net6.opencover.xml --framework net6.0
+#        dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/coverage.net8.opencover.xml --framework net8.0
+
+#    - name: Upload coverage to Codecov
+#      uses: codecov/codecov-action@v3
+#      if: matrix.os == 'windows-latest'
+#      with:
+#        files: ./TestResults/coverage.**.opencover.xml
+#        token: ${{ secrets.CODECOV_TOKEN }} # replace with your Codecov token
+#        fail_ci_if_error: false
+
+#    - uses: actions/upload-artifact@v3
+#      if: failure()
+#      with:
+#        name: TestResults-${{matrix.os}}-${{ env.ARTIFACT_VERSION }}
+#        path: TestResults/
+
+    - name: Pack
+      run: |
+        dotnet pack ./src/Imageflow.Net.csproj -c Release --include-source -o NuGetPackages/Release/
+        dotnet pack ./src/Imageflow.AllPlatforms.csproj -c Release --include-source -o NuGetPackages/Release/
+      if: matrix.pack
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      id: nuget-artifact-upload-step
+      if: matrix.pack
+      with:
+        name: NuGetPackages
+        path: NuGetPackages/Release/*.nupkg
+        
+  publish:
+    needs: build
+    if: github.event_name == 'release'
+    
+    runs-on: ubuntu-latest
+    steps:
+      - uses: nowsprinting/check-version-format-action@v3
+        id: version
+        with:
+          prefix: 'v'
+      
+      # Download nuget artifacts from the test job into a folder called NuGetPackages
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        if: steps.version.outputs.is_valid == 'true' && github.event_name == 'release'
+        with:
+          name: NuGetPackages
+          path: NuGetPackages
+
+      - name: Publish NuGet packages to Nuget.org
+        if: steps.version.outputs.is_valid == 'true' && github.event_name == 'release'
+        run: |
+          dotnet nuget push NuGetPackages/*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_API_KEY }} --source nuget.org
