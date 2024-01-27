@@ -5,8 +5,8 @@ on:
   release:
     types: [ created, published ] # for now, github won't let us listen to created/draft, only published
 env:
-  CORE_SLN=./src/Imageflow.dncore.sln
-  FULL_SLN=./src/Imageflow.dnfull.sln
+  CORE_SLN: ./src/Imageflow.dncore.sln
+  FULL_SLN: ./src/Imageflow.dnfull.sln
 jobs:
   build:
     strategy:
@@ -124,11 +124,6 @@ jobs:
         vstest.console /Platform:x86 tests\Imageflow.TestDotNetFullPackageReference\bin\Release\Imageflow.TestDotNetFullPackageReference.dll
         vstest.console /Platform:x64 tests\Imageflow.TestDotNetFullPackageReference\bin\Release\Imageflow.TestDotNetFullPackageReference.dll
     
-    - uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: TestResults-${{matrix.os}}-${{ env.ARTIFACT_VERSION }}
-        path: TestResults/
 
   publish:
     needs: build
