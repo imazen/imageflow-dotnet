@@ -13,16 +13,26 @@ jobs:
         include:
           - os: macos-11.0
             sln: ./src/Imageflow.dncore.sln
-            INSTALL_DOTNET: '6\n7\n8\n'
+            INSTALL_DOTNET: |
+              6
+              7
+              8
           - os: ubuntu-latest
             sln: ./src/Imageflow.dncore.sln
-            INSTALL_DOTNET: '6\n7\n8\n'
+            INSTALL_DOTNET: |
+              6
+              7
+              8
           - os: windows-latest
             pack: true
             docs: true
             coverage: true
             sln: ./src/Imageflow.both.sln
-            INSTALL_DOTNET: '6\n7\n8\n4.8.1\n'
+            INSTALL_DOTNET: |
+              6
+              7
+              8
+              4.8.1
     runs-on: ${{matrix.os}}
     
     steps:
