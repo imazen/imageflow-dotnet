@@ -4,7 +4,9 @@ on:
   pull_request:
   release:
     types: [ created, published ] # for now, github won't let us listen to created/draft, only published
-    
+env:
+  CORE_SLN=./src/Imageflow.dncore.sln
+  FULL_SLN=./src/Imageflow.dnfull.sln
 jobs:
   build:
     strategy:
@@ -12,19 +14,16 @@ jobs:
       matrix:
         include:
           - os: macos-11.0
-            sln: ./src/Imageflow.dncore.sln
           - os: ubuntu-latest
-            sln: ./src/Imageflow.dncore.sln
           - os: windows-latest
             pack: true
             docs: true
             coverage: true
-            sln: ./src/Imageflow.both.sln
     runs-on: ${{matrix.os}}
     
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-dotnet@v3
+    - uses: actions/checkout@v4
+    - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
           6
@@ -51,22 +50,20 @@ jobs:
       if: steps.version.outputs.is_valid == 'false' || github.event_name != 'release'
 
     - run: |
-        dotnet clean ./src/Imageflow.both.sln --configuration Release
-        dotnet clean ./src/Imageflow.dncore.sln --configuration Release
-        dotnet clean ./src/Imageflow.dnfull.sln --configuration Release
+        dotnet clean ${{ env.CORE_SLN }} --configuration Release
         dotnet nuget locals all --clear
       if: github.event_name == 'release'
 
 
     - name: Install dependencies
-      run: dotnet restore ${{ matrix.sln }} --force-evaluate
+      run: dotnet restore ${{ env.CORE_SLN }} --force-evaluate
 
-    - name: Build all - relying on solution to handle excluding Windows-only TestDotNetFull* projects
-      run: dotnet build ${{ matrix.sln }} --maxcpucount:1 -c Release
+    - name: Build all modern dotnet projects
+      run: dotnet build ${{ env.CORE_SLN }} --maxcpucount:1 -c Release
 
     - name: Test, relying on projects to only conditionally enable net48 TFMs on windows
       run: |
-        dotnet test ${{ matrix.sln }} -c Release
+        dotnet test ${{ env.CORE_SLN }} -c Release
 
     - uses: actions/upload-artifact@v4
       if: failure()
@@ -108,7 +105,31 @@ jobs:
       with:
         name: NuGetPackages
         path: NuGetPackages/Release/*.nupkg
+
         
+    - name: Build legacy projects on Windows
+      if: matrix.os == 'windows-latest'
+      run: |
+        nuget restore  tests/Imageflow.TestDotNetFull/Imageflow.TestDotNetFull.csproj -SolutionDirectory src
+        nuget restore  tests/Imageflow.TestDotNetFullPackageReference/Imageflow.TestDotNetFullPackageReference.csproj -SolutionDirectory src
+        msbuild src/Imageflow.dnfull.sln /p:Configuration=Release /p:Platform="Any CPU"
+        
+    - name: Test legacy projects on Windows
+      if: matrix.os == 'windows-latest'
+      run: |
+        vstest.console tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
+        vstest.console /Platform:x86 tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
+        vstest.console /Platform:x64 tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
+        vstest.console tests\Imageflow.TestDotNetFullPackageReference\bin\Release\Imageflow.TestDotNetFullPackageReference.dll
+        vstest.console /Platform:x86 tests\Imageflow.TestDotNetFullPackageReference\bin\Release\Imageflow.TestDotNetFullPackageReference.dll
+        vstest.console /Platform:x64 tests\Imageflow.TestDotNetFullPackageReference\bin\Release\Imageflow.TestDotNetFullPackageReference.dll
+    
+    - uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: TestResults-${{matrix.os}}-${{ env.ARTIFACT_VERSION }}
+        path: TestResults/
+
   publish:
     needs: build
     if: github.event_name == 'release'
