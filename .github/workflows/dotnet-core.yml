@@ -2,8 +2,7 @@ name: .NET Core
 on:
   push:
   pull_request:
-  release:
-    types: [ created, published ] # for now, github won't let us listen to created/draft, only published
+  release: # for now, github won't let us listen to created/draft, only published
 env:
   CORE_SLN: ./src/Imageflow.dncore.sln
   FULL_SLN: ./src/Imageflow.dnfull.sln
