@@ -13,26 +13,13 @@ jobs:
         include:
           - os: macos-11.0
             sln: ./src/Imageflow.dncore.sln
-            INSTALL_DOTNET: |
-              6
-              7
-              8
           - os: ubuntu-latest
             sln: ./src/Imageflow.dncore.sln
-            INSTALL_DOTNET: |
-              6
-              7
-              8
           - os: windows-latest
             pack: true
             docs: true
             coverage: true
             sln: ./src/Imageflow.both.sln
-            INSTALL_DOTNET: |
-              6
-              7
-              8
-              4.8.1
     runs-on: ${{matrix.os}}
     
     steps:
@@ -40,7 +27,10 @@ jobs:
     - uses: actions/setup-dotnet@v3
       with:
         cache: ${{ github.event_name != 'release' }}
-        dotnet-version: ${{ matrix.INSTALL_DOTNET }}
+        dotnet-version: |
+          6
+          7
+          8
         
     - uses: nowsprinting/check-version-format-action@v3
       id: version
