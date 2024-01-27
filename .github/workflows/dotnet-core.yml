@@ -63,13 +63,13 @@ jobs:
       run: dotnet restore ${{ matrix.sln }} --force-evaluate
 
     - name: Build all - relying on solution to handle excluding Windows-only TestDotNetFull* projects
-      run: dotnet build ${{ sln }} --maxcpucount:1 -c Release
+      run: dotnet build ${{ matrix.sln }} --maxcpucount:1 -c Release
 
     - name: Test, relying on projects to only conditionally enable net48 TFMs on windows
       run: |
-        dotnet test ${{ SLN_FILE }} -c Release
+        dotnet test ${{ matrix.sln }} -c Release
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: TestResults-${{matrix.os}}-${{ env.ARTIFACT_VERSION }}
