@@ -23,8 +23,8 @@ namespace Imageflow.Fluent
         {
             switch (_kind)
             {
-                case ColorKind.Black: return new {black = (string)null};
-                case ColorKind.Transparent: return new {transparent = (string)null };
+                case ColorKind.Black: return new {black = (string?)null};
+                case ColorKind.Transparent: return new {transparent = (string?)null };
                 case ColorKind.Srgb: return new {srgb = new { hex = _srgb.ToHexUnprefixed()}};
                 default: throw new ImageflowAssertionFailed("default");
             }

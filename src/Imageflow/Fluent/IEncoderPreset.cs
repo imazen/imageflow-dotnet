@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Imageflow.Fluent
+﻿namespace Imageflow.Fluent
 {
     /// <summary>
     /// An interface for encode presets. Concrete examples are GifEncoder, PngQuantEncoder, LodePngEncoder, MozJpegEncoder, WebPLossyEncoder, WebPLosslessEncoder
@@ -16,7 +14,7 @@ namespace Imageflow.Fluent
     /// </summary>
     public class GifEncoder : IEncoderPreset
     {
-        public object ToImageflowDynamic() => new {gif = (string)null};
+        public object ToImageflowDynamic() => new {gif = (string?)null};
     } 
     /// <summary>
     /// Use LodePngEncoder instead
@@ -190,6 +188,6 @@ namespace Imageflow.Fluent
     }
     public class WebPLosslessEncoder : IEncoderPreset
     {
-        public object ToImageflowDynamic() => new { webplossless = (string)null };
+        public object ToImageflowDynamic() => new { webplossless = (string?)null };
     }
 }

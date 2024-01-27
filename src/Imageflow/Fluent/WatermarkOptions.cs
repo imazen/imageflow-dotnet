@@ -1,19 +1,17 @@
-using System;
-
 namespace Imageflow.Fluent
 {
     public class WatermarkOptions
     {
         
-        public ConstraintGravity Gravity { get; set; }
-        public IWatermarkConstraintBox FitBox { get; set; }
+        public ConstraintGravity? Gravity { get; set; }
+        public IWatermarkConstraintBox? FitBox { get; set; }
         public WatermarkConstraintMode? FitMode { get; set; }
         
         /// <summary>
         /// Range 0..1, where 1 is fully opaque and 0 is transparent.
         /// </summary>
         public float? Opacity { get; set; }
-        public ResampleHints Hints { get; set; }
+        public ResampleHints? Hints { get; set; }
         
         public uint? MinCanvasWidth { get; set; }
         public uint? MinCanvasHeight { get; set; }

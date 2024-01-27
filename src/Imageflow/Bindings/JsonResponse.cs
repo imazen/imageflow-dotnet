@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 using Newtonsoft.Json;
 
 namespace Imageflow.Bindings
@@ -73,22 +71,22 @@ namespace Imageflow.Bindings
     public static class IJsonResponseProviderExtensions
     {
         
-        public static T Deserialize<T>(this IJsonResponseProvider p) where T : class
+        public static T? Deserialize<T>(this IJsonResponseProvider p) where T : class
         {
-            using (var reader = new StreamReader(p.GetStream(), Encoding.UTF8))
-                return JsonSerializer.Create().Deserialize(new JsonTextReader(reader), typeof(T)) as T;
+            using var reader = new StreamReader(p.GetStream(), Encoding.UTF8);
+            return JsonSerializer.Create().Deserialize(new JsonTextReader(reader), typeof(T)) as T;
         }
 
-        public static dynamic DeserializeDynamic(this IJsonResponseProvider p)
+        public static dynamic? DeserializeDynamic(this IJsonResponseProvider p)
         {
-            using (var reader = new StreamReader(p.GetStream(), Encoding.UTF8))
-                return JsonSerializer.Create().Deserialize(new JsonTextReader(reader));
+            using var reader = new StreamReader(p.GetStream(), Encoding.UTF8);
+            return JsonSerializer.Create().Deserialize(new JsonTextReader(reader));
         }
 
         public static string GetString(this IJsonResponseProvider p)
         {
-            using (var s = new StreamReader(p.GetStream(), Encoding.UTF8))
-                return s.ReadToEnd();
+            using var s = new StreamReader(p.GetStream(), Encoding.UTF8);
+            return s.ReadToEnd();
         }
 
     }

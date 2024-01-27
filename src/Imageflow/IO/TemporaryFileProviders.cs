@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.MemoryMappedFiles;
+﻿using System.IO.MemoryMappedFiles;
 
 namespace Imageflow.IO
 {
@@ -18,13 +15,24 @@ namespace Imageflow.IO
         Stream ReadFromBeginning();
     }
 
-    internal class TemporaryMemoryFile : ITemporaryFile, ITemporaryFileProvider
+    internal class TemporaryMemoryFileProvider : ITemporaryFileProvider
+    {
+        public ITemporaryFile Create(bool cleanup, long capacity)
+        {
+            if (!cleanup) throw new InvalidOperationException("Memory Mapped Files cannot be persisted");
+            var name = Guid.NewGuid().ToString();
+            var file = MemoryMappedFile.CreateNew(name, capacity);
+            return new TemporaryMemoryFile(file, name);
+        }
+    }
+
+    internal class TemporaryMemoryFile : ITemporaryFile
     {
         private readonly MemoryMappedFile _file;
         public string Path { get; }
 
 
-        private TemporaryMemoryFile(MemoryMappedFile file, string path)
+        internal TemporaryMemoryFile(MemoryMappedFile file, string path)
         {
             _file = file;
             Path = path;
@@ -44,31 +52,30 @@ namespace Imageflow.IO
 
         public static ITemporaryFileProvider CreateProvider()
         {
-            return new TemporaryMemoryFile(null, null);
+            return new TemporaryMemoryFileProvider();
         }
-
-        public ITemporaryFile Create(bool cleanup,long capacity)
-        {
-            if (!cleanup) throw new InvalidOperationException("Memory Mapped Files cannot be persisted");
-            var name = Guid.NewGuid().ToString();
-            var file = MemoryMappedFile.CreateNew(name, capacity);
-            return new TemporaryMemoryFile(file, name);
-        }
-
+        
         public void Dispose()
         {
             _file?.Dispose();
         }
     }
     
-    
+    internal class TemporaryFileProvider : ITemporaryFileProvider
+    {
+        public ITemporaryFile Create(bool cleanup, long capacity)
+        {
+            return new TemporaryFile(System.IO.Path.GetTempFileName(), cleanup);
+        }
+        
+    }
 
-    internal class TemporaryFile : ITemporaryFile, ITemporaryFileProvider
+    internal class TemporaryFile : ITemporaryFile
     {
         private readonly List<WeakReference<IDisposable>> _cleanup = new List<WeakReference<IDisposable>>(2);
-        private readonly bool _deleteOnDispose;
+        private bool _deleteOnDispose;
 
-        private TemporaryFile(string path, bool deleteOnDispose)
+        internal TemporaryFile(string path, bool deleteOnDispose)
         {
             Path = path;
             _deleteOnDispose = deleteOnDispose;
@@ -90,14 +97,11 @@ namespace Imageflow.IO
             return fs;
         }
 
-        public ITemporaryFile Create(bool cleanup, long capacity)
-        {
-            return new TemporaryFile(System.IO.Path.GetTempFileName(), cleanup);
-        }
+        
 
         public static ITemporaryFileProvider CreateProvider()
         {
-            return new TemporaryFile(null, false);
+            return new TemporaryFileProvider();
         }
 
         public void Dispose()
@@ -110,11 +114,11 @@ namespace Imageflow.IO
                 }
             }
             _cleanup.Clear();
-            if (Path != null && _deleteOnDispose)
+            if (_deleteOnDispose)
             {
                 File.Delete(Path);
+                _deleteOnDispose = false;
             }
-            Path = null;
         }
     }
 }

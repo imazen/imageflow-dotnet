@@ -1,6 +1,4 @@
-using System;
 using System.Drawing;
-using System.IO;
 
 namespace Imageflow.Fluent
 {
@@ -43,7 +41,7 @@ namespace Imageflow.Fluent
             Encode(new StreamDestination(stream, disposeStream), encoderPreset);
         
         
-        private BuildNode(ImageJob builder,object nodeData, BuildNode inputNode, BuildNode canvasNode) : base(builder, nodeData, inputNode,
+        private BuildNode(ImageJob builder,object nodeData, BuildNode? inputNode, BuildNode? canvasNode) : base(builder, nodeData, inputNode,
             canvasNode){}
 
         private BuildNode To(object data) => new BuildNode(Builder, data, this, null);
@@ -98,7 +96,7 @@ namespace Imageflow.Fluent
         /// <param name="h"></param>
         /// <param name="hints"></param>
         /// <returns></returns>
-        public BuildNode Distort(uint w, uint h, ResampleHints hints)
+        public BuildNode Distort(uint w, uint h, ResampleHints? hints)
             => To(new
             {
                 resample_2d = new
@@ -214,33 +212,33 @@ namespace Imageflow.Fluent
         /// Flips the image vertically
         /// </summary>
         /// <returns></returns>
-        public BuildNode FlipVertical() => To(new {flip_v = (string)null});
+        public BuildNode FlipVertical() => To(new {flip_v = (string?)null});
         /// <summary>
         /// Flips the image horizontally
         /// </summary>
         /// <returns></returns>
-        public BuildNode FlipHorizontal() => To(new {flip_h = (string)null });
+        public BuildNode FlipHorizontal() => To(new {flip_h = (string?)null });
         
         /// <summary>
         /// Rotates the image 90 degrees clockwise. 
         /// </summary>
         /// <returns></returns>
-        public BuildNode Rotate90() => To(new {rotate_90 = (string)null });
+        public BuildNode Rotate90() => To(new {rotate_90 = (string?)null });
         /// <summary>
         /// Rotates the image 180 degrees clockwise. 
         /// </summary>
         /// <returns></returns>
-        public BuildNode Rotate180() => To(new {rotate_180 = (string)null });
+        public BuildNode Rotate180() => To(new {rotate_180 = (string?)null });
         /// <summary>
         /// Rotates the image 270 degrees clockwise. (same as 90 degrees counterclockwise). 
         /// </summary>
         /// <returns></returns>
-        public BuildNode Rotate270() => To(new {rotate_270 = (string)null });
+        public BuildNode Rotate270() => To(new {rotate_270 = (string?)null });
         /// <summary>
         /// Swaps the x and y dimensions of the image
         /// </summary>
         /// <returns></returns>
-        public BuildNode Transpose() => To(new {transpose = (string)null });
+        public BuildNode Transpose() => To(new {transpose = (string?)null });
 
         /// <summary>
         /// Allows you to generate multiple outputs by branching the graph

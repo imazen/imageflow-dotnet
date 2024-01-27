@@ -1,16 +1,29 @@
-using System;
-
 namespace Imageflow.Fluent
 {
     public class BuildEncodeResult
     {
-        public string PreferredMimeType { get; internal set; }
-        public string PreferredExtension { get;internal set; }
-        public int IoId { get; internal set;}
-        public int Width { get; internal set;}
-        public int Height { get; internal set;}
+        // internal BuildEncodeResult(string preferredMimeType, 
+        //     string preferredExtension, int ioId, int width, int height, IOutputDestination destination)
+        // {
+        //     
+        //     PreferredMimeType = preferredMimeType;
+        //     PreferredExtension = preferredExtension;
+        //     IoId = ioId;
+        //     Width = width;
+        //     Height = height;
+        //     Destination = destination;
+        // }
         
-        public IOutputDestination Destination { get; internal set;}
+        internal BuildEncodeResult()
+        {
+        }
+        public required string PreferredMimeType { get; init; }
+        public required string PreferredExtension { get; init; }
+        public required int IoId { get; init;}
+        public required int Width { get; init;}
+        public required int Height { get; init;}
+        
+        public required IOutputDestination Destination { get; init;}
         
         /// <summary>
         /// If this Destination is a BytesDestination, returns the ArraySegment - otherwise null

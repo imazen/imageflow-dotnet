@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.ConstrainedExecution;
+﻿using System.Runtime.ConstrainedExecution;
 using Microsoft.Win32.SafeHandles;
 
 namespace Imageflow.Bindings
@@ -24,7 +23,7 @@ namespace Imageflow.Bindings
             if (!IsValid) throw new ObjectDisposedException("Imageflow JsonResponseHandle");
         }
         
-        public ImageflowException DisposeAllowingException()
+        public ImageflowException? DisposeAllowingException()
         {
             if (!IsValid) return null;
             

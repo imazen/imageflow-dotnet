@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Imageflow.Bindings;
 using Imageflow.IO;
 using Newtonsoft.Json;
@@ -47,7 +41,7 @@ namespace Imageflow.Fluent
         /// <returns></returns>
         public BuildNode Decode(IBytesSource source, DecodeCommands commands) =>
             Decode(source, GenerateIoId(), commands);
-        public BuildNode Decode(IBytesSource source, int ioId, DecodeCommands commands)
+        public BuildNode Decode(IBytesSource source, int ioId, DecodeCommands? commands)
         {
             AddInput(ioId, source);
             if (commands == null)
@@ -121,7 +115,7 @@ namespace Imageflow.Fluent
         public BuildEndpoint BuildCommandString(IBytesSource source, IOutputDestination dest, string commandString,
             ICollection<InputWatermark> watermarks)
             => BuildCommandString(source, null, dest, null, commandString, watermarks);
-        public BuildEndpoint BuildCommandString(IBytesSource source, int? sourceIoId, IOutputDestination dest, int? destIoId, string commandString, ICollection<InputWatermark> watermarks)
+        public BuildEndpoint BuildCommandString(IBytesSource source, int? sourceIoId, IOutputDestination dest, int? destIoId, string commandString, ICollection<InputWatermark>? watermarks)
         {
             sourceIoId = sourceIoId ?? GenerateIoId();
             AddInput(sourceIoId.Value, source);
@@ -181,7 +175,7 @@ namespace Imageflow.Fluent
             => this.Finish().SetCancellationToken(cancellationToken).InProcessAndDisposeAsync();
         
     
-        internal async Task<BuildJobResult> FinishAsync(JobExecutionOptions executionOptions, SecurityOptions securityOptions, CancellationToken cancellationToken)
+        internal async Task<BuildJobResult> FinishAsync(JobExecutionOptions executionOptions, SecurityOptions? securityOptions, CancellationToken cancellationToken)
         {
             var inputByteArrays = await Task.WhenAll(_inputs.Select( async pair => new KeyValuePair<int, ArraySegment<byte>>(pair.Key, await pair.Value.GetBytesAsync(cancellationToken))));
             using (var ctx = new JobContext())
@@ -233,9 +227,9 @@ namespace Imageflow.Fluent
         private object BuildJsonWithPlaceholders()
         {
             var inputIo = _inputs.Select(pair =>
-                new {io_id = pair.Key, direction = "in", io = new {placeholder = (string) null}});
+                new {io_id = pair.Key, direction = "in", io = new {placeholder = (string?) null}});
             var outputIo = _outputs.Select(pair =>
-                new {io_id = pair.Key, direction = "out", io = new {placeholder = (string) null}});
+                new {io_id = pair.Key, direction = "out", io = new {placeholder = (string?) null}});
             return new
             {
                 io = inputIo.Concat(outputIo).ToArray(),
@@ -251,15 +245,21 @@ namespace Imageflow.Fluent
     
         class SubprocessFilesystemJob: IPreparedFilesystemJob
         {
-            public string JsonPath { get; set; }
-            public IReadOnlyDictionary<int, string> OutputFiles { get; internal set; }
-            internal ITemporaryFileProvider Provider { get; set; }
-            internal object JobMessage { get; set; }
+            public SubprocessFilesystemJob(ITemporaryFileProvider provider)
+            {
+                Provider = provider;
+            }
+            internal ITemporaryFileProvider Provider { get; }
+            public string JsonPath { get; set; } = "";
+            public IReadOnlyDictionary<int, string> OutputFiles { get; internal set; } = new ReadOnlyDictionary<int, string>(new Dictionary<int, string>());
+            
+            internal object? JobMessage { get; set; }
             internal List<IDisposable> Cleanup { get; } = new List<IDisposable>();
-            internal List<KeyValuePair<ITemporaryFile, IOutputDestination>> Outputs { get; set; }
+            internal List<KeyValuePair<ITemporaryFile, IOutputDestination>>? Outputs { get; set; }
 
             internal async Task CopyOutputsToDestinations(CancellationToken token)
             {
+                if (Outputs == null) return;
                 foreach (var pair in Outputs)
                 {
                     using (var stream = pair.Key.ReadFromBeginning())
@@ -283,9 +283,9 @@ namespace Imageflow.Fluent
                 Dispose();
             }
         }
-        private async Task<SubprocessFilesystemJob> PrepareForSubprocessAsync(CancellationToken cancellationToken, SecurityOptions securityOptions, bool cleanupFiles, long? outputBufferCapacity = null)
+        private async Task<SubprocessFilesystemJob> PrepareForSubprocessAsync(CancellationToken cancellationToken, SecurityOptions? securityOptions, bool cleanupFiles, long? outputBufferCapacity = null)
         {
-            var job = new SubprocessFilesystemJob { Provider = cleanupFiles ? SystemTempProvider() : TemporaryFile.CreateProvider()};
+            var job = new SubprocessFilesystemJob(cleanupFiles ? SystemTempProvider() : TemporaryFile.CreateProvider());
             try
             {
 
@@ -378,8 +378,8 @@ namespace Imageflow.Fluent
 
 
 
-        internal async Task<BuildJobResult> FinishInSubprocessAsync(SecurityOptions securityOptions, 
-            string imageflowToolPath, long? outputBufferCapacity = null, CancellationToken cancellationToken = default(CancellationToken))
+        internal async Task<BuildJobResult> FinishInSubprocessAsync(SecurityOptions? securityOptions, 
+            string? imageflowToolPath, long? outputBufferCapacity = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (imageflowToolPath == null)
             {
@@ -416,7 +416,7 @@ namespace Imageflow.Fluent
                     }
                     else
                     {
-                        throw new ImageflowException(errors);
+                        throw new ImageflowException(errors ?? $"Unknown error from attempting to run subprocess {imageflowToolPath}");
                     }
                 }
 
@@ -428,7 +428,7 @@ namespace Imageflow.Fluent
             }
         }
         
-        internal async Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(CancellationToken cancellationToken, SecurityOptions securityOptions,  bool deleteFilesOnDispose)
+        internal async Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(CancellationToken cancellationToken, SecurityOptions? securityOptions,  bool deleteFilesOnDispose)
         {
             return await PrepareForSubprocessAsync(cancellationToken, securityOptions, deleteFilesOnDispose);
         }
@@ -598,7 +598,7 @@ namespace Imageflow.Fluent
         /// <param name="first12Bytes">The first 12 or more bytes of the file</param>
         /// <returns></returns>
         [Obsolete("Use new Imazen.Common.FileTypeDetection.FileTypeDetector().GuessMimeType(data) instead")]
-        public static string GetContentTypeForBytes(byte[] first12Bytes)
+        public static string? GetContentTypeForBytes(byte[] first12Bytes)
         {
             return MagicBytes.GetImageContentType(first12Bytes);
         }

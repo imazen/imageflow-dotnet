@@ -1,16 +1,10 @@
-
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
-using System.Threading;
 
 namespace Imageflow.Bindings
 {
@@ -19,21 +13,21 @@ namespace Imageflow.Bindings
         internal string Verb = "loaded";
         internal string Filename = $"{ RuntimeFileLocator.SharedLibraryPrefix.Value}";
         
-        internal Exception FirstException;
-        internal Exception LastException;
+        internal Exception? FirstException;
+        internal Exception? LastException;
 
         private readonly List<LogEntry> _log = new List<LogEntry>(7);
 
         private struct LogEntry
         {
             internal string Basename;
-            internal string FullPath;
+            internal string? FullPath;
             internal bool FileExists;
             internal bool PreviouslyLoaded;
             internal int? LoadErrorCode;
         }
 
-        public void NotifyAttempt(string basename, string fullPath, bool fileExists, bool previouslyLoaded,
+        public void NotifyAttempt(string basename, string? fullPath, bool fileExists, bool previouslyLoaded,
             int? loadErrorCode)
         {
             _log.Add(new LogEntry
@@ -209,7 +203,7 @@ namespace Imageflow.Bindings
         /// </summary>
         /// <param name="customSearchDirectories"></param>
         /// <returns></returns>
-        private static IEnumerable<Tuple<bool,string>> BaseFolders(IEnumerable<string> customSearchDirectories = null)
+        private static IEnumerable<Tuple<bool,string>> BaseFolders(IEnumerable<string>? customSearchDirectories = null)
         {
             // Prioritize user suggestions
             if (customSearchDirectories != null)
@@ -244,7 +238,7 @@ namespace Imageflow.Bindings
             yield return Tuple.Create(true, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
         }
 
-        internal static IEnumerable<string> SearchPossibilitiesForFile(string filename, IEnumerable<string> customSearchDirectories = null)
+        internal static IEnumerable<string> SearchPossibilitiesForFile(string filename, IEnumerable<string>? customSearchDirectories = null)
         {
             var attemptedPaths = new HashSet<string>();
             foreach (var t in BaseFolders(customSearchDirectories))
@@ -296,7 +290,7 @@ namespace Imageflow.Bindings
         /// <param name="filename"></param>
         /// <param name="customSearchDirectories"></param>
         /// <returns></returns>
-        static string SearchForFile(string filename, IEnumerable<string> customSearchDirectories = null)
+        static string? SearchForFile(string filename, IEnumerable<string>? customSearchDirectories = null)
         {
             return SearchPossibilitiesForFile(filename, customSearchDirectories).FirstOrDefault(File.Exists);
         }
@@ -304,7 +298,7 @@ namespace Imageflow.Bindings
     
     internal interface ILibraryLoadLogger
     {
-        void NotifyAttempt(string basename, string fullPath, bool fileExists, bool previouslyLoaded, int? loadErrorCode);
+        void NotifyAttempt(string basename, string? fullPath, bool fileExists, bool previouslyLoaded, int? loadErrorCode);
     }
     
     
@@ -322,7 +316,7 @@ namespace Imageflow.Bindings
         /// <param name="basename"></param>
         /// <param name="customSearchDirectories"></param>
         /// <returns></returns>
-        public static string FindExecutable(string basename, IEnumerable<string> customSearchDirectories = null)
+        public static string? FindExecutable(string basename, IEnumerable<string>? customSearchDirectories = null)
         {
             var logger = new LoadLogger { Verb = "located", Filename = GetFilenameWithoutDirectory(basename) };
             if (TryLoadByBasename(basename, logger, out var exePath, customSearchDirectories))
@@ -348,8 +342,8 @@ namespace Imageflow.Bindings
         /// <param name="exePath"></param>
         /// <param name="customSearchDirectories">Provide this if you want a custom search folder</param>
         /// <returns>True if previously or successfully loaded</returns>
-        internal static bool TryLoadByBasename(string basename, ILibraryLoadLogger log, out string exePath,
-            IEnumerable<string> customSearchDirectories = null)
+        internal static bool TryLoadByBasename(string basename, ILibraryLoadLogger log, out string? exePath,
+            IEnumerable<string>? customSearchDirectories = null)
         {
             if (string.IsNullOrEmpty(basename))
                 throw new ArgumentNullException(nameof(basename));
@@ -392,12 +386,12 @@ namespace Imageflow.Bindings
         /// <param name="invokingOperation"></param>
         /// <param name="customSearchDirectories"></param>
         /// <returns></returns>
-        public static T FixDllNotFoundException<T>(string basename, Func<T> invokingOperation,
-            IEnumerable<string> customSearchDirectories = null)
+        public static T? FixDllNotFoundException<T>(string basename, Func<T> invokingOperation,
+            IEnumerable<string>? customSearchDirectories = null)
         {
             // It turns out that trying to do it "before" is 4-5x slower in cases where the standard loading mechanism works
             // And catching the DllNotFoundException does not seem to measurably slow us down. So no "preventative" stuff.
-            Exception caughtException = null;
+            Exception? caughtException = null;
             try
             {
                 return invokingOperation();
@@ -444,7 +438,7 @@ namespace Imageflow.Bindings
         /// <param name="handle">Where to store the loaded library handle</param>
         /// <param name="customSearchDirectories">Provide this if you want a custom search folder</param>
         /// <returns>True if previously or successfully loaded</returns>
-        public static bool TryLoadByBasename(string basename, ILibraryLoadLogger log, out IntPtr handle, IEnumerable<string> customSearchDirectories = null)
+        public static bool TryLoadByBasename(string basename, ILibraryLoadLogger log, out IntPtr handle, IEnumerable<string>? customSearchDirectories = null)
         {
             if (string.IsNullOrEmpty(basename))
                 throw new ArgumentNullException(nameof(basename));
@@ -468,7 +462,7 @@ namespace Imageflow.Bindings
         }     
 
               
-        private static bool TryLoadByBasenameInternal(string basename, ILibraryLoadLogger log, out IntPtr handle, IEnumerable<string> customSearchDirectories = null)
+        private static bool TryLoadByBasenameInternal(string basename, ILibraryLoadLogger log, out IntPtr handle, IEnumerable<string>? customSearchDirectories = null)
         {
             var filename = GetFilenameWithoutDirectory(basename);
             foreach (var path in RuntimeFileLocator.SearchPossibilitiesForFile(filename, customSearchDirectories))

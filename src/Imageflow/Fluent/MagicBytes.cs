@@ -1,7 +1,3 @@
-using System;
-using System.Net.Mime;
-using System.Text;
-
 namespace Imageflow.Fluent
 {
     [Obsolete("Use new Imazen.Common.FileTypeDetection.FileTypeDetector().GuessMimeType(data) instead")]
@@ -378,7 +374,7 @@ namespace Imageflow.Fluent
         }
 
         [Obsolete("Use new Imazen.Common.FileTypeDetection.FileTypeDetector().GuessMimeType(data) instead")]
-        internal static string GetImageContentType(byte[] first12Bytes)
+        internal static string? GetImageContentType(byte[] first12Bytes)
         {
             switch (GetImageFormat(first12Bytes))
             {

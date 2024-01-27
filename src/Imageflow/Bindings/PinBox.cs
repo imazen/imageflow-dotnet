@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.ConstrainedExecution;
+﻿using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 
 namespace Imageflow.Bindings
 {
     internal class PinBox : CriticalFinalizerObject, IDisposable
     {
-        private List<GCHandle> _pinned;
+        private List<GCHandle>? _pinned;
         internal void AddPinnedData(GCHandle handle)
         {
             if (_pinned == null) _pinned = new List<GCHandle>();

@@ -1,6 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace Imageflow.Fluent
 {
     /// <summary>
@@ -10,8 +7,8 @@ namespace Imageflow.Fluent
     {
         private readonly ImageJob _builder;
         private CancellationToken _token;
-        private CancellationTokenSource _tokenSource;
-        private SecurityOptions _security;
+        private CancellationTokenSource? _tokenSource;
+        private SecurityOptions? _security;
 
         internal FinishJobBuilder(ImageJob imageJob,  CancellationToken cancellationToken)
         {
@@ -74,7 +71,7 @@ namespace Imageflow.Fluent
 
         public Task<BuildJobResult> InProcessAsync() => _builder.FinishAsync(new JobExecutionOptions(),_security, _token);
 
-        public Task<BuildJobResult> InSubprocessAsync(string imageflowToolPath = null, long? outputBufferCapacity = null) =>
+        public Task<BuildJobResult> InSubprocessAsync(string? imageflowToolPath = null, long? outputBufferCapacity = null) =>
             _builder.FinishInSubprocessAsync(_security, imageflowToolPath, outputBufferCapacity,  _token);
 
         /// <summary>

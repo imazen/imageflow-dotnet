@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.IO;
+﻿using Microsoft.IO;
 
 namespace Imageflow.Fluent
 {
@@ -53,7 +49,7 @@ namespace Imageflow.Fluent
             _disposeUnderlying = disposeUnderlying;
         }
         private readonly Stream _underlying;
-        private RecyclableMemoryStream _copy;
+        private RecyclableMemoryStream? _copy;
         private readonly bool _disposeUnderlying;
         public void Dispose()
         {
@@ -72,6 +68,11 @@ namespace Imageflow.Fluent
         /// <exception cref="OverflowException"></exception>
         public async Task<ArraySegment<byte>> GetBytesAsync(CancellationToken cancellationToken)
         {
+            if (_copy != null)
+            {
+                return new ArraySegment<byte>(_copy.GetBuffer(), 0,
+                    (int) _copy.Length);
+            }
             var length = _underlying.CanSeek ? _underlying.Length : 0;
             if (length >= int.MaxValue) throw new OverflowException("Streams cannot exceed 2GB");
             switch (_underlying)

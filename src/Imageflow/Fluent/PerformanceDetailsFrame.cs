@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Imageflow.Fluent
 {
     public class PerformanceDetailsFrame

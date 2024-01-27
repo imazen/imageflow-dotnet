@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Imageflow.Fluent
+﻿namespace Imageflow.Fluent
 {
     public interface IPreparedFilesystemJob : IDisposable
     {

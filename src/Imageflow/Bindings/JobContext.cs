@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -13,8 +9,8 @@ namespace Imageflow.Bindings
     public sealed class JobContext: CriticalFinalizerObject, IDisposable, IAssertReady
     {
         private readonly JobContextHandle _handle;
-        private List<GCHandle> _pinned;
-        private List<IDisposable> _toDispose;
+        private List<GCHandle>? _pinned;
+        private List<IDisposable>? _toDispose;
 
         private JobContextHandle Handle
         {
@@ -39,7 +35,7 @@ namespace Imageflow.Bindings
 
         private void AddPinnedData(GCHandle handle)
         {
-            if (_pinned == null) _pinned = new List<GCHandle>();
+            _pinned ??= new List<GCHandle>();
             _pinned.Add(handle);
         }
 
@@ -78,7 +74,7 @@ namespace Imageflow.Bindings
             using (var response = SendJsonBytes("v0.1/get_image_info", JobContext.SerializeToJson(new { io_id = ioId })))
             {
                 var responseDynamic = response.DeserializeDynamic();
-                if (responseDynamic.success.Value == true)
+                if (responseDynamic?.success.Value == true)
                 {
                     return ImageInfo.FromDynamic(responseDynamic.data.image_info);
                 }
@@ -95,7 +91,7 @@ namespace Imageflow.Bindings
             using (var response = SendJsonBytes("v1/get_version_info", JobContext.SerializeToJson(new { })))
             {
                 var responseDynamic = response.DeserializeDynamic();
-                if (responseDynamic.success.Value == true)
+                if (responseDynamic?.success.Value == true)
                 {
                     return VersionInfo.FromDynamic(responseDynamic.data.version_info);
                 }
@@ -272,7 +268,7 @@ namespace Imageflow.Bindings
             if (IsDisposed) throw new ObjectDisposedException("Imageflow JobContext");
             
             // Do not allocate or throw exceptions unless (disposing)
-            Exception e = null;
+            Exception? e = null;
             try
             {
                 e = _handle.DisposeAllowingException();

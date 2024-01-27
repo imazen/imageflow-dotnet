@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Imageflow.Fluent
+﻿namespace Imageflow.Fluent
 {
     public class ResampleHints
     {

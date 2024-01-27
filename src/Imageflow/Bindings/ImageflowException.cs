@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Imageflow.Bindings
@@ -20,7 +19,7 @@ namespace Imageflow.Bindings
             NoError,
             Success
         }
-        private static ErrorFetchResult TryGetErrorString(JobContextHandle c, ulong bufferSize, out string message)
+        private static ErrorFetchResult TryGetErrorString(JobContextHandle c, ulong bufferSize, out string? message)
         {
             message = null;
             if (c.IsClosed || c.IsInvalid)
@@ -60,11 +59,11 @@ namespace Imageflow.Bindings
                 switch (result)
                 {
                     case ErrorFetchResult.Success:
-                        return new ImageflowException(message);
+                        return new ImageflowException(message ?? "Unknown Imageflow error");
                     case ErrorFetchResult.ContextInvalid:
-                        return null;
+                        return new ImageflowException("Imageflow context (JobContextHandle) is invalid");
                     case ErrorFetchResult.NoError:
-                        return null;
+                        return new ImageflowException("Imageflow context has no error stored; cannot fetch error message");
                     case ErrorFetchResult.BufferTooSmall: break;
                     default:
                         throw new ArgumentOutOfRangeException();

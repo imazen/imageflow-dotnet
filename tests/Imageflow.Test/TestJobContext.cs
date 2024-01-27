@@ -1,4 +1,3 @@
-using System;
 using Xunit;
 using Imageflow.Bindings;
 using Imageflow.Fluent;
@@ -34,13 +33,13 @@ namespace Imageflow.Test
                 
                 var response = c.SendMessage("v0.1/get_image_info", new {io_id = 0});
 
-                dynamic data = response.DeserializeDynamic();
+                dynamic data = response.DeserializeDynamic()!;
 
                 _output.WriteLine(response.GetString());
 
 
                 Assert.Equal(200, (int)data.code );
-                Assert.Equal(true, (bool)data.success);
+                Assert.True((bool)data.success);
                 Assert.Equal(1, (int)data.data.image_info.image_width);
                 Assert.Equal(1, (int)data.data.image_info.image_height);
                 Assert.Equal("image/png", (string)data.data.image_info.preferred_mime_type);
@@ -57,11 +56,11 @@ namespace Imageflow.Test
                 c.AddInputBytes(0, imageBytes);
                 var result = c.GetImageInfo(0);
 
-                Assert.Equal(result.ImageWidth, 1);
-                Assert.Equal(result.ImageHeight, 1);
-                Assert.Equal(result.PreferredExtension, "png");
-                Assert.Equal(result.PreferredMimeType, "image/png");
-                Assert.Equal(result.FrameDecodesInto, PixelFormat.Bgra_32);
+                Assert.Equal(1, result.ImageWidth);
+                Assert.Equal(1, result.ImageHeight);
+                Assert.Equal("png", result.PreferredExtension);
+                Assert.Equal("image/png", result.PreferredMimeType);
+                Assert.Equal(PixelFormat.Bgra_32, result.FrameDecodesInto);
             }
         }
         
@@ -125,12 +124,12 @@ namespace Imageflow.Test
                 
                 var response = c.SendMessage("v0.1/execute", message);
 
-                dynamic data = response.DeserializeDynamic();
+                dynamic data = response.DeserializeDynamic()!;
 
                 _output.WriteLine(response.GetString());
 
                 Assert.Equal(200, (int)data.code);
-                Assert.Equal(true, (bool)data.success);
+                Assert.True((bool)data.success);
             }
         }
         
@@ -146,12 +145,12 @@ namespace Imageflow.Test
                 c.AddOutputBuffer(1);
                 var response = c.ExecuteImageResizer4CommandString(0, 1, "w=200&h=200&scale=both&format=jpg");
 
-                dynamic data = response.DeserializeDynamic();
+                dynamic data = response.DeserializeDynamic()!;
 
                 _output.WriteLine(response.GetString());
 
                 Assert.Equal(200, (int)data.code);
-                Assert.Equal(true, (bool)data.success);
+                Assert.True((bool)data.success);
             }
         }
         
@@ -201,12 +200,12 @@ namespace Imageflow.Test
 
                 var response = c.SendMessage("v0.1/build", message);
 
-                dynamic data = response.DeserializeDynamic();
+                dynamic data = response.DeserializeDynamic()!;
 
                 _output.WriteLine(response.GetString());
 
                 Assert.Equal(200, (int) data.code);
-                Assert.Equal(true, (bool) data.success);
+                Assert.True((bool) data.success);
             }
         }
         

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Imageflow.Fluent
+﻿namespace Imageflow.Fluent
 {
     public class Constraint
     {
@@ -27,10 +25,10 @@ namespace Imageflow.Fluent
         public ConstraintMode Mode { get; set; }
         public uint? W { get; set; }
         public uint? H { get; set; }
-        public ResampleHints Hints { get; set; }
+        public ResampleHints? Hints { get; set; }
         public AnyColor? CanvasColor { get; set; }
 
-		public ConstraintGravity Gravity { get; set; }
+		public ConstraintGravity? Gravity { get; set; }
 
 		public Constraint SetConstraintMode(ConstraintMode mode)
         {

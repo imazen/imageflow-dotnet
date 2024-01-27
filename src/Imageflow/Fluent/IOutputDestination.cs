@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using Imageflow.Bindings;
+﻿using Imageflow.Bindings;
 
 namespace Imageflow.Fluent
 {
@@ -40,14 +36,14 @@ namespace Imageflow.Fluent
 
     public class BytesDestination : IOutputDestination
     {
-        private MemoryStream _m;
+        private MemoryStream? _m;
         public void Dispose()
         {
         }
 
         public Task RequestCapacityAsync(int bytes)
         {
-            if (_m == null) _m = new MemoryStream(bytes);
+            _m ??= new MemoryStream(bytes);
             
             if (_m.Capacity < bytes) _m.Capacity = bytes;
             return Task.CompletedTask;
@@ -55,16 +51,19 @@ namespace Imageflow.Fluent
 
         public Task WriteAsync(ArraySegment<byte> bytes, CancellationToken cancellationToken)
         {
+            if (_m == null) throw new ImageflowAssertionFailed("BytesDestination.WriteAsync called before RequestCapacityAsync");
             return _m.WriteAsync(bytes.Array, bytes.Offset, bytes.Count, cancellationToken);
         }
 
         public Task FlushAsync(CancellationToken cancellationToken)
         {
+            if (_m == null) throw new ImageflowAssertionFailed("BytesDestination.FlushAsync called before RequestCapacityAsync");
             return _m.FlushAsync(cancellationToken);
         }
         
         public ArraySegment<byte> GetBytes()
         {
+            if (_m == null) throw new ImageflowAssertionFailed("BytesDestination.GetBytes called before RequestCapacityAsync");
             if (!_m.TryGetBuffer(out var bytes))
             {
                 throw new ImageflowAssertionFailed("MemoryStream TryGetBuffer should not fail here");

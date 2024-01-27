@@ -1,6 +1,4 @@
-﻿using System;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 
 namespace Imageflow.Fluent
 {
@@ -49,7 +47,7 @@ namespace Imageflow.Fluent
 
         public object[] ToImageflowDynamic()
         {
-            object downscale = JpegDownscaleHint.HasValue ? new { 
+            object? downscale = JpegDownscaleHint.HasValue ? new { 
                 jpeg_downscale_hints = new {
                     width = JpegDownscaleHint.Value.Width,
                     height  = JpegDownscaleHint.Value.Height,
@@ -57,7 +55,7 @@ namespace Imageflow.Fluent
                     gamma_correct_for_srgb_during_spatial_luma_scaling = JpegDownscalingMode == DecoderDownscalingMode.GammaCorrectSpatialLumaScaling
                 } 
              }: null;
-            object downscaleWebP = WebPDownscaleHint.HasValue
+            object? downscaleWebP = WebPDownscaleHint.HasValue
                 ? new
                 {
                     webp_decoder_hints = new
@@ -69,9 +67,9 @@ namespace Imageflow.Fluent
                 : null;
             
                 
-            object ignore = DiscardColorProfile ? new {discard_color_profile = (string) null} : null;
-            object ignoreErrors = IgnoreColorProfileErrors ? new {ignore_color_profile_errors = (string) null} : null;
-            return new [] {downscale, ignore, ignoreErrors, downscaleWebP}.Where(obj => obj != null).ToArray();
+            object? ignore = DiscardColorProfile ? new {discard_color_profile = (string?) null} : null;
+            object? ignoreErrors = IgnoreColorProfileErrors ? new {ignore_color_profile_errors = (string?) null} : null;
+            return new [] {downscale, ignore, ignoreErrors, downscaleWebP}.Where(obj => obj != null).Cast<object>().ToArray();
         }
     }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-
-namespace Imageflow.Fluent
+﻿namespace Imageflow.Fluent
 {
 
     /// <summary>
@@ -10,7 +7,7 @@ namespace Imageflow.Fluent
     /// </summary>
     public class BuildEndpoint : BuildItemBase
     {
-        internal BuildEndpoint(ImageJob builder,object nodeData, BuildNode inputNode, BuildNode canvasNode) : base(builder, nodeData, inputNode,
+        internal BuildEndpoint(ImageJob builder,object nodeData, BuildNode inputNode, BuildNode? canvasNode) : base(builder, nodeData, inputNode,
             canvasNode){}
         
         public FinishJobBuilder Finish() => new FinishJobBuilder(Builder, default);

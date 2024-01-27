@@ -1,6 +1,4 @@
-﻿using System.Threading;
-
-namespace Imageflow.Fluent
+﻿namespace Imageflow.Fluent
 {
     /// <summary>
     /// Base class for nodes in the job graph
@@ -8,8 +6,8 @@ namespace Imageflow.Fluent
     public class BuildItemBase
     {
         internal ImageJob Builder { get; }
-        internal BuildNode Input { get; }
-        internal BuildNode Canvas { get; }
+        internal BuildNode? Input { get; }
+        internal BuildNode? Canvas { get; }
         internal object NodeData { get;  }
         internal long Uid { get;  }
         public override bool Equals(object obj) => Uid == (obj as BuildItemBase)?.Uid;
@@ -19,7 +17,7 @@ namespace Imageflow.Fluent
         private static long NextUid() => Interlocked.Increment(ref _next);
         internal bool IsEmpty => NodeData == null;
         
-        protected BuildItemBase(ImageJob builder, object nodeData, BuildNode inputNode, BuildNode canvasNode)
+        protected BuildItemBase(ImageJob builder, object nodeData, BuildNode? inputNode, BuildNode? canvasNode)
         {
             Builder = builder;
             Input = inputNode;

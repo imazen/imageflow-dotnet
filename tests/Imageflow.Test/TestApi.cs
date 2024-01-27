@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Linq;
+﻿using System.Drawing;
 using Xunit;
-using System.Threading.Tasks;
 using Imageflow.Bindings;
 using Imageflow.Fluent;
  using Xunit.Abstractions;
@@ -28,11 +23,11 @@ namespace Imageflow.Test
 
             var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
             
-            Assert.Equal(info.ImageWidth, 1);
-            Assert.Equal(info.ImageHeight, 1);
-            Assert.Equal(info.PreferredExtension, "png");
-            Assert.Equal(info.PreferredMimeType, "image/png");
-            Assert.Equal(info.FrameDecodesInto, PixelFormat.Bgra_32);
+            Assert.Equal(1, info.ImageWidth);
+            Assert.Equal(1, info.ImageHeight);
+            Assert.Equal("png", info.PreferredExtension);
+            Assert.Equal("image/png", info.PreferredMimeType);
+            Assert.Equal(PixelFormat.Bgra_32, info.FrameDecodesInto);
         }
         
 
@@ -50,7 +45,7 @@ namespace Imageflow.Test
                     .ConstrainWithin(5, 5)
                     .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
 
-                Assert.Equal(5, r.First.Width);
+                Assert.Equal(5, r.First!.Width);
                 Assert.True(r.First.TryGetBytes().HasValue);
             }
         }
@@ -102,7 +97,7 @@ namespace Imageflow.Test
                     .EncodeToBytes(new MozJpegEncoder(80,true))
                     .Finish().InProcessAsync();
 
-                Assert.Equal(5, r.First.Width);
+                Assert.Equal(5, r.First!.Width);
                 Assert.True(r.First.TryGetBytes().HasValue);
             }
         }
@@ -131,7 +126,7 @@ namespace Imageflow.Test
                     })
                     .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
 
-                Assert.Equal(10, r.First.Width);
+                Assert.Equal(10, r.First!.Width);
                 Assert.Equal(20, r.First.Height);
                 Assert.True(r.First.TryGetBytes().HasValue);
             }
@@ -151,10 +146,10 @@ namespace Imageflow.Test
                     .Finish().InProcessAsync();
                 
                 
-                Assert.Equal(60, r.TryGet(1).Width);
-                Assert.Equal(30, r.TryGet(2).Width);
-                Assert.Equal(120, r.TryGet(3).Width);
-                Assert.True(r.First.TryGetBytes().HasValue);
+                Assert.Equal(60, r.TryGet(1)!.Width);
+                Assert.Equal(30, r.TryGet(2)!.Width);
+                Assert.Equal(120, r.TryGet(3)!.Width);
+                Assert.True(r.First!.TryGetBytes().HasValue);
             }
 
         }
@@ -179,8 +174,8 @@ namespace Imageflow.Test
                     .EncodeToBytes(new LodePngEncoder())
                     .Finish().InProcessAsync();
 
-                Assert.Equal(30, r.TryGet(2).Width);
-                Assert.True(r.First.TryGetBytes().HasValue);
+                Assert.Equal(30, r.TryGet(2)!.Width);
+                Assert.True(r.First!.TryGetBytes().HasValue);
             }
 
         }
@@ -198,7 +193,7 @@ namespace Imageflow.Test
                 var r = await b.Decode(imageBytes).ResizerCommands("width=3&height=2&mode=stretch&scale=both")
                     .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
 
-                Assert.Equal(3, r.First.Width);
+                Assert.Equal(3, r.First!.Width);
                 Assert.True(r.First.TryGetBytes().HasValue);
             }
 
@@ -241,7 +236,7 @@ namespace Imageflow.Test
                     .Finish().InProcessAsync();
 
                 Assert.NotEmpty(r.PerformanceDetails.GetFirstFrameSummary());
-                Assert.Equal(3, r.First.Width);
+                Assert.Equal(3, r.First!.Width);
                 Assert.Equal("webp", r.First.PreferredExtension);
                 Assert.True(r.First.TryGetBytes().HasValue);
             }
@@ -262,7 +257,7 @@ namespace Imageflow.Test
                     new BytesDestination(), 
                     "width=3&height=2&mode=stretch&scale=both&format=webp",watermarks).Finish().InProcessAsync();
 
-                Assert.Equal(3, r.First.Width);
+                Assert.Equal(3, r.First!.Width);
                 Assert.Equal("webp", r.First.PreferredExtension);
                 Assert.True(r.First.TryGetBytes().HasValue);
             }
@@ -292,7 +287,9 @@ namespace Imageflow.Test
                     }
                     else
                     {
+#pragma warning disable CA1416
                         using (var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
+#pragma warning restore CA1416
                         {
                         } // Will throw filenotfoundexception if missing 
                     }
@@ -308,7 +305,9 @@ namespace Imageflow.Test
                     Assert.Throws<FileNotFoundException>(delegate ()
                     {
 
+#pragma warning disable CA1416
                         using (var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
+#pragma warning restore CA1416
                         {
                         }
                     });
@@ -319,7 +318,7 @@ namespace Imageflow.Test
         [Fact]
         public async Task TestBuildJobSubprocess()
         {
-            string imageflowTool = Environment.GetEnvironmentVariable("IMAGEFLOW_TOOL");
+            string? imageflowTool = Environment.GetEnvironmentVariable("IMAGEFLOW_TOOL");
 
             if (!string.IsNullOrWhiteSpace(imageflowTool))
             {
@@ -335,7 +334,7 @@ namespace Imageflow.Test
                            
                     // ExecutableLocator.FindExecutable("imageflow_tool", new [] {"/home/n/Documents/imazen/imageflow/target/release/"})
 
-                    Assert.Equal(5, r.First.Width);
+                    Assert.Equal(5, r.First!.Width);
                     Assert.True(r.First.TryGetBytes().HasValue);
                 }
             }
@@ -358,17 +357,17 @@ namespace Imageflow.Test
                     .ConstrainWithin(5, 5)
                     .EncodeToBytes(new LodePngEncoder()).Finish().InProcessAsync();
 
-                Assert.Equal(5, r.First.Width);
+                Assert.Equal(5, r.First!.Width);
                 Assert.True(r.First.TryGetBytes().HasValue);
-                Assert.Equal(r.DecodeResults.First().Width, 1);
-                Assert.Equal(r.DecodeResults.First().Height, 1);
-                Assert.Equal(r.DecodeResults.First().PreferredExtension, "png");
-                Assert.Equal(r.DecodeResults.First().PreferredMimeType, "image/png");
+                Assert.Equal(1, r.DecodeResults.First()!.Width);
+                Assert.Equal(1, r.DecodeResults.First().Height);
+                Assert.Equal("png", r.DecodeResults.First().PreferredExtension);
+                Assert.Equal("image/png", r.DecodeResults.First().PreferredMimeType);
                 
-                Assert.Equal(r.EncodeResults.First().Width, 5);
-                Assert.Equal(r.EncodeResults.First().Height, 3);
-                Assert.Equal(r.EncodeResults.First().PreferredExtension, "png");
-                Assert.Equal(r.EncodeResults.First().PreferredMimeType, "image/png");
+                Assert.Equal(5, r.EncodeResults.First().Width);
+                Assert.Equal(3, r.EncodeResults.First().Height);
+                Assert.Equal("png", r.EncodeResults.First().PreferredExtension);
+                Assert.Equal("image/png", r.EncodeResults.First().PreferredMimeType);
             }
 
         }
@@ -378,7 +377,9 @@ namespace Imageflow.Test
         public void TestContentTypeDetection()
         {
             var pngBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+#pragma warning disable CS0618 // Type or member is obsolete
             Assert.Equal("image/png", ImageJob.GetContentTypeForBytes(pngBytes));
+
             Assert.True(ImageJob.CanDecodeBytes(pngBytes));
             
             var jpegBytes = new byte[] {0xFF,0xD8,0xFF,0,0,0,0,0,0,0,0,0};
@@ -394,9 +395,9 @@ namespace Imageflow.Test
             Assert.True(ImageJob.CanDecodeBytes(webpBytes));
             
             var nonsenseBytes = new byte[] {(byte)'A', (byte)'B', (byte)'C',(byte)'D', (byte)'E', (byte)'F',0,0,0,0,0,0,0};
-            Assert.Equal(null, ImageJob.GetContentTypeForBytes(nonsenseBytes));
+            Assert.Null(ImageJob.GetContentTypeForBytes(nonsenseBytes));
             Assert.False(ImageJob.CanDecodeBytes(nonsenseBytes));
-
+#pragma warning restore CS0618 // Type or member is obsolete
         }
     }
 }
