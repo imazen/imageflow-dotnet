@@ -93,8 +93,8 @@ jobs:
 
     - name: Pack
       run: |
-        dotnet pack ./src/Imageflow.Net.csproj -c Release --include-source -o NuGetPackages/Release/
-        dotnet pack ./src/Imageflow.AllPlatforms.csproj -c Release --include-source -o NuGetPackages/Release/
+        dotnet pack ./src/Imageflow/Imageflow.Net.csproj -c Release --include-source -o NuGetPackages/Release/
+        dotnet pack ./src/Imageflow.AllPlatforms/Imageflow.AllPlatforms.csproj -c Release --include-source -o NuGetPackages/Release/
       if: matrix.pack
 
     - name: Upload artifacts
