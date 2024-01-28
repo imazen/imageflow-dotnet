@@ -3,7 +3,7 @@
     <AssemblyName>Imageflow.Net</AssemblyName>
     <Description>Bindings for the Imageflow image processing library. Also remember to install Imageflow.NativeRuntime.[your platform] or use Imageflow.AllPlatforms instead.</Description>
 
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <IsPackable>true</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x64;x86</Platforms>
@@ -11,13 +11,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.*" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.*" /> <!-- we can remove this when dynamic is gone -->
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="[1.2.*,3)" />
     <PackageReference Include="Newtonsoft.Json" Version="[13.0.3,14)" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.*" PrivateAssets="All" />
+    <PackageReference Include="System.Text.Json" Version="8.0.1" /> <!-- need kebab case -->
 
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="All" />
     <PackageReference Include="PolySharp" Version="1.*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

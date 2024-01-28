@@ -113,7 +113,8 @@ namespace Imageflow.Bindings
         internal static readonly Lazy<string> SharedLibraryPrefix = new Lazy<string>(() => IsUnix ? "lib" : "", LazyThreadSafetyMode.PublicationOnly);
 
         internal static readonly Lazy<bool> IsDotNetCore = new Lazy<bool>(() =>
-            typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.CodeBase.Contains("Microsoft.NETCore.App")
+                typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.CodeBase.Contains("Microsoft.NETCore.App")
+           
             , LazyThreadSafetyMode.PublicationOnly);
 
         internal static readonly Lazy<string> PlatformRuntimePrefix = new Lazy<string>(() =>

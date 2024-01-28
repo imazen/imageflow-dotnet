@@ -56,7 +56,9 @@ namespace Imageflow.Bindings
             return null;
         }
 
+#pragma warning disable SYSLIB0004
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+#pragma warning restore SYSLIB0004
         protected override bool ReleaseHandle()
         {
             NativeMethods.imageflow_context_destroy(handle);
