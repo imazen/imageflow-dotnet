@@ -1,0 +1,11 @@
+@Imageflow.TestWebAOT_HostAddress = http://localhost:5158
+
+GET {{Imageflow.TestWebAOT_HostAddress}}/imageflow/version
+Accept: application/json
+
+###
+
+GET {{Imageflow.TestWebAOT_HostAddress}}/imageflow/resize
+Accept: application/json
+
+###

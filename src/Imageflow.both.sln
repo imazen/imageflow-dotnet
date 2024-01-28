@@ -26,6 +26,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Imageflow.AllPlatforms", "I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.TestDotNetFullPackageReference", "..\tests\Imageflow.TestDotNetFullPackageReference\Imageflow.TestDotNetFullPackageReference.csproj", "{FA37F0B4-4A77-406C-8270-EF4B93E9C83F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.TestWebAOT", "..\tests\Imageflow.TestWebAOT\Imageflow.TestWebAOT.csproj", "{A1B70BC8-2F56-40E9-BD5D-25A833E5513C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -96,6 +98,18 @@ Global
 		{FA37F0B4-4A77-406C-8270-EF4B93E9C83F}.Release|x64.Build.0 = Release|Any CPU
 		{FA37F0B4-4A77-406C-8270-EF4B93E9C83F}.Release|x86.ActiveCfg = Release|Any CPU
 		{FA37F0B4-4A77-406C-8270-EF4B93E9C83F}.Release|x86.Build.0 = Release|Any CPU
+		{A1B70BC8-2F56-40E9-BD5D-25A833E5513C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B70BC8-2F56-40E9-BD5D-25A833E5513C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B70BC8-2F56-40E9-BD5D-25A833E5513C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A1B70BC8-2F56-40E9-BD5D-25A833E5513C}.Debug|x64.Build.0 = Debug|Any CPU
+		{A1B70BC8-2F56-40E9-BD5D-25A833E5513C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A1B70BC8-2F56-40E9-BD5D-25A833E5513C}.Debug|x86.Build.0 = Debug|Any CPU
+		{A1B70BC8-2F56-40E9-BD5D-25A833E5513C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B70BC8-2F56-40E9-BD5D-25A833E5513C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B70BC8-2F56-40E9-BD5D-25A833E5513C}.Release|x64.ActiveCfg = Release|Any CPU
+		{A1B70BC8-2F56-40E9-BD5D-25A833E5513C}.Release|x64.Build.0 = Release|Any CPU
+		{A1B70BC8-2F56-40E9-BD5D-25A833E5513C}.Release|x86.ActiveCfg = Release|Any CPU
+		{A1B70BC8-2F56-40E9-BD5D-25A833E5513C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
