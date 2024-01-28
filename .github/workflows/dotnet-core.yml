@@ -18,6 +18,9 @@ jobs:
             pack: true
             docs: true
             coverage: true
+#          - os: ubuntu-latest
+#            sysjsonver: "8.0.1"
+#            rmemstreamver: "3.0.0 "
     runs-on: ${{matrix.os}}
     
     steps:
@@ -29,7 +32,7 @@ jobs:
           7
           8
         
-    - uses: nowsprinting/check-version-format-action@v3
+    - uses: nowsprinting/check-version-format-action@v3.2.10
       id: version
       with:
         prefix: 'v'
@@ -105,7 +108,10 @@ jobs:
         name: NuGetPackages
         path: NuGetPackages/Release/*.nupkg
 
-        
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.3.2
+      
+      
     - name: Build legacy projects on Windows
       if: matrix.os == 'windows-latest'
       run: |
