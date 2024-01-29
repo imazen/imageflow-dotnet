@@ -1,4 +1,6 @@
-﻿
+﻿# just use dotnet test -d for each
+
+
 # change to the parent dir of the parent dir of this script, regardless of where it's run from
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 Set-Location $scriptPath
