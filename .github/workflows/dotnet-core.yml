@@ -138,6 +138,7 @@ jobs:
         
     - name: Test use in an AOT web app
       if: matrix.test-aot
+      shell: pwsh
       run: ./tests/Imageflow.TestWebAOT/test.ps1
       
   publish:
