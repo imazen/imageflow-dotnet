@@ -67,7 +67,7 @@ while ($timeoutCounter -lt $timeout) {
     $timeoutMs = $timeoutCounter * 500 + 200
     $url = "http://localhost:$port/"
     try{
-        $response = Invoke-WebRequest -Uri $url -OutFile $null -TimeoutSec 1
+        $response = Invoke-WebRequest -Uri $url -TimeoutSec 1 -OutVariable response
         if ($response -ne $null) {
             Write-Output "Server responded to GET $url with status code $($response.StatusCode)"
             break
@@ -97,7 +97,7 @@ $testsFailed = 0
 try
 {
     # test /imageflow/version
-    $version = Invoke-WebRequest -Uri http://localhost:5000/imageflow/version -OutFile $null
+    $version = Invoke-WebRequest -Uri http://localhost:5000/imageflow/version 
     if ($LASTEXITCODE -ne 0)
     {
         Write-Error "Request to /imageflow/version failed with exit code $LASTEXITCODE"
@@ -111,7 +111,7 @@ try
 # test /imageflow/resize/width/10
 try
 {
-    $resize = Invoke-WebRequest -Uri http://localhost:5000/imageflow/resize/width/10 -OutFile $null
+    $resize = Invoke-WebRequest -Uri http://localhost:5000/imageflow/resize/width/10
     if ($LASTEXITCODE -ne 0)
     {
         Write-Warning "Request to /imageflow/resize/width/10 failed with exit code $LASTEXITCODE"
