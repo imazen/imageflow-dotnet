@@ -1,4 +1,5 @@
-﻿using Imageflow.Bindings;
+﻿using System.Text.Json.Nodes;
+using Imageflow.Bindings;
 
 namespace Imageflow.Fluent
 {
@@ -19,6 +20,7 @@ namespace Imageflow.Fluent
         public static AnyColor FromHexSrgb(string hex) => new AnyColor {_kind = ColorKind.Srgb, _srgb = SrgbColor.FromHex(hex)};
         public static AnyColor Srgb(SrgbColor c) => new AnyColor {_kind = ColorKind.Srgb, _srgb = c};
 
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic()
         {
             switch (_kind)
@@ -26,6 +28,17 @@ namespace Imageflow.Fluent
                 case ColorKind.Black: return new {black = (string?)null};
                 case ColorKind.Transparent: return new {transparent = (string?)null };
                 case ColorKind.Srgb: return new {srgb = new { hex = _srgb.ToHexUnprefixed()}};
+                default: throw new ImageflowAssertionFailed("default");
+            }
+        }
+        
+        public JsonNode ToJsonNode()
+        {
+            switch (_kind)
+            {
+                case ColorKind.Black: return new JsonObject(){{"black", (string?)null}};
+                case ColorKind.Transparent: return new JsonObject(){{"transparent", (string?)null}};
+                case ColorKind.Srgb: return new JsonObject(){{"srgb", new JsonObject(){{"hex", _srgb.ToHexUnprefixed()}}}};
                 default: throw new ImageflowAssertionFailed("default");
             }
         }

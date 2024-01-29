@@ -1,4 +1,6 @@
-﻿namespace Imageflow.Fluent
+﻿using System.Text.Json.Nodes;
+
+namespace Imageflow.Fluent
 {
     public class ResampleHints
     {
@@ -101,6 +103,7 @@
         }
 
 
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic()
         {
             return new
@@ -112,6 +115,18 @@
                 resample_when = ResampleWhen?.ToString().ToLowerInvariant(),
                 sharpen_when = SharpenWhen?.ToString().ToLowerInvariant()
             };
+        }
+
+        public JsonNode ToJsonNode()
+        {
+            var obj = new JsonObject();
+            if (SharpenPercent != null) obj.Add("sharpen_percent", SharpenPercent);
+            if (DownFilter != null) obj.Add("down_filter", DownFilter?.ToString().ToLowerInvariant());
+            if (UpFilter != null) obj.Add("up_filter", UpFilter?.ToString().ToLowerInvariant());
+            if (InterpolationColorspace != null) obj.Add("scaling_colorspace", InterpolationColorspace?.ToString().ToLowerInvariant());
+            if (ResampleWhen != null) obj.Add("resample_when", ResampleWhen?.ToString().ToLowerInvariant());
+            if (SharpenWhen != null) obj.Add("sharpen_when", SharpenWhen?.ToString().ToLowerInvariant());
+            return obj;
         }
     }
 

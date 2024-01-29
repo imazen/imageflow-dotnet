@@ -1,16 +1,40 @@
+using System.Text.Json.Nodes;
+using Imageflow.Bindings;
+
 namespace Imageflow.Fluent
 {
     public class PerformanceDetailsFrame
     {
-        internal PerformanceDetailsFrame(dynamic frame)
+        internal PerformanceDetailsFrame(JsonNode? frame)
         {
-            foreach (var n in frame.nodes)
+            if (frame == null) return;
+            var obj = frame.AsObject();
+            // foreach (var n in frame.nodes)
+            // {
+            //     _nodes.Add(new PerformanceDetailsNode()
+            //     {
+            //         Name = n.name,
+            //         WallMicroseconds = n.wall_microseconds
+            //     });
+            // }
+            if (obj.TryGetPropertyValue("nodes", out var nodesValue))
             {
-                _nodes.Add(new PerformanceDetailsNode()
+                foreach (var n in nodesValue?.AsArray() ?? [])
                 {
-                    Name = n.name,
-                    WallMicroseconds = n.wall_microseconds
-                });
+                    if (n == null) continue;
+                    var name = n.AsObject().TryGetPropertyValue("name", out var nameValue)
+                            ? nameValue?.GetValue<string>()
+                            : throw new ImageflowAssertionFailed("PerformanceDetailsFrame node name is null");
+                        
+                    var microseconds = n.AsObject().TryGetPropertyValue("wall_microseconds", out var microsecondsValue)
+                        ? microsecondsValue?.GetValue<long>()
+                        : throw new ImageflowAssertionFailed("PerformanceDetailsFrame node wall_microseconds is null");
+                    _nodes.Add(new PerformanceDetailsNode()
+                    {
+                        Name = name!,
+                        WallMicroseconds = microseconds!.Value
+                    });
+                }
             }
         }
 

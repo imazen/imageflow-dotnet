@@ -224,6 +224,11 @@ namespace Imageflow.Bindings
             {
                 yield return Tuple.Create(true, AppDomain.CurrentDomain.RelativeSearchPath);
             }
+            // look in System.AppContext.BaseDirectory
+            if (!string.IsNullOrEmpty(System.AppContext.BaseDirectory))
+            {
+                yield return Tuple.Create(true, System.AppContext.BaseDirectory);
+            }
             
             // Look in the base directory from which .NET looks for managed assemblies
             yield return Tuple.Create(true, AppDomain.CurrentDomain.BaseDirectory);
@@ -240,10 +245,13 @@ namespace Imageflow.Bindings
                 
             }
 
+            #if NETSTANDARD2_0
             // Look in the folder that *this* assembly is located.
             var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             if (!string.IsNullOrEmpty(assemblyLocation))
                 yield return Tuple.Create(true, assemblyLocation);
+            #endif
+            
         }
 
         internal static IEnumerable<string> SearchPossibilitiesForFile(string filename, IEnumerable<string>? customSearchDirectories = null)

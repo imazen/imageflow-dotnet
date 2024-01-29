@@ -17,10 +17,15 @@ namespace Imageflow.Fluent
         internal BuildEncodeResult()
         {
         }
+        // maps to "preferred_mime_type" in json
         public required string PreferredMimeType { get; init; }
+        
+        // maps to "preferred_extension" in json
         public required string PreferredExtension { get; init; }
         public required int IoId { get; init;}
+        // maps to "w" in json
         public required int Width { get; init;}
+        // maps to "h" in json
         public required int Height { get; init;}
         
         public required IOutputDestination Destination { get; init;}
@@ -31,5 +36,10 @@ namespace Imageflow.Fluent
         /// </summary>
         public ArraySegment<byte>? TryGetBytes() => (Destination is BytesDestination d) ? d.GetBytes() : (ArraySegment<byte>?)null;
     }
-
+    // Width = er.w,
+    // Height = er.h,
+    // IoId = er.io_id,
+    // PreferredExtension = er.preferred_extension,
+    // PreferredMimeType = er.preferred_mime_type,
+    // Destination = outputs[(int)er.io_id.Value]
 }

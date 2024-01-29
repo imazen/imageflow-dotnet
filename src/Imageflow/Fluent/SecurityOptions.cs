@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace Imageflow.Fluent
 {
     public class SecurityOptions
@@ -25,6 +27,7 @@ namespace Imageflow.Fluent
             return this; 
         }
 
+        [Obsolete("Use ToJsonNode() instead")]
         internal object ToImageflowDynamic()
         {
             return new
@@ -33,6 +36,15 @@ namespace Imageflow.Fluent
                 max_frame_size = MaxFrameSize?.ToImageflowDynamic(),
                 max_encode_size = MaxEncodeSize?.ToImageflowDynamic()
             };
+        }
+
+        internal JsonNode ToJsonNode()
+        {
+            var node = new JsonObject();
+            if (MaxDecodeSize != null) node.Add("max_decode_size", MaxDecodeSize?.ToJsonNode());
+            if (MaxFrameSize != null) node.Add("max_frame_size", MaxFrameSize?.ToJsonNode());
+            if (MaxEncodeSize != null) node.Add("max_encode_size", MaxEncodeSize?.ToJsonNode());
+            return node;
         }
     }
 }

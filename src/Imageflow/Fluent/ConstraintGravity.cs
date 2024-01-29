@@ -1,4 +1,6 @@
-﻿namespace Imageflow.Fluent
+﻿using System.Text.Json.Nodes;
+
+namespace Imageflow.Fluent
 {
     public class ConstraintGravity
     {
@@ -24,6 +26,7 @@
         public float XPercent { get; }
         public float YPercent { get; }
 
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic()
         {
             return new
@@ -34,6 +37,17 @@
                 }
 
             };
+        }
+
+        public JsonNode ToJsonNode()
+        {
+            var obj = new JsonObject
+            { { "percentage", new JsonObject()
+            {
+                {"x", XPercent},
+                {"y", YPercent}
+            } } };
+            return obj;
         }
     }
 

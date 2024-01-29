@@ -1,5 +1,8 @@
 ﻿using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json.Nodes;
+using JsonNamingPolicy = System.Text.Json.JsonNamingPolicy;
+using JsonSerializerOptions = System.Text.Json.JsonSerializerOptions;
+using Utf8JsonReader = System.Text.Json.Utf8JsonReader;
 
 namespace Imageflow.Bindings
 {
@@ -71,17 +74,38 @@ namespace Imageflow.Bindings
     public static class IJsonResponseProviderExtensions
     {
         
-        public static T? Deserialize<T>(this IJsonResponseProvider p) where T : class
+        
+        // [Obsolete("Use DeserializeJsonNode() instead")]
+        // public static T? Deserialize<T>(this IJsonResponseProvider p) where T : class
+        // {
+        //     using var readStream = p.GetStream();
+        //     using var ms = new MemoryStream(readStream.CanSeek ? (int)readStream.Length : 0);
+        //     readStream.CopyTo(ms);
+        //     var allBytes = ms.ToArray();
+        //     var options = new JsonSerializerOptions
+        //     {
+        //         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+        //     };
+        //     var v = System.Text.Json.JsonSerializer.Deserialize<T>(allBytes, options);
+        //     return v;
+        //}
+        //
+        // [Obsolete("Use Deserialize<T> or DeserializeJsonNode() instead")]
+        // public static dynamic? DeserializeDynamic(this IJsonResponseProvider p)
+        // {
+        //     using var reader = new StreamReader(p.GetStream(), Encoding.UTF8);
+        //     //return JsonSerializer.Create().Deserialize(new JsonTextReader(reader));
+        // }
+        
+        public static JsonNode? DeserializeJsonNode(this IJsonResponseProvider p)
         {
             using var reader = new StreamReader(p.GetStream(), Encoding.UTF8);
-            return JsonSerializer.Create().Deserialize(new JsonTextReader(reader), typeof(T)) as T;
+            var json = reader.ReadToEnd();
+            var reader2 = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
+            return JsonNode.Parse(ref reader2);
         }
-
-        public static dynamic? DeserializeDynamic(this IJsonResponseProvider p)
-        {
-            using var reader = new StreamReader(p.GetStream(), Encoding.UTF8);
-            return JsonSerializer.Create().Deserialize(new JsonTextReader(reader));
-        }
+        
+        
 
         public static string GetString(this IJsonResponseProvider p)
         {

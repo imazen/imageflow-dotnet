@@ -1,11 +1,30 @@
-﻿namespace Imageflow.Fluent
+﻿using System.Text.Json.Serialization;
+using Imageflow.Bindings;
+
+namespace Imageflow.Fluent
 {
 // ReSharper disable InconsistentNaming
+    
+ 
     public enum PixelFormat {
         Bgra_32 = 4,
         Bgr_32 = 70,
 //        Bgr_24 = 3,
         //    Gray_8 = 1,
+    }
+    internal static class PixelFormatParser
+    {
+        public static PixelFormat Parse(string s)
+        {
+            return s switch
+            {
+                "bgra_32" => PixelFormat.Bgra_32,
+                "bgr_32" => PixelFormat.Bgr_32,
+//                "bgr_24" => PixelFormat.Bgr_24,
+                //    "gray_8" => PixelFormat.Gray_8,
+                _ => throw new ImageflowAssertionFailed($"Unknown pixel format {s}")
+            };
+        }
     }
         
     public enum ResampleWhen{

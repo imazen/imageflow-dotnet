@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace Imageflow.Fluent
 {
     public struct FrameSizeLimit
@@ -20,6 +22,18 @@ namespace Imageflow.Fluent
                h = MaxHeight,
                megapixels = MaxMegapixels
            };
+       }
+
+       internal JsonNode ToJsonNode()
+       {
+           var node = new JsonObject
+           {
+               { "w", MaxWidth },
+               { "h", MaxHeight },
+               { "megapixels", MaxMegapixels }
+           };
+           return node;
+              
        }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Imageflow.Fluent
+﻿using System.Text.Json.Nodes;
+
+namespace Imageflow.Fluent
 {
     /// <summary>
     /// An interface for encode presets. Concrete examples are GifEncoder, PngQuantEncoder, LodePngEncoder, MozJpegEncoder, WebPLossyEncoder, WebPLosslessEncoder
@@ -6,6 +8,8 @@
     public interface IEncoderPreset
     {
         object ToImageflowDynamic();
+
+        JsonNode ToJsonNode();
     }
     
     
@@ -14,7 +18,10 @@
     /// </summary>
     public class GifEncoder : IEncoderPreset
     {
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic() => new {gif = (string?)null};
+        
+        public JsonNode ToJsonNode() => new JsonObject(){ {"gif", (string?)null}};
     } 
     /// <summary>
     /// Use LodePngEncoder instead
@@ -25,7 +32,18 @@
         public AnyColor? Matte { get; set; }
         public int? ZlibCompression { get; set; }
         public PngBitDepth? BitDepth { get; set; }
+        
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic() => new {libpng = new { depth = BitDepth?.ToString().ToLowerInvariant(), zlib_compression = ZlibCompression, matte = Matte?.ToImageflowDynamic()}};
+        
+        public JsonNode ToJsonNode()
+        {
+            var node = new JsonObject();
+            if (BitDepth != null) node.Add("depth", BitDepth?.ToString().ToLowerInvariant());
+            if (ZlibCompression != null) node.Add("zlib_compression", ZlibCompression);
+            if (Matte != null) node.Add("matte", Matte?.ToJsonNode());
+            return new JsonObject(){{"libpng", node}};
+        }
     } 
     
     public class PngQuantEncoder : IEncoderPreset
@@ -105,6 +123,7 @@
             MaximumDeflate = value;
             return this;
         }
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic() => new {pngquant = new
         {
             quality = Quality,
@@ -112,6 +131,16 @@
             speed = Speed,
             maximum_deflate = MaximumDeflate
         }};
+        
+        public JsonNode ToJsonNode()
+        {
+            var node = new JsonObject();
+            if (Quality != null) node.Add("quality", Quality);
+            if (MinimumQuality != null) node.Add("minimum_quality", MinimumQuality);
+            if (Speed != null) node.Add("speed", Speed);
+            if (MaximumDeflate != null) node.Add("maximum_deflate", MaximumDeflate);
+            return new JsonObject(){{"pngquant", node}};
+        }
     } 
 
 
@@ -132,7 +161,15 @@
             MaximumDeflate = value;
             return this;
         }
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic() => new {lodepng = new { maximum_deflate = MaximumDeflate}};
+        
+        public JsonNode ToJsonNode()
+        {
+            var node = new JsonObject();
+            if (MaximumDeflate != null) node.Add("maximum_deflate", MaximumDeflate);
+            return new JsonObject(){{"lodepng", node}};
+        }
     } 
 
 
@@ -148,7 +185,18 @@
         
         public AnyColor? Matte { get; set; }
         
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic() => new {libjpegturbo = new { quality = Quality, progressive = Progressive, optimize_huffman_coding = OptimizeHuffmanCoding, matte = Matte?.ToImageflowDynamic()}};
+        
+        public JsonNode ToJsonNode()
+        {
+            var node = new JsonObject();
+            if (Quality != null) node.Add("quality", Quality);
+            if (Progressive != null) node.Add("progressive", Progressive);
+            if (OptimizeHuffmanCoding != null) node.Add("optimize_huffman_coding", OptimizeHuffmanCoding);
+            if (Matte != null) node.Add("matte", Matte?.ToJsonNode());
+            return new JsonObject(){{"libjpegturbo", node}};
+        }
     }
 
     public class MozJpegEncoder : IEncoderPreset
@@ -172,7 +220,17 @@
             return this;
         }
         
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic() => new {mozjpeg = new { quality = Quality, progressive = Progressive, matte = Matte?.ToImageflowDynamic()}};
+        
+        public JsonNode ToJsonNode()
+        {
+            var node = new JsonObject();
+            if (Quality != null) node.Add("quality", Quality);
+            if (Progressive != null) node.Add("progressive", Progressive);
+            if (Matte != null) node.Add("matte", Matte?.ToJsonNode());
+            return new JsonObject(){{"mozjpeg", node}};
+        }
     }
 
     
@@ -184,10 +242,21 @@
         }
         public float? Quality { get; set; }
 
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic() => new { webplossy = new { quality = Quality } };
+        
+        public JsonNode ToJsonNode()
+        {
+            var node = new JsonObject();
+            if (Quality != null) node.Add("quality", Quality);
+            return new JsonObject(){{"webplossy", node}};
+        }
     }
     public class WebPLosslessEncoder : IEncoderPreset
     {
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic() => new { webplossless = (string?)null };
+        
+        public JsonNode ToJsonNode() => new JsonObject(){ {"webplossless", (string?)null}};
     }
 }

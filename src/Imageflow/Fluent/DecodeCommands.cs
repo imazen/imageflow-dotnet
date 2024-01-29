@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Text.Json.Nodes;
 
 namespace Imageflow.Fluent
 {
@@ -70,6 +71,54 @@ namespace Imageflow.Fluent
             object? ignore = DiscardColorProfile ? new {discard_color_profile = (string?) null} : null;
             object? ignoreErrors = IgnoreColorProfileErrors ? new {ignore_color_profile_errors = (string?) null} : null;
             return new [] {downscale, ignore, ignoreErrors, downscaleWebP}.Where(obj => obj != null).Cast<object>().ToArray();
+        }
+
+        public JsonArray ToJsonNode()
+        {
+            var node = new JsonArray();
+            if (JpegDownscaleHint.HasValue)
+            {
+                node.Add((JsonNode)new JsonObject
+                {
+                    {"jpeg_downscale_hints", new JsonObject
+                    {
+                        {"width", JpegDownscaleHint.Value.Width},
+                        {"height", JpegDownscaleHint.Value.Height},
+                        {"scale_luma_spatially", JpegDownscalingMode == DecoderDownscalingMode.SpatialLumaScaling || JpegDownscalingMode == DecoderDownscalingMode.GammaCorrectSpatialLumaScaling},
+                        {"gamma_correct_for_srgb_during_spatial_luma_scaling", JpegDownscalingMode == DecoderDownscalingMode.GammaCorrectSpatialLumaScaling}
+                    }}
+                });
+            }
+
+            if (WebPDownscaleHint.HasValue)
+            {
+                node.Add((JsonNode)new JsonObject
+                {
+                    {"webp_decoder_hints", new JsonObject
+                    {
+                        {"width", WebPDownscaleHint.Value.Width},
+                        {"height", WebPDownscaleHint.Value.Height}
+                    }}
+                });
+            }
+
+            if (DiscardColorProfile)
+            {
+                node.Add((JsonNode)new JsonObject
+                {
+                    {"discard_color_profile", null}
+                });
+            }
+
+            if (IgnoreColorProfileErrors)
+            {
+                node.Add((JsonNode)new JsonObject
+                {
+                    {"ignore_color_profile_errors", null}
+                });
+            }
+
+            return node;
         }
     }
 }

@@ -141,3 +141,6 @@ if ($testsFailed -ne 0) {
     Write-Warning "$testsFailed tests failed. Exiting."
     exit 1
 }
+Write-Output "YAYYYY"
+Write-Output "All tests passed. Exiting."
+exit 0

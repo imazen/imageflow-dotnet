@@ -1,9 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Imageflow.Bindings;
 using Imageflow.IO;
-using Newtonsoft.Json;
 
 namespace Imageflow.Fluent
 {
@@ -47,23 +48,25 @@ namespace Imageflow.Fluent
             if (commands == null)
             {
                 return BuildNode.StartNode(this,
-                    new
-                    {
-                        decode = new
-                        {
-                            io_id = ioId
-                        }
-                    });
+                    // new
+                    // {
+                    //     decode = new
+                    //     {
+                    //         io_id = ioId
+                    //     }
+                    // });
+                    new JsonObject() {{"decode", new JsonObject() {{"io_id", ioId}}}});
             }
             return BuildNode.StartNode(this,
-                new
-                {
-                    decode = new
-                    {
-                        io_id = ioId,
-                        commands = commands.ToImageflowDynamic()
-                    }
-                });
+                // new
+                // {
+                //     decode = new
+                //     {
+                //         io_id = ioId,
+                //         commands = commands.ToImageflowDynamic()
+                //     }
+                // });
+                new JsonObject() {{"decode", new JsonObject() {{"io_id", ioId}, {"commands", commands.ToJsonNode()}}}});
         }
         
         public BuildNode Decode(IBytesSource source, int ioId) => Decode(source, ioId, null);
@@ -89,7 +92,13 @@ namespace Imageflow.Fluent
             CreateCanvas(w, h, color, PixelFormat.Bgr_32);
         
         private BuildNode CreateCanvas(uint w, uint h, AnyColor color, PixelFormat format) => 
-            BuildNode.StartNode(this, new {create_canvas = new {w, h, color = color.ToImageflowDynamic(), format = format.ToString().ToLowerInvariant()}});
+            BuildNode.StartNode(this, 
+                //new {create_canvas = new {w, h, color = color.ToImageflowDynamic()
+                  new JsonObject() {{"create_canvas", new JsonObject() 
+                      {{"w", w}, {"h", h}, 
+                          {"color", color.ToJsonNode()}}}, 
+                      {"format", format.ToString().ToLowerInvariant()}});  
+
 
 
         
@@ -132,16 +141,28 @@ namespace Imageflow.Fluent
                 }
             }
             
-            dynamic nodeData = new
+            // dynamic nodeData = new
+            // {
+            //     command_string = new
+            //     {
+            //         kind = "ir4",
+            //         value = commandString,
+            //         decode = sourceIoId,
+            //         encode = destIoId,
+            //         watermarks = watermarks?.Select(w => w.ToImageflowDynamic()).ToArray()
+            //     }
+            // };
+            var watermarkNodes = watermarks?.Select(w => w.ToJsonNode()).ToArray();
+            var nodeData = new JsonObject
             {
-                command_string = new
+                {"command_string", new JsonObject
                 {
-                    kind = "ir4",
-                    value = commandString,
-                    decode = sourceIoId,
-                    encode = destIoId,
-                    watermarks = watermarks?.Select(w => w.ToImageflowDynamic()).ToArray()
-                }
+                    {"kind", "ir4"},
+                    {"value", commandString},
+                    {"decode", sourceIoId},
+                    {"encode", destIoId},
+                    {"watermarks", watermarkNodes != null ? new JsonArray(watermarkNodes) : null}
+                }}
             };
             return new BuildEndpoint(this, nodeData, null, null);
             
@@ -177,12 +198,17 @@ namespace Imageflow.Fluent
 
         internal byte[] ToJsonUtf8(SecurityOptions? securityOptions)
         {
-            var message = new
+            // var message = new
+            // {
+            //     security = securityOptions?.ToImageflowDynamic(),
+            //     framewise = ToFramewise()
+            // };
+            var message = new JsonObject()
             {
-                security = securityOptions?.ToImageflowDynamic(),
-                framewise = ToFramewise()
+                ["framewise"] = ToFramewise(),
+                ["security"] = securityOptions?.ToJsonNode()
             };
-            return JobContext.SerializeToJson(message);
+            return JobContext.SerializeNode(message);
         }
         
         internal string ToJson(SecurityOptions? securityOptions = default)
@@ -263,7 +289,7 @@ namespace Imageflow.Fluent
             public string JsonPath { get; set; } = "";
             public IReadOnlyDictionary<int, string> OutputFiles { get; internal set; } = new ReadOnlyDictionary<int, string>(new Dictionary<int, string>());
             
-            internal object? JobMessage { get; set; }
+            internal JsonNode? JobMessage { get; set; }
             internal List<IDisposable> Cleanup { get; } = new List<IDisposable>();
             internal List<KeyValuePair<ITemporaryFile, IOutputDestination>>? Outputs { get; set; }
 
@@ -305,15 +331,10 @@ namespace Imageflow.Fluent
 
                     var file = job.Provider.Create(cleanupFiles, bytes.Count);
                     job.Cleanup.Add(file);
-                    return new
-                    {
-                        io_id = pair.Key,
-                        direction = "in",
-                        io = new {file = file.Path},
-                        bytes,
-                        Length = bytes.Count,
-                        File = file
-                    };
+                    return (io_id: pair.Key, direction: "in",
+                        io: new JsonObject {{"file", file.Path}},
+                        bytes, Length: bytes.Count, File: file);
+  
                 }))).ToArray();
                 
                 var outputCapacity = outputBufferCapacity ?? inputFiles.Max(v => v.Length) * 2;
@@ -321,16 +342,11 @@ namespace Imageflow.Fluent
                 {
                     var file = job.Provider.Create(cleanupFiles, outputCapacity);
                     job.Cleanup.Add(file);
-                    return new
-                    {
-                        io_id = pair.Key,
-                        direction = "out",
-                        io = new {file = file.Path},
-                        Length = outputCapacity,
-                        File = file,
-                        Dest = pair.Value
-                    };
+                    return (io_id: pair.Key, direction: "out", 
+                        io: new JsonObject {{"file", file.Path}},
+                        Length: outputCapacity, File: file, Dest: pair.Value);
                 }).ToArray();
+                
                 
                 foreach (var f in inputFiles)
                 {
@@ -341,18 +357,37 @@ namespace Imageflow.Fluent
                     }
                 }
 
-                job.JobMessage = new
+                // job.JobMessage = new
+                // {
+                //     io = inputFiles.Select(v => (object) new {v.io_id, v.direction, v.io})
+                //         .Concat(outputFiles.Select(v => (object) new {v.io_id, v.direction, v.io}))
+                //         .ToArray(),
+                //     builder_config = new
+                //     {
+                //         security = securityOptions?.ToImageflowDynamic()
+                //     },
+                //     framewise = ToFramewise()
+                // };
+                job.JobMessage = new JsonObject
                 {
-                    io = inputFiles.Select(v => (object) new {v.io_id, v.direction, v.io})
-                        .Concat(outputFiles.Select(v => (object) new {v.io_id, v.direction, v.io}))
-                        .ToArray(),
-                    builder_config = new
+                    ["io"] = new JsonArray(inputFiles.Select(v => (JsonNode)new JsonObject
                     {
-                        security = securityOptions?.ToImageflowDynamic()
+                        ["io_id"] = v.io_id,
+                        ["direction"] = v.direction,
+                        ["io"] = v.io
+                    }).Concat(outputFiles.Select(v => new JsonObject
+                    {
+                        ["io_id"] = v.io_id,
+                        ["direction"] = v.direction,
+                        ["io"] = v.io
+                    })).ToArray()),
+                    ["builder_config"] = new JsonObject
+                    {
+                        ["security"] = securityOptions?.ToJsonNode()
                     },
-                    framewise = ToFramewise()
+                    ["framewise"] = ToFramewise()
                 };
-            
+                
                 var outputFilenames = new Dictionary<int, string>();
                 foreach (var f in outputFiles)
                 {
@@ -367,11 +402,14 @@ namespace Imageflow.Fluent
 
                 var jsonFile = job.Provider.Create(true, 100000);
                 job.Cleanup.Add(jsonFile);
-                using (var writer = new StreamWriter(jsonFile.WriteFromBeginning(), new UTF8Encoding(false)))
-                {
-                    JsonSerializer.Create().Serialize(writer, job.JobMessage);
-                    writer.Flush(); //Required or no bytes appear
-                }
+                var stream = jsonFile.WriteFromBeginning();
+                // write job.JobMessage to stream using System.Text.Json
+                var writer = new Utf8JsonWriter(stream);
+                job.JobMessage.WriteTo(writer);
+                writer.Flush();
+                stream.Flush();
+                stream.Dispose();
+                
 
                 job.JsonPath = jsonFile.Path;
                     
@@ -423,7 +461,8 @@ namespace Imageflow.Fluent
                 {
                     if (errors?.Contains("InvalidJson") ?? false)
                     {
-                        throw new ImageflowException(errors + $"\n{JsonConvert.SerializeObject(job.JobMessage)}");
+                        //throw new ImageflowException(errors + $"\n{JsonConvert.SerializeObject(job.JobMessage)}");
+                        throw new ImageflowException(errors + $"\n{job.JobMessage}");
                     }
                     else
                     {
@@ -495,33 +534,49 @@ namespace Imageflow.Fluent
 
         private static long? LowestUid(IEnumerable<BuildItemBase> forNodes) => forNodes.Select(n => n.Uid as long?).Min();
 
-        internal object ToFramewise()
+        internal JsonNode ToFramewise()
         {
             var nodes = CollectUnique();
             return ToFramewiseGraph(nodes);
         }
 
-        private object ToFramewiseGraph(ICollection<BuildItemBase> uniqueNodes)
+        private JsonNode ToFramewiseGraph(ICollection<BuildItemBase> uniqueNodes)
         {
             var lowestUid = LowestUid(uniqueNodes) ?? 0;
             var edges = CollectEdges(uniqueNodes);
-            var framewiseEdges = edges.Select(t => new
+            //var framewiseEdges = edges.Select(t => new
+            // {
+            //     from = t.Item1 - lowestUid,
+            //     to = t.Item2 - lowestUid,
+            //     kind = t.Item3.ToString().ToLowerInvariant()
+            // }).ToList();
+            JsonNode[] framewiseEdges = edges.Select(t => (JsonNode)new JsonObject
             {
-                from = t.Item1 - lowestUid,
-                to = t.Item2 - lowestUid,
-                kind = t.Item3.ToString().ToLowerInvariant()
-            }).ToList();
-            var framewiseNodes = new Dictionary<string, object>(_nodesCreated.Count);
+                ["from"] = t.Item1 - lowestUid,
+                ["to"] = t.Item2 - lowestUid,
+                ["kind"] = t.Item3.ToString().ToLowerInvariant()
+            }).ToArray();
+            
+            
+            var framewiseNodes = new Dictionary<string, JsonNode?>(_nodesCreated.Count);
             foreach (var n in uniqueNodes)
             {
                 framewiseNodes.Add((n.Uid - lowestUid).ToString(), n.NodeData );
             }
-            return new
+            // return new
+            // {
+            //     graph = new
+            //     {
+            //         edges = framewiseEdges,
+            //         nodes = framewiseNodes
+            //     }
+            // };
+            return new JsonObject
             {
-                graph = new
+                ["graph"] = new JsonObject
                 {
-                    edges = framewiseEdges,
-                    nodes = framewiseNodes
+                    ["edges"] = new JsonArray(framewiseEdges),
+                    ["nodes"] = new JsonObject(framewiseNodes)
                 }
             };
         }

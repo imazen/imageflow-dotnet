@@ -10,14 +10,14 @@
     <Platforms>AnyCPU;x64;x86</Platforms>
     <PackageIcon>icon.png</PackageIcon>
     <EnableTrimAnalyzer Condition="'$(TargetFramework)' == 'net8.0'">true</EnableTrimAnalyzer>
+    <IsAotCompatible Condition="'$(TargetFramework)' == 'net8.0'">true</IsAotCompatible>
+    <IsTrimmable Condition="'$(TargetFramework)' == 'net8.0'">true</IsTrimmable>
+    <PolySharpIncludeRuntimeSupportedAttributes>true</PolySharpIncludeRuntimeSupportedAttributes>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CSharp" Version="4.*" /> <!-- we can remove this when dynamic is gone -->
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="[1.2.*,3)" />
-    <PackageReference Include="Newtonsoft.Json" Version="[13.0.3,14)" />
-    <PackageReference Include="System.Text.Json" Version="8.0.1" /> <!-- need kebab case -->
-
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="[1.2.*,4)" />
+    <PackageReference Include="System.Text.Json" Version="[6.*,)" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="All" />

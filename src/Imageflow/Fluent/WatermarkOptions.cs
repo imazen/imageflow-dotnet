@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace Imageflow.Fluent
 {
     public class WatermarkOptions
@@ -163,6 +165,7 @@ namespace Imageflow.Fluent
             return this;
         }
 
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic(int? ioId)
         {
             return new
@@ -176,6 +179,19 @@ namespace Imageflow.Fluent
                 opacity = Opacity,
                 hints = Hints?.ToImageflowDynamic()
             };
+        }
+
+        internal JsonNode ToJsonNode(int? ioId)
+        {
+            var node = new JsonObject { { "io_id", ioId } };
+            if (Gravity != null) node.Add("gravity", Gravity.ToJsonNode());
+            if (FitBox != null) node.Add("fit_box", FitBox.ToJsonNode());
+            if (FitMode != null) node.Add("fit_mode", FitMode?.ToString().ToLowerInvariant());
+            if (MinCanvasWidth != null) node.Add("min_canvas_width", MinCanvasWidth);
+            if (MinCanvasHeight != null) node.Add("min_canvas_height", MinCanvasHeight);
+            if (Opacity != null) node.Add("opacity", Opacity);
+            if (Hints != null) node.Add("hints", Hints.ToJsonNode());
+            return node;
         }
     }
 }

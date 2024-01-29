@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace Imageflow.Fluent
 {
     /// <summary>
@@ -39,6 +41,7 @@ namespace Imageflow.Fluent
             Y2 = y2;
             return this;
         }
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic()
         {
             switch (RelativeTo)
@@ -68,6 +71,35 @@ namespace Imageflow.Fluent
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public JsonNode ToJsonNode()
+        {
+            var node = new JsonObject();
+            switch (RelativeTo)
+            {
+                case WatermarkAlign.Canvas:
+                    node.Add("canvas_percentage", new JsonObject
+                    {
+                        {"x1", X1},
+                        {"y1", Y1},
+                        {"x2", X2},
+                        {"y2", Y2}
+                    });
+                    break;
+                case WatermarkAlign.Image:
+                    node.Add("image_percentage", new JsonObject
+                    {
+                        {"x1", X1},
+                        {"y1", Y1},
+                        {"x2", X2},
+                        {"y2", Y2}
+                    });
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            return node;
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Imageflow.Fluent
+﻿using System.Text.Json.Nodes;
+
+namespace Imageflow.Fluent
 {
     public class Constraint
     {
@@ -54,7 +56,8 @@
 
             return this;
 		}
-        
+
+        [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic()
         {
             return new
@@ -67,5 +70,17 @@
                 gravity = Gravity?.ToImageflowDynamic()
             };
         }
+
+        internal JsonNode ToJsonNode()
+        {
+            var node = new JsonObject();
+            node.Add("mode", Mode.ToString()?.ToLowerInvariant());
+            if (W != null) node.Add("w", W);
+            if (H != null) node.Add("h", H);
+            if (Hints != null) node.Add("hints", Hints.ToJsonNode());
+            if (CanvasColor != null) node.Add("canvas_color", CanvasColor?.ToJsonNode());
+            if (Gravity != null) node.Add("gravity", Gravity.ToJsonNode());
+            return node;
+        }     
     }
 }

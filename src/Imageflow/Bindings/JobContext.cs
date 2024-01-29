@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Imageflow.Bindings
 {
@@ -41,32 +43,66 @@ namespace Imageflow.Bindings
 
         public bool HasError => NativeMethods.imageflow_context_has_error(Handle);
         
+        [Obsolete("Use SerializeNode instead for AOT compatibility")]
+        
+        [RequiresUnreferencedCode("Use SerializeNode instead for AOT compatibility")]
+        [RequiresDynamicCode("Use SerializeNode instead for AOT compatibility")]
         internal static byte[] SerializeToJson<T>(T obj){
-            using (var stream = new MemoryStream())
-            using (var writer = new StreamWriter(stream, new UTF8Encoding(false))){
-                JsonSerializer.Create().Serialize(writer, obj);
-                writer.Flush(); //Required or no bytes appear
-                return stream.ToArray();
-            }
+            // Use System.Text.Json for serialization
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+                #if NET8_0_OR_GREATER
+                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+                #endif
+            };
+            var ms = new MemoryStream();
+            var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions
+            {
+                Indented = true
+            });
+            System.Text.Json.JsonSerializer.Serialize(utf8JsonWriter, obj, options);
+            utf8JsonWriter.Flush();
+            return ms.ToArray();
+        }
+        internal static byte[] SerializeNode(JsonNode node, bool indented = true){
+            // Use System.Text.Json for serialization
+            var ms = new MemoryStream();
+            var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions
+            {
+                Indented = indented
+            });
+            node.WriteTo(utf8JsonWriter);
+            utf8JsonWriter.Flush();
+            return ms.ToArray();
         }
         
-        private static string SerializeToString<T>(T obj){
-            using (var writer = new StringWriter()){
-                JsonSerializer.Create().Serialize(writer, obj);
-                writer.Flush(); //Required or no bytes appear
-                return writer.ToString();
-            }
-        }
         
+        [Obsolete("Use SendMessage(JsonNode) instead for AOT compatibility")]
+        [RequiresUnreferencedCode("Use SendMessage(string method, JsonNode message) instead for AOT compatibility")]
+        [RequiresDynamicCode("Use SendMessage(string method, JsonNode message) instead for AOT compatibility")]
         public IJsonResponseProvider SendMessage<T>(string method, T message){
             AssertReady();
             return SendJsonBytes(method, JobContext.SerializeToJson(message));
         }
-        
+        public IJsonResponseProvider SendMessage(string method, JsonNode message){
+            AssertReady();
+            return SendJsonBytes(method, JobContext.SerializeNode(message));
+        }
+
+        [Obsolete("Use ExecuteJsonNode instead for AOT compatibility")]
+        [RequiresUnreferencedCode("Use ExecuteJsonNode instead for AOT compatibility")]
+        [RequiresDynamicCode("Use ExecuteJsonNode instead for AOT compatibility")]
         public IJsonResponseProvider Execute<T>(T message){
             AssertReady();
             return SendJsonBytes("v0.1/execute", JobContext.SerializeToJson(message));
         }
+        public IJsonResponseProvider ExecuteJsonNode(JsonNode message){
+            AssertReady();
+            return SendJsonBytes("v0.1/execute", JobContext.SerializeNode(message));
+        }
+        
         internal IJsonResponseProvider Execute(byte[] utf8Message){
             AssertReady();
             return SendJsonBytes("v0.1/execute", utf8Message);
@@ -74,34 +110,70 @@ namespace Imageflow.Bindings
         public ImageInfo GetImageInfo(int ioId)
         {
             AssertReady();
-            using (var response = SendJsonBytes("v0.1/get_image_info", JobContext.SerializeToJson(new { io_id = ioId })))
+            using (var response = SendJsonBytes("v0.1/get_image_info", JobContext.SerializeNode(new JsonObject(){ {"io_id", ioId} })))
             {
-                var responseDynamic = response.DeserializeDynamic();
-                if (responseDynamic?.success.Value == true)
+                var node = response.DeserializeJsonNode();
+                if (node == null) throw new ImageflowAssertionFailed("get_image_info response is null");
+                var responseObj = node.AsObject();
+                if (responseObj == null) throw new ImageflowAssertionFailed("get_image_info response is not an object");
+                if (responseObj.TryGetPropertyValue("success", out var successValue))
                 {
-                    return ImageInfo.FromDynamic(responseDynamic.data.image_info);
+                    if (successValue?.GetValue<bool>() != true)
+                    {
+                        throw ImageflowException.FromContext(this.Handle);
+                    }
+                    var dataValue = responseObj.TryGetPropertyValue("data", out var dataValueObj) ? dataValueObj : null;
+                    if (dataValue == null) throw new ImageflowAssertionFailed("get_image_info response does not have a data property");
+                    var imageInfoValue = (dataValue.AsObject()?.TryGetPropertyValue("image_info", out var imageInfoValueObj) ?? false) ? imageInfoValueObj : null;
+                    
+                    if (imageInfoValue == null) throw new ImageflowAssertionFailed("get_image_info response does not have an image_info property");
+                    return ImageInfo.FromDynamic(imageInfoValue);
                 }
                 else
                 {
-                    throw ImageflowException.FromContext(this.Handle);
+                    throw new ImageflowAssertionFailed("get_image_info response does not have a success property");
                 }
+                
+                //
+                // var responseDynamic = response.DeserializeDynamic();
+                // if (responseDynamic?.success.Value == true)
+                // {
+                //     return ImageInfo.FromDynamic(responseDynamic.data.image_info);
+                // }
+                // else
+                // {
+                //     throw ImageflowException.FromContext(this.Handle);
+                // }
             }
         }
 
         public VersionInfo GetVersionInfo()
         {
             AssertReady();
-            using (var response = SendJsonBytes("v1/get_version_info", JobContext.SerializeToJson(new { })))
+            using (var response = SendJsonBytes("v1/get_version_info", JobContext.SerializeNode(new JsonObject())))
             {
-                var responseDynamic = response.DeserializeDynamic();
-                if (responseDynamic?.success.Value == true)
+                var node = response.DeserializeJsonNode();
+                if (node == null) throw new ImageflowAssertionFailed("get_version_info response is null");
+                var responseObj = node.AsObject();
+                if (responseObj == null) throw new ImageflowAssertionFailed("get_version_info response is not an object");
+                if (responseObj.TryGetPropertyValue("success", out var successValue))
                 {
-                    return VersionInfo.FromDynamic(responseDynamic.data.version_info);
+                    if (successValue?.GetValue<bool>() != true)
+                    {
+                        throw ImageflowException.FromContext(this.Handle);
+                    }
+                    var dataValue = responseObj.TryGetPropertyValue("data", out var dataValueObj) ? dataValueObj : null;
+                    if (dataValue == null) throw new ImageflowAssertionFailed("get_version_info response does not have a data property");
+                    var versionInfoValue = (dataValue.AsObject()?.TryGetPropertyValue("version_info", out var versionInfoValueObj) ?? false) ? versionInfoValueObj : null;
+                    
+                    if (versionInfoValue == null) throw new ImageflowAssertionFailed("get_version_info response does not have an version_info property");
+                    return VersionInfo.FromNode(versionInfoValue);
                 }
                 else
                 {
-                    throw ImageflowException.FromContext(this.Handle);
+                    throw new ImageflowAssertionFailed("get_version_info response does not have a success property");
                 }
+                
             }
         }
         
@@ -115,6 +187,9 @@ namespace Imageflow.Bindings
                 AssertReady();
                 var ptr = NativeMethods.imageflow_context_send_json(Handle, methodPinned.AddrOfPinnedObject(), pinnedJson.AddrOfPinnedObject(),
                     new UIntPtr((ulong) utf8Json.LongLength));
+                // check HasError, throw exception with our input JSON too
+                if (HasError) throw ImageflowException.FromContext(Handle, 2048, "JSON:\n" + Encoding.UTF8.GetString(utf8Json));
+                
                 AssertReady();
                 return new JsonResponse(new JsonResponseHandle(_handle, ptr));
             }
@@ -133,27 +208,46 @@ namespace Imageflow.Bindings
         
         public IJsonResponseProvider ExecuteImageResizer4CommandString( int inputId, int outputId, string commands)
         {
-            var message = new
+            // var message = new
+            // {
+            //     framewise = new
+            //     {
+            //         steps = new object[]
+            //         {
+            //             new
+            //             {
+            //                 command_string = new
+            //                 {
+            //                     kind = "ir4",
+            //                     value = commands,
+            //                     decode = inputId,
+            //                     encode = outputId
+            //                 }
+            //             }
+            //         }
+            //     }
+            // };
+            var message = new JsonObject()
             {
-                framewise = new
+                {"framewise", new JsonObject()
                 {
-                    steps = new object[]
+                    {"steps", new JsonArray()
                     {
-                        new
+                        (JsonNode)new JsonObject()
                         {
-                            command_string = new
+                            {"command_string", new JsonObject()
                             {
-                                kind = "ir4",
-                                value = commands,
-                                decode = inputId,
-                                encode = outputId
-                            }
+                                {"kind", "ir4"},
+                                {"value", commands},
+                                {"decode", inputId},
+                                {"encode", outputId}
+                            }}
                         }
-                    }
-                }
+                    }}
+                }}
             };
                 
-            return Execute( message);
+            return ExecuteJsonNode( message);
         }
 
 

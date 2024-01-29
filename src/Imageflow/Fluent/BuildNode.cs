@@ -1,10 +1,12 @@
 using System.Drawing;
+using System.Text.Json.Nodes;
 
 namespace Imageflow.Fluent
 {
     public class BuildNode :BuildItemBase
     {
-        internal static BuildNode StartNode(ImageJob graph, object data) => new BuildNode(graph, data, null, null);
+        internal static BuildNode StartNode(ImageJob graph, JsonNode data) 
+            => new BuildNode(graph, data, null, null);
     
         /// <summary>
         /// Encode the result to the given destination (such as a BytesDestination or StreamDestination)
@@ -16,8 +18,10 @@ namespace Imageflow.Fluent
         public BuildEndpoint Encode(IOutputDestination destination, int ioId, IEncoderPreset encoderPreset)
         {
             Builder.AddOutput(ioId, destination);
+            // return new BuildEndpoint(Builder,
+            //    new {encode = new {io_id = ioId, preset = encoderPreset?.ToImageflowDynamic()}}, this, null);
             return new BuildEndpoint(Builder,
-                new {encode = new {io_id = ioId, preset = encoderPreset?.ToImageflowDynamic()}}, this, null);
+                new JsonObject() {["encode"] = new JsonObject() {["io_id"] = ioId, ["preset"] = encoderPreset?.ToJsonNode()}}, this, null);
         }
         /// <summary>
         /// Encode the result to the given destination (such as a BytesDestination or StreamDestination)
@@ -41,11 +45,14 @@ namespace Imageflow.Fluent
             Encode(new StreamDestination(stream, disposeStream), encoderPreset);
         
         
-        private BuildNode(ImageJob builder,object nodeData, BuildNode? inputNode, BuildNode? canvasNode) : base(builder, nodeData, inputNode,
+        private BuildNode(ImageJob builder,JsonNode nodeData, BuildNode? inputNode, BuildNode? canvasNode) : base(builder, nodeData, inputNode,
             canvasNode){}
 
-        private BuildNode To(object data) => new BuildNode(Builder, data, this, null);
-        private BuildNode NodeWithCanvas(BuildNode canvas, object data) => new BuildNode(Builder, data, this, canvas);
+        // private BuildNode To(object data) => new BuildNode(Builder, data, this, null);
+        
+        private BuildNode To(JsonNode data) => new BuildNode(Builder, data, this, null);
+        // private BuildNode NodeWithCanvas(BuildNode canvas, object data) => new BuildNode(Builder, data, this, canvas);
+        private BuildNode NodeWithCanvas(BuildNode canvas, JsonNode data) => new BuildNode(Builder, data, this, canvas);
 
 
         /// <summary>
@@ -54,8 +61,19 @@ namespace Imageflow.Fluent
         /// <param name="w"></param>
         /// <param name="h"></param>
         /// <returns></returns>
-        public BuildNode ConstrainWithin(uint? w, uint? h) => To(new { constrain = new {mode="within", w, h } });
-
+        public BuildNode ConstrainWithin(uint? w, uint? h) 
+        {
+            var jsonObject = new JsonObject
+            {
+                ["constrain"] = new JsonObject
+                {
+                    ["mode"] = "within",
+                    ["w"] = w,
+                    ["h"] = h,
+                }
+            };
+            return To(jsonObject);
+        }
         /// <summary>
         /// Downscale the image to fit within the given dimensions, but do not upscale. See Constrain() for more options.
         /// </summary>
@@ -64,24 +82,28 @@ namespace Imageflow.Fluent
         /// <param name="hints"></param>
         /// <returns></returns>
         public BuildNode ConstrainWithin(uint? w, uint? h, ResampleHints hints)
-            => To(new
+        {
+            var jsonObject = new JsonObject
             {
-                constrain = new
+                ["constrain"] = new JsonObject
                 {
-                    mode = "within",
-                    w,
-                    h,
-                    hints = hints?.ToImageflowDynamic()
-
+                    ["mode"] = "within",
+                    ["w"] = w,
+                    ["h"] = h,
+                    ["hints"] = hints?.ToJsonNode()
                 }
-            });
+            };
+            return To(jsonObject);
+        }
 
         /// <summary>
         /// Scale an image using the given Constraint object. 
         /// </summary>
         /// <param name="constraint"></param>
         /// <returns></returns>
-        public BuildNode Constrain(Constraint constraint) => To(new { constrain = constraint.ToImageflowDynamic() });
+        public BuildNode Constrain(Constraint constraint) 
+            //=> To(new { constrain = constraint.ToImageflowDynamic() });
+            => To(new JsonObject {["constrain"] = constraint.ToJsonNode()});
         /// <summary>
         /// Distort the image to exactly the given dimensions.
         /// </summary>
@@ -97,13 +119,22 @@ namespace Imageflow.Fluent
         /// <param name="hints"></param>
         /// <returns></returns>
         public BuildNode Distort(uint w, uint h, ResampleHints? hints)
-            => To(new
+            // => To(new
+            // {
+            //     resample_2d = new
+            //     {
+            //         w,
+            //         h,
+            //         hints = hints?.ToImageflowDynamic()
+            //     }
+            // });
+            => To(new JsonObject
             {
-                resample_2d = new
+                ["resample_2d"] = new JsonObject
                 {
-                    w,
-                    h,
-                    hints = hints?.ToImageflowDynamic()
+                    ["w"] = w,
+                    ["h"] = h,
+                    ["hints"] = hints?.ToJsonNode()
                 }
             });
 
@@ -116,14 +147,24 @@ namespace Imageflow.Fluent
         /// <param name="y2"></param>
         /// <returns></returns>
         public BuildNode Crop(int x1, int y1, int x2, int y2)
-            => To(new
+            // => To(new
+            // {
+            //     crop = new
+            //     {
+            //         x1,
+            //         y1,
+            //         x2,
+            //         y2
+            //     }
+            // });
+            => To(new JsonObject
             {
-                crop = new
+                ["crop"] = new JsonObject
                 {
-                    x1,
-                    y1,
-                    x2,
-                    y2
+                    ["x1"] = x1,
+                    ["y1"] = y1,
+                    ["x2"] = x2,
+                    ["y2"] = y2
                 }
             });
 
@@ -138,15 +179,26 @@ namespace Imageflow.Fluent
         /// <param name="backgroundColor"></param>
         /// <returns></returns>
         public BuildNode Region(int x1, int y1, int x2, int y2, AnyColor backgroundColor)
-            => To(new
+            // => To(new
+            // {
+            //     region = new
+            //     {
+            //         x1,
+            //         y1,
+            //         x2,
+            //         y2,
+            //         background_color = backgroundColor.ToImageflowDynamic()
+            //     }
+            // });
+            => To(new JsonObject
             {
-                region = new
+                ["region"] = new JsonObject
                 {
-                    x1,
-                    y1,
-                    x2,
-                    y2,
-                    background_color = backgroundColor.ToImageflowDynamic()
+                    ["x1"] = x1,
+                    ["y1"] = y1,
+                    ["x2"] = x2,
+                    ["y2"] = y2,
+                    ["background_color"] = backgroundColor.ToJsonNode()
                 }
             });
 
@@ -162,15 +214,26 @@ namespace Imageflow.Fluent
         /// <param name="backgroundColor"></param>
         /// <returns></returns>
         public BuildNode RegionPercent(float x1, float y1, float x2, float y2, AnyColor backgroundColor)
-            => To(new
+            // => To(new
+            // {
+            //     region_percent = new
+            //     {
+            //         x1,
+            //         y1,
+            //         x2,
+            //         y2,
+            //         background_color = backgroundColor.ToImageflowDynamic()
+            //     }
+            // });
+            => To(new JsonObject
             {
-                region_percent = new
+                ["region_percent"] = new JsonObject
                 {
-                    x1,
-                    y1,
-                    x2,
-                    y2,
-                    background_color = backgroundColor.ToImageflowDynamic()
+                    ["x1"] = x1,
+                    ["y1"] = y1,
+                    ["x2"] = x2,
+                    ["y2"] = y2,
+                    ["background_color"] = backgroundColor.ToJsonNode()
                 }
             });
         
@@ -183,12 +246,20 @@ namespace Imageflow.Fluent
          /// provide some padding. 0.5 (half a percent) is a good starting point.</param>
          /// <returns></returns>
         public BuildNode CropWhitespace(int threshold, float percentPadding)
-            => To(new
+            // => To(new
+            // {
+            //     crop_whitespace = new
+            //     {
+            //         threshold,
+            //         percent_padding = percentPadding
+            //     }
+            // });
+            => To(new JsonObject
             {
-                crop_whitespace = new
+                ["crop_whitespace"] = new JsonObject
                 {
-                    threshold,
-                    percent_padding = percentPadding
+                    ["threshold"] = threshold,
+                    ["percent_padding"] = percentPadding
                 }
             });
 
@@ -199,12 +270,20 @@ namespace Imageflow.Fluent
         /// <param name="commandString"></param>
         /// <returns></returns>
         public BuildNode ResizerCommands(string commandString)
-            => To(new
+            // => To(new
+            // {
+            //     command_string = new
+            //     {
+            //         kind = "ir4",
+            //         value = commandString
+            //     }
+            // });
+            => To(new JsonObject
             {
-                command_string = new
+                ["command_string"] = new JsonObject
                 {
-                    kind = "ir4",
-                    value = commandString
+                    ["kind"] = "ir4",
+                    ["value"] = commandString
                 }
             });
 
@@ -212,33 +291,40 @@ namespace Imageflow.Fluent
         /// Flips the image vertically
         /// </summary>
         /// <returns></returns>
-        public BuildNode FlipVertical() => To(new {flip_v = (string?)null});
+        public BuildNode FlipVertical() 
+            // => To(new {flip_v = (string?)null});
+            => To(new JsonObject {["flip_v"] = null});
         /// <summary>
         /// Flips the image horizontally
         /// </summary>
         /// <returns></returns>
-        public BuildNode FlipHorizontal() => To(new {flip_h = (string?)null });
+        public BuildNode FlipHorizontal() // => To(new {flip_h = (string?)null });
+            => To(new JsonObject {["flip_h"] = null});
         
         /// <summary>
         /// Rotates the image 90 degrees clockwise. 
         /// </summary>
         /// <returns></returns>
-        public BuildNode Rotate90() => To(new {rotate_90 = (string?)null });
+        public BuildNode Rotate90() // => To(new {rotate_90 = (string?)null });
+            => To(new JsonObject {["rotate_90"] = null});
         /// <summary>
         /// Rotates the image 180 degrees clockwise. 
         /// </summary>
         /// <returns></returns>
-        public BuildNode Rotate180() => To(new {rotate_180 = (string?)null });
+        public BuildNode Rotate180() // To(new {rotate_180 = (string?)null });
+            => To(new JsonObject {["rotate_180"] = null});
         /// <summary>
         /// Rotates the image 270 degrees clockwise. (same as 90 degrees counterclockwise). 
         /// </summary>
         /// <returns></returns>
-        public BuildNode Rotate270() => To(new {rotate_270 = (string?)null });
+        public BuildNode Rotate270() //To(new {rotate_270 = (string?)null });
+            => To(new JsonObject {["rotate_270"] = null});
         /// <summary>
         /// Swaps the x and y dimensions of the image
         /// </summary>
         /// <returns></returns>
-        public BuildNode Transpose() => To(new {transpose = (string?)null });
+        public BuildNode Transpose() //=> To(new {transpose = (string?)null });
+            => To(new JsonObject {["transpose"] = null});
 
         /// <summary>
         /// Allows you to generate multiple outputs by branching the graph
@@ -266,18 +352,31 @@ namespace Imageflow.Fluent
         /// <param name="area"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        public BuildNode CopyRectTo(BuildNode canvas, Rectangle area, Point to) => NodeWithCanvas(canvas, new
-        {
-            copy_rect_to_canvas = new
+        public BuildNode CopyRectTo(BuildNode canvas, Rectangle area, Point to) 
+        //     => NodeWithCanvas(canvas, new
+        // {
+        //     copy_rect_to_canvas = new
+        //     {
+        //         from_x = area.X,
+        //         from_y = area.Y,
+        //         w = area.Width,
+        //         h = area.Height,
+        //         x = to.X,
+        //         y = to.Y
+        //     }
+        // });
+            => NodeWithCanvas(canvas, new JsonObject
             {
-                from_x = area.X,
-                from_y = area.Y,
-                w = area.Width,
-                h = area.Height,
-                x = to.X,
-                y = to.Y
-            }
-        });
+                ["copy_rect_to_canvas"] = new JsonObject
+                {
+                    ["from_x"] = area.X,
+                    ["from_y"] = area.Y,
+                    ["w"] = area.Width,
+                    ["h"] = area.Height,
+                    ["x"] = to.X,
+                    ["y"] = to.Y
+                }
+            });
         
         /// <summary>
         /// Draws the input image to the given rectangle on the canvas, distorting if the aspect ratios differ.
@@ -288,18 +387,31 @@ namespace Imageflow.Fluent
         /// <param name="hints"></param>
         /// <param name="blend"></param>
         /// <returns></returns>
-        public BuildNode DrawImageExactTo(BuildNode canvas, Rectangle to, ResampleHints hints, CompositingMode? blend) => NodeWithCanvas(canvas, new
-        {
-            draw_image_exact = new
+        public BuildNode DrawImageExactTo(BuildNode canvas, Rectangle to, ResampleHints hints, CompositingMode? blend) 
+        //     => NodeWithCanvas(canvas, new
+        // {
+        //     draw_image_exact = new
+        //     {
+        //         w = to.Width,
+        //         h = to.Height,
+        //         x = to.X,
+        //         y = to.Y,
+        //         blend = blend?.ToString()?.ToLowerInvariant(),
+        //         hints = hints?.ToImageflowDynamic()
+        //     }
+        // });
+            => NodeWithCanvas(canvas, new JsonObject
             {
-                w = to.Width,
-                h = to.Height,
-                x = to.X,
-                y = to.Y,
-                blend = blend?.ToString()?.ToLowerInvariant(),
-                hints = hints?.ToImageflowDynamic()
-            }
-        });
+                ["draw_image_exact"] = new JsonObject
+                {
+                    ["w"] = to.Width,
+                    ["h"] = to.Height,
+                    ["x"] = to.X,
+                    ["y"] = to.Y,
+                    ["blend"] = blend?.ToString()?.ToLowerInvariant(),
+                    ["hints"] = hints?.ToJsonNode()
+                }
+            });
         
         
 
@@ -310,15 +422,26 @@ namespace Imageflow.Fluent
         /// <param name="backgroundColor"></param>
         /// <returns></returns>
         public BuildNode RoundAllImageCorners(int radiusPixels, AnyColor backgroundColor)
-            => To(new
+            // => To(new
+            // {
+            //     round_image_corners = new
+            //     {
+            //         radius = new
+            //         {
+            //             pixels = radiusPixels
+            //         },
+            //         background_color = backgroundColor.ToImageflowDynamic()
+            //     }
+            // });
+            => To(new JsonObject
             {
-                round_image_corners = new
+                ["round_image_corners"] = new JsonObject
                 {
-                    radius = new
+                    ["radius"] = new JsonObject
                     {
-                        pixels = radiusPixels
+                        ["pixels"] = radiusPixels
                     },
-                    background_color = backgroundColor.ToImageflowDynamic()
+                    ["background_color"] = backgroundColor.ToJsonNode()
                 }
             });
         
@@ -329,15 +452,26 @@ namespace Imageflow.Fluent
         /// <param name="backgroundColor"></param>
         /// <returns></returns>
         public BuildNode RoundAllImageCornersPercent(float radiusPercent, AnyColor backgroundColor)
-            => To(new
+            // => To(new
+            // {
+            //     round_image_corners = new
+            //     {
+            //         radius = new
+            //         {
+            //             percentage = radiusPercent
+            //         },
+            //         background_color = backgroundColor.ToImageflowDynamic()
+            //     }
+            // });
+            => To(new JsonObject
             {
-                round_image_corners = new
+                ["round_image_corners"] = new JsonObject
                 {
-                    radius = new
+                    ["radius"] = new JsonObject
                     {
-                        percentage = radiusPercent
+                        ["percentage"] = radiusPercent
                     },
-                    background_color = backgroundColor.ToImageflowDynamic()
+                    ["background_color"] = backgroundColor.ToJsonNode()
                 }
             });
         
@@ -351,15 +485,26 @@ namespace Imageflow.Fluent
         /// <param name="color"></param>
         /// <returns></returns>
         public BuildNode FillRectangle(int x1, int y1, int x2, int y2, AnyColor color)
-            => To(new
+            // => To(new
+            // {
+            //     fill_rect = new
+            //     {
+            //         x1,
+            //         y1,
+            //         x2,
+            //         y2,
+            //         color = color.ToImageflowDynamic()
+            //     }
+            // });
+            => To(new JsonObject
             {
-                fill_rect = new
+                ["fill_rect"] = new JsonObject
                 {
-                    x1,
-                    y1,
-                    x2,
-                    y2,
-                    color = color.ToImageflowDynamic()
+                    ["x1"] = x1,
+                    ["y1"] = y1,
+                    ["x2"] = x2,
+                    ["y2"] = y2,
+                    ["color"] = color.ToJsonNode()
                 }
             });
         
@@ -373,15 +518,26 @@ namespace Imageflow.Fluent
         /// <param name="color"></param>
         /// <returns></returns>
         public BuildNode ExpandCanvas(int left, int top, int right, int bottom, AnyColor color)
-            => To(new
+            // => To(new
+            // {
+            //     expand_canvas = new
+            //     {
+            //         left,
+            //         top,
+            //         right,
+            //         bottom,
+            //         color = color.ToImageflowDynamic()
+            //     }
+            // });
+            => To(new JsonObject
             {
-                expand_canvas = new
+                ["expand_canvas"] = new JsonObject
                 {
-                    left,
-                    top,
-                    right,
-                    bottom,
-                    color = color.ToImageflowDynamic()
+                    ["left"] = left,
+                    ["top"] = top,
+                    ["right"] = right,
+                    ["bottom"] = bottom,
+                    ["color"] = color.ToJsonNode()
                 }
             });
         /// <summary>
@@ -390,11 +546,18 @@ namespace Imageflow.Fluent
         /// <param name="threshold"></param>
         /// <returns></returns>
         public BuildNode WhiteBalanceSrgb(int threshold)
-            => To(new
+            // => To(new
+            // {
+            //     white_balance_histogram_area_threshold_srgb = new
+            //     {
+            //         threshold
+            //     }
+            // });
+            => To(new JsonObject
             {
-                white_balance_histogram_area_threshold_srgb = new
+                ["white_balance_histogram_area_threshold_srgb"] = new JsonObject
                 {
-                    threshold
+                    ["threshold"] = threshold
                 }
             });
         
@@ -404,11 +567,18 @@ namespace Imageflow.Fluent
         /// <param name="opacity"></param>
         /// <returns></returns>
         public BuildNode TransparencySrgb(float opacity)
-            => To(new
+            // => To(new
+            // {
+            //     color_filter_srgb = new
+            //     {
+            //         alpha = opacity
+            //     }
+            // });
+            => To(new JsonObject
             {
-                color_filter_srgb = new
+                ["color_filter_srgb"] = new JsonObject
                 {
-                    alpha = opacity
+                    ["alpha"] = opacity
                 }
             });
         
@@ -418,11 +588,18 @@ namespace Imageflow.Fluent
         /// <param name="amount">-1...1</param>
         /// <returns></returns>
         public BuildNode ContrastSrgb(float amount)
-            => To(new
+            // => To(new
+            // {
+            //     color_filter_srgb = new
+            //     {
+            //         contrast = amount
+            //     }
+            // });
+            => To(new JsonObject
             {
-                color_filter_srgb = new
+                ["color_filter_srgb"] = new JsonObject
                 {
-                    contrast = amount
+                    ["contrast"] = amount
                 }
             });
         
@@ -432,11 +609,18 @@ namespace Imageflow.Fluent
         /// <param name="amount">-1...1</param>
         /// <returns></returns>
         public BuildNode BrightnessSrgb(float amount)
-            => To(new
+            // => To(new
+            // {
+            //     color_filter_srgb = new
+            //     {
+            //         brightness = amount
+            //     }
+            // });
+            => To(new JsonObject
             {
-                color_filter_srgb = new
+                ["color_filter_srgb"] = new JsonObject
                 {
-                    brightness = amount
+                    ["brightness"] = amount
                 }
             });
         
@@ -446,11 +630,18 @@ namespace Imageflow.Fluent
         /// <param name="amount">-1...1</param>
         /// <returns></returns>
         public BuildNode SaturationSrgb(float amount)
-            => To(new
+            // => To(new
+            // {
+            //     color_filter_srgb = new
+            //     {
+            //         saturation = amount
+            //     }
+            // });
+            => To(new JsonObject
             {
-                color_filter_srgb = new
+                ["color_filter_srgb"] = new JsonObject
                 {
-                    saturation = amount
+                    ["saturation"] = amount
                 }
             });
 
@@ -460,9 +651,13 @@ namespace Imageflow.Fluent
         /// <param name="filter"></param>
         /// <returns></returns>
         public BuildNode ColorFilterSrgb(ColorFilterSrgb filter)
-            => To(new
+            // => To(new
+            // {
+            //     color_filter_srgb = filter.ToString().ToLowerInvariant()
+            // });
+            => To(new JsonObject
             {
-                color_filter_srgb = filter.ToString().ToLowerInvariant()
+                ["color_filter_srgb"] = filter.ToString().ToLowerInvariant()
             });
 
         /// <summary>
@@ -488,9 +683,13 @@ namespace Imageflow.Fluent
                 ioId = this.Builder.GenerateIoId();
             }
             this.Builder.AddInput(ioId.Value, source);
-            return To(new
+            // return To(new
+            // {
+            //     watermark = watermark.ToImageflowDynamic(ioId.Value)
+            // });
+            return To(new JsonObject
             {
-                watermark = watermark.ToImageflowDynamic(ioId.Value)
+                ["watermark"] = watermark.ToJsonNode(ioId.Value)
             });
             
         }

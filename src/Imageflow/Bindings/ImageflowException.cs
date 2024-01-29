@@ -50,7 +50,7 @@ namespace Imageflow.Bindings
             }
         }
         
-        internal static ImageflowException FromContext(JobContextHandle c, ulong defaultBufferSize = 2048)
+        internal static ImageflowException FromContext(JobContextHandle c, ulong defaultBufferSize = 2048, string? additionalInfo = null)
         {
             var result = ErrorFetchResult.BufferTooSmall;
             for (var bufferSize = defaultBufferSize; bufferSize < MaxBufferSize; bufferSize *= 2)
@@ -59,7 +59,7 @@ namespace Imageflow.Bindings
                 switch (result)
                 {
                     case ErrorFetchResult.Success:
-                        return new ImageflowException(message ?? "Unknown Imageflow error");
+                        return new ImageflowException((message ?? "Unknown Imageflow Error") + (additionalInfo != null ? $"\nAdditional info: {additionalInfo}" : ""));
                     case ErrorFetchResult.ContextInvalid:
                         return new ImageflowException("Imageflow context (JobContextHandle) is invalid");
                     case ErrorFetchResult.NoError:

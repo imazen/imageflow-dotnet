@@ -1,15 +1,26 @@
 using System.Text;
+using System.Text.Json.Nodes;
 
 namespace Imageflow.Fluent
 {
     public class PerformanceDetails
     {
-        internal PerformanceDetails(dynamic perf)
+        internal PerformanceDetails(JsonNode? perf)
         {
-            foreach (var f in perf.frames)
+            var obj = perf?.AsObject();
+            if (obj == null) return;
+            
+            // foreach (var f in perf.frames)
+            // {
+            //     frames.Add(new PerformanceDetailsFrame(f));
+            // } 
+            if (obj.TryGetPropertyValue("frames", out var framesValue))
             {
-                frames.Add(new PerformanceDetailsFrame(f));
-            } 
+                foreach (var f in framesValue?.AsArray() ?? [])
+                {
+                    frames.Add(new PerformanceDetailsFrame(f));
+                }
+            }
         }
         private List<PerformanceDetailsFrame> frames = new List<PerformanceDetailsFrame>();
         public ICollection<PerformanceDetailsFrame> Frames => frames;

@@ -1,4 +1,6 @@
-﻿namespace Imageflow.Fluent
+﻿using System.Text.Json.Nodes;
+
+namespace Imageflow.Fluent
 {
 
     /// <summary>
@@ -7,7 +9,7 @@
     /// </summary>
     public class BuildEndpoint : BuildItemBase
     {
-        internal BuildEndpoint(ImageJob builder,object nodeData, BuildNode inputNode, BuildNode? canvasNode) : base(builder, nodeData, inputNode,
+        internal BuildEndpoint(ImageJob builder,JsonNode nodeData, BuildNode? inputNode, BuildNode? canvasNode) : base(builder, nodeData, inputNode,
             canvasNode){}
         
         public FinishJobBuilder Finish() => new FinishJobBuilder(Builder, default);

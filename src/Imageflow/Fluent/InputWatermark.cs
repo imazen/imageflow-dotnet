@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace Imageflow.Fluent
 {
     public class InputWatermark
@@ -19,9 +21,16 @@ namespace Imageflow.Fluent
         public int? IoId { get; set; }
         public WatermarkOptions Watermark { get; set;  }
 
+        [Obsolete("Use ToJsonNode() methods instead")]
         public object ToImageflowDynamic()
         {
             return Watermark.ToImageflowDynamic(IoId ?? throw new InvalidOperationException("InputWatermark.ToImageflowDynamic() cannot be called without an IoId value assigned"));
         }
+        
+        internal JsonNode ToJsonNode()
+        {
+            return Watermark.ToJsonNode(IoId ?? throw new InvalidOperationException("InputWatermark.ToJson() cannot be called without an IoId value assigned"));
+        }
+
     }
 }

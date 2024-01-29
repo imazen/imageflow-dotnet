@@ -1,9 +1,45 @@
+using System.Text;
+using System.Text.Json.Nodes;
 using Xunit;
 using Imageflow.Bindings;
 using Imageflow.Fluent;
+using Newtonsoft.Json;
 using Xunit.Abstractions;
+using JsonNamingPolicy = System.Text.Json.JsonNamingPolicy;
+using JsonSerializerOptions = System.Text.Json.JsonSerializerOptions;
+#pragma warning disable CS0618 // Type or member is obsolete
+
 namespace Imageflow.Test
 {
+    public static class IJsonResponseProviderExtensions
+    {
+
+
+         [Obsolete("Use DeserializeJsonNode() instead")]
+         public static T? Deserialize<T>(this IJsonResponseProvider p) where T : class
+         {
+             using var readStream = p.GetStream();
+             using var ms = new MemoryStream(readStream.CanSeek ? (int)readStream.Length : 0);
+             readStream.CopyTo(ms);
+             var allBytes = ms.ToArray();
+             var options = new JsonSerializerOptions
+             {
+#if NET8_0_OR_GREATER
+                 PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+#endif 
+             };
+             var v = System.Text.Json.JsonSerializer.Deserialize<T>(allBytes, options);
+             return v;
+        }
+        
+         [Obsolete("Use Deserialize<T> or DeserializeJsonNode() instead")]
+         public static dynamic? DeserializeDynamic(this IJsonResponseProvider p)
+         {
+             using var reader = new StreamReader(p.GetStream(), Encoding.UTF8);
+             return JsonSerializer.Create().Deserialize(new JsonTextReader(reader));
+         }
+    }
+
     public class TestContext
     {
         private readonly ITestOutputHelper _output;
@@ -31,7 +67,11 @@ namespace Imageflow.Test
                     Convert.FromBase64String(
                         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
                 
-                var response = c.SendMessage("v0.1/get_image_info", new {io_id = 0});
+                var response = c.SendMessage("v0.1/get_image_info", //new {io_id = 0});
+                    new JsonObject()
+                    {
+                        ["io_id"] = 0
+                    }); 
 
                 dynamic data = response.DeserializeDynamic()!;
 

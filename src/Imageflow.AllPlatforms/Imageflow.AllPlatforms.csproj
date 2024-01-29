@@ -6,16 +6,12 @@
         
         <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
         <IsTrimmable Condition="'$(TargetFramework)' == 'net8.0'">true</IsTrimmable>
+        <EnableTrimAnalyzer Condition="'$(TargetFramework)' == 'net8.0'">true</EnableTrimAnalyzer>
+        <IsAotCompatible Condition="'$(TargetFramework)' == 'net8.0'">true</IsAotCompatible>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon.png</PackageIcon>
     </PropertyGroup>
-
-    <ItemGroup>
-        <PackageReference Include="PolySharp" Version="1.*">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
+    
     <ItemGroup>
       <ProjectReference Include="..\Imageflow\Imageflow.Net.csproj" />
     </ItemGroup>
