@@ -109,7 +109,6 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.3.2
       
-      
     - name: Build legacy projects on Windows
       if: matrix.os == 'windows-latest'
       run: |

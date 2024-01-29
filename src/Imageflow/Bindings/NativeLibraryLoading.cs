@@ -111,12 +111,15 @@ namespace Imageflow.Bindings
         internal static bool IsUnix => Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX;
 
         internal static readonly Lazy<string> SharedLibraryPrefix = new Lazy<string>(() => IsUnix ? "lib" : "", LazyThreadSafetyMode.PublicationOnly);
-
+#if NET8_0_OR_GREATER
+        internal static readonly Lazy<bool> IsDotNetCore = new Lazy<bool>(() =>
+                true
+            , LazyThreadSafetyMode.PublicationOnly);
+        #else
         internal static readonly Lazy<bool> IsDotNetCore = new Lazy<bool>(() =>
                 typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.CodeBase.Contains("Microsoft.NETCore.App")
-           
             , LazyThreadSafetyMode.PublicationOnly);
-
+#endif
         internal static readonly Lazy<string> PlatformRuntimePrefix = new Lazy<string>(() =>
         {
             switch (Environment.OSVersion.Platform)
@@ -230,13 +233,17 @@ namespace Imageflow.Bindings
             if(AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).EndsWith("bin"))
             {
                 //Look in the parent directory if we're in /bin/, but only look in ../runtimes/:rid:/native
-                yield return Tuple.Create(false, Path.Combine(Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).FullName, 
-                    "runtimes", PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native"));
+                var dir = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory);
+                if (dir != null)
+                    yield return Tuple.Create(false, Path.Combine(dir.FullName, 
+                        "runtimes", PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native"));
                 
             }
 
             // Look in the folder that *this* assembly is located.
-            yield return Tuple.Create(true, Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+            var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if (!string.IsNullOrEmpty(assemblyLocation))
+                yield return Tuple.Create(true, assemblyLocation);
         }
 
         internal static IEnumerable<string> SearchPossibilitiesForFile(string filename, IEnumerable<string>? customSearchDirectories = null)

@@ -81,47 +81,6 @@
           "System.Text.Json": "[8.0.1, )"
         }
       }
-    },
-    "net8.0/win-x64": {
-      "Microsoft.DotNet.ILCompiler": {
-        "type": "Direct",
-        "requested": "[8.0.1, )",
-        "resolved": "8.0.1",
-        "contentHash": "vEmBtYRsH2gpnUJ9p7ElgB2UZSx5+CF2nHVr2QJ/3kzlfAYBxqXMx3VmQcxOcrsDEuF4/n1VH95qobrj8xnPdw==",
-        "dependencies": {
-          "runtime.win-x64.Microsoft.DotNet.ILCompiler": "8.0.1"
-        }
-      },
-      "Imageflow.NativeRuntime.osx-x86_64": {
-        "type": "Transitive",
-        "resolved": "2.0.0-preview8",
-        "contentHash": "3wEglrMqVzlnAVBTdK6qcRySdo/4ajBP5ASRuK3yHfBqPp3ld4ke6guxuSZbgDTObIxai7KTLlsIvQZhusymUA=="
-      },
-      "Imageflow.NativeRuntime.ubuntu-x86_64": {
-        "type": "Transitive",
-        "resolved": "2.0.0-preview8",
-        "contentHash": "H8K5kZqcM3IliDRZD3H8BN6TbeLgcW+6FsDZ3EvlqBvu41s+Lv9vxE+c3m1cUQhsYBs76udUhgJFNR1D6x3U5g=="
-      },
-      "Imageflow.NativeRuntime.win-x86": {
-        "type": "Transitive",
-        "resolved": "2.0.0-preview8",
-        "contentHash": "WunIva5NZ2iMPKCyz8ZTkN7SRaW3szBijMg5YK7jaSFZHw8Xiky/GFfghc0XgWTuILxwO4YbY86e8QvW8CBigQ=="
-      },
-      "Imageflow.NativeRuntime.win-x86_64": {
-        "type": "Transitive",
-        "resolved": "2.0.0-preview8",
-        "contentHash": "1rY6C9Hjj7U9toa7FlnveiSBKccZlvCaHwdxPRQS0vDpAZZCJrTA/H7VYdreifpnIDInYcf0i/3oEKzEnj884w=="
-      },
-      "runtime.win-x64.Microsoft.DotNet.ILCompiler": {
-        "type": "Transitive",
-        "resolved": "8.0.1",
-        "contentHash": "fbzrL7nAZG3OwTcVPUMByDJmlhcekqSjSFPVTs4/4aolumt/1rRUuqWpQAi1UBhUAWu6VqPlmeql65ANl5kk6A=="
-      },
-      "System.Text.Encodings.Web": {
-        "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "yev/k9GHAEGx2Rg3/tU6MQh4HGBXJs70y7j1LaM1i/ER9po+6nnQ6RRqTJn1E7Xu0fbIFK80Nh5EoODxrbxwBQ=="
-      }
     }
   }
 }

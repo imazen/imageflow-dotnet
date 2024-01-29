@@ -326,6 +326,7 @@ namespace Imageflow.Fluent
                 {
                     using (var accessor = f.File.WriteFromBeginning())
                     {
+                        if (f.bytes.Array == null) throw new ImageflowAssertionFailed("Bytes.Array is null");
                         await accessor.WriteAsync(f.bytes.Array, f.bytes.Offset, f.bytes.Count, cancellationToken);
                     }
                 }

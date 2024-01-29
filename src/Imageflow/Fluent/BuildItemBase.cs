@@ -10,7 +10,7 @@
         internal BuildNode? Canvas { get; }
         internal object NodeData { get;  }
         internal long Uid { get;  }
-        public override bool Equals(object obj) => Uid == (obj as BuildItemBase)?.Uid;
+        public override bool Equals(object? obj) => Uid == (obj as BuildItemBase)?.Uid;
         public override int GetHashCode() => (int) Uid; //We probably don't need to worry about more than 2 billion instances? 
         
         private static long _next;

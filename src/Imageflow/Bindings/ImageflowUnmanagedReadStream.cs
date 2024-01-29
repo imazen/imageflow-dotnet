@@ -36,7 +36,7 @@
             return base.ReadByte();
         }
 
-        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
+        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
         {
             CheckSafe();
             return base.BeginRead(buffer, offset, count, callback, state);

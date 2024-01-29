@@ -52,6 +52,7 @@ namespace Imageflow.Fluent
         public Task WriteAsync(ArraySegment<byte> bytes, CancellationToken cancellationToken)
         {
             if (_m == null) throw new ImageflowAssertionFailed("BytesDestination.WriteAsync called before RequestCapacityAsync");
+            if (bytes.Array == null) throw new ImageflowAssertionFailed("BytesDestination.WriteAsync called with null array");
             return _m.WriteAsync(bytes.Array, bytes.Offset, bytes.Count, cancellationToken);
         }
 
@@ -95,6 +96,7 @@ namespace Imageflow.Fluent
 
         public Task WriteAsync(ArraySegment<byte> bytes, CancellationToken cancellationToken)
         {
+            if (bytes.Array == null) throw new ImageflowAssertionFailed("StreamDestination.WriteAsync called with null array");
             return _underlying.WriteAsync(bytes.Array, bytes.Offset, bytes.Count, cancellationToken);
         }
 

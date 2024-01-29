@@ -167,6 +167,7 @@ namespace Imageflow.Bindings
         }
         public void AddInputBytes(int ioId, ArraySegment<byte> buffer)
         {
+            if (buffer.Array == null) throw new ArgumentNullException(nameof(buffer), "Array cannot be null");
             AddInputBytes(ioId, buffer.Array, buffer.Offset, buffer.Count);
         }
         public void AddInputBytes(int ioId, byte[] buffer, long offset, long count)
@@ -200,6 +201,7 @@ namespace Imageflow.Bindings
         }
         public void AddInputBytesPinned(int ioId, ArraySegment<byte> buffer)
         {
+            if (buffer.Array == null) throw new ArgumentNullException(nameof(buffer), "Array cannot be null");
             AddInputBytesPinned(ioId, buffer.Array, buffer.Offset, buffer.Count);
         }
         public void AddInputBytesPinned(int ioId, byte[] buffer, long offset, long count)
