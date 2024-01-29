@@ -2,6 +2,12 @@
   "version": 1,
   "dependencies": {
     ".NETFramework,Version=v4.8.1": {
+      "coverlet.collector": {
+        "type": "Direct",
+        "requested": "[3.1.0, )",
+        "resolved": "3.1.0",
+        "contentHash": "YzYqSRrjoP5lULBhTDcTOjuM4IDPPi6PhFsl4w8EI4WdZhE6llt7E38Tg4CHyrS+QKwyu1+9OwkdDgluOdoBTw=="
+      },
       "Imageflow.NativeTool.win-x86": {
         "type": "Direct",
         "requested": "[2.0.0-preview8, )",
@@ -237,6 +243,12 @@
       }
     },
     "net6.0": {
+      "coverlet.collector": {
+        "type": "Direct",
+        "requested": "[3.1.0, )",
+        "resolved": "3.1.0",
+        "contentHash": "YzYqSRrjoP5lULBhTDcTOjuM4IDPPi6PhFsl4w8EI4WdZhE6llt7E38Tg4CHyrS+QKwyu1+9OwkdDgluOdoBTw=="
+      },
       "Imageflow.NativeTool.win-x86": {
         "type": "Direct",
         "requested": "[2.0.0-preview8, )",
@@ -1705,6 +1717,12 @@
       }
     },
     "net7.0": {
+      "coverlet.collector": {
+        "type": "Direct",
+        "requested": "[3.1.0, )",
+        "resolved": "3.1.0",
+        "contentHash": "YzYqSRrjoP5lULBhTDcTOjuM4IDPPi6PhFsl4w8EI4WdZhE6llt7E38Tg4CHyrS+QKwyu1+9OwkdDgluOdoBTw=="
+      },
       "Imageflow.NativeTool.win-x86": {
         "type": "Direct",
         "requested": "[2.0.0-preview8, )",
@@ -3173,6 +3191,12 @@
       }
     },
     "net8.0": {
+      "coverlet.collector": {
+        "type": "Direct",
+        "requested": "[3.1.0, )",
+        "resolved": "3.1.0",
+        "contentHash": "YzYqSRrjoP5lULBhTDcTOjuM4IDPPi6PhFsl4w8EI4WdZhE6llt7E38Tg4CHyrS+QKwyu1+9OwkdDgluOdoBTw=="
+      },
       "Imageflow.NativeTool.win-x86": {
         "type": "Direct",
         "requested": "[2.0.0-preview8, )",
