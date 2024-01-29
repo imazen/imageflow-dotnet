@@ -120,62 +120,62 @@ jobs:
 
     - name: Legacy - Test Imageflow.TestDotNetFull(Any CPU)
       if: matrix.test-legacy
-      uses: microsoft-approved-actions/vstest@master
+      uses: microsoft/vstest-action@v1.0.0
       with:
         testAssembly: Imageflow.TestDotNetFull.dll
         searchFolder: ./tests/Imageflow.TestDotNetFull/bin/Release/
         runInParallel: true
         platform: Any CPU
-        configuration: Release
+        
         
     - name: Legacy - Test Imageflow.TestDotNetFull(Any CPU)
       if: matrix.test-legacy
-      uses: microsoft-approved-actions/vstest@master
+      uses: microsoft/vstest-action@v1.0.0
       with:
         testAssembly: Imageflow.TestDotNetFullPackageReference.dll
         searchFolder: ./tests/Imageflow.TestDotNetFullPackageReference/bin/Release/
         runInParallel: true
         platform: Any CPU
-        configuration: Release
+        
         
     - name: Legacy - Test Imageflow.TestDotNetFull(x86)
       if: matrix.test-legacy
-      uses: microsoft-approved-actions/vstest@master
+      uses: microsoft/vstest-action@v1.0.0
       with:
           testAssembly: Imageflow.TestDotNetFull.dll
           searchFolder: ./tests/Imageflow.TestDotNetFull/bin/Release/
           runInParallel: true
           platform: x86
-          configuration: Release
+          
     
     - name: Legacy - Test Imageflow.TestDotNetFullPackageReference(x86)
       if: matrix.test-legacy
-      uses: microsoft-approved-actions/vstest@master
+      uses: microsoft/vstest-action@v1.0.0
       with:
         testAssembly: Imageflow.TestDotNetFullPackageReference.dll
         searchFolder: ./tests/Imageflow.TestDotNetFullPackageReference/bin/Release/
         runInParallel: true
         platform: x86
-        configuration: Release
+        
     
     - name: Legacy - Test Imageflow.TestDotNetFull(x64)
       if: matrix.test-legacy
-      uses: microsoft-approved-actions/vstest@master
+      uses: microsoft/vstest-action@v1.0.0
       with:
           testAssembly: Imageflow.TestDotNetFull.dll
           searchFolder: ./tests/Imageflow.TestDotNetFull/bin/Release/
           runInParallel: true
           platform: x64
-          configuration: Release
+          
     - name: Legacy - Test Imageflow.TestDotNetFullPackageReference(x64)
       if: matrix.test-legacy
-      uses: microsoft-approved-actions/vstest@master
+      uses: microsoft/vstest-action@v1.0.0
       with:
         testAssembly: Imageflow.TestDotNetFullPackageReference.dll
         searchFolder: ./tests/Imageflow.TestDotNetFullPackageReference/bin/Release/
         runInParallel: true
         platform: x64
-        configuration: Release
+        
       
       
     - name: Test use in an AOT web app
