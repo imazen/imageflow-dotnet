@@ -14,11 +14,13 @@ jobs:
         include:
           - os: macos-11.0
           - os: ubuntu-latest
-            test-aot: true
+            test-aot: false
           - os: windows-latest
             pack: true
             docs: true
             coverage: true
+            test-legacy: true
+            
     runs-on: ${{matrix.os}}
     
     steps:
@@ -62,8 +64,14 @@ jobs:
       run: dotnet build ${{ env.CORE_SLN }} --maxcpucount:1 -c Release
 
     - name: Test, relying on projects to only conditionally enable net48 TFMs on windows
+      if: !matrix.coverage
       run: |
         dotnet test ${{ env.CORE_SLN }} -c Release
+        
+    - name: Test with coverage
+      if: matrix.coverage
+      run: |
+        dotnet test ${{ env.CORE_SLN }} -c Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
     - uses: actions/upload-artifact@v4
       if: failure()
@@ -71,20 +79,13 @@ jobs:
         name: TestResults-${{matrix.os}}-${{ env.ARTIFACT_VERSION }}
         path: TestResults/
 
-#    - name: Test .NET 8, 6, and 4.8.1 with Coverage
-#      if: matrix.os == 'windows-latest'
-#      run: |
-#        dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/coverage.net48.opencover.xml --framework net48
-#        dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/coverage.net6.opencover.xml --framework net6.0
-#        dotnet test -c Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=./TestResults/coverage.net8.opencover.xml --framework net8.0
-
-#    - name: Upload coverage to Codecov
-#      uses: codecov/codecov-action@v3
-#      if: matrix.os == 'windows-latest'
-#      with:
-#        files: ./TestResults/coverage.**.opencover.xml
-#        token: ${{ secrets.CODECOV_TOKEN }} # replace with your Codecov token
-#        fail_ci_if_error: false
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      if: matrix.os == 'windows-latest'
+      with:
+        files: 
+        token: ${{ secrets.CODECOV_TOKEN }} # replace with your Codecov token
+        fail_ci_if_error: false
 
 #    - uses: actions/upload-artifact@v3
 #      if: failure()
@@ -108,28 +109,78 @@ jobs:
 
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.3.2
-      if: matrix.os == 'windows-latest'
+      if: matrix.os == 'windows-latest' && matrix.test-legacy
       
     - name: Build legacy projects on Windows
-      if: matrix.os == 'windows-latest'
+      if: matrix.test-legacy
       run: |
         nuget restore  tests/Imageflow.TestDotNetFull/Imageflow.TestDotNetFull.csproj -SolutionDirectory src
         nuget restore  tests/Imageflow.TestDotNetFullPackageReference/Imageflow.TestDotNetFullPackageReference.csproj -SolutionDirectory src
         msbuild src/Imageflow.dnfull.sln /p:Configuration=Release /p:Platform="Any CPU"
+
+    - name: Legacy - Test Imageflow.TestDotNetFull(Any CPU)
+      if: matrix.test-legacy
+      uses: microsoft-approved-actions/vstest@master
+      with:
+        testAssembly: Imageflow.TestDotNetFull.dll
+        searchFolder: ./tests/Imageflow.TestDotNetFull/bin/Release/
+        runInParallel: true
+        platform: Any CPU
+        configuration: Release
         
-    - name: Test legacy projects on Windows
-      if: matrix.os == 'windows-latest'
-      run: |
-        vstest.console tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
-        vstest.console /Platform:x86 tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
-        vstest.console /Platform:x64 tests\Imageflow.TestDotNetFull\bin\Release\Imageflow.TestDotNetFull.dll
-        vstest.console tests\Imageflow.TestDotNetFullPackageReference\bin\Release\Imageflow.TestDotNetFullPackageReference.dll
-        vstest.console /Platform:x86 tests\Imageflow.TestDotNetFullPackageReference\bin\Release\Imageflow.TestDotNetFullPackageReference.dll
-        vstest.console /Platform:x64 tests\Imageflow.TestDotNetFullPackageReference\bin\Release\Imageflow.TestDotNetFullPackageReference.dll
+    - name: Legacy - Test Imageflow.TestDotNetFull(Any CPU)
+      if: matrix.test-legacy
+      uses: microsoft-approved-actions/vstest@master
+      with:
+        testAssembly: Imageflow.TestDotNetFullPackageReference.dll
+        searchFolder: ./tests/Imageflow.TestDotNetFullPackageReference/bin/Release/
+        runInParallel: true
+        platform: Any CPU
+        configuration: Release
+        
+    - name: Legacy - Test Imageflow.TestDotNetFull(x86)
+      if: matrix.test-legacy
+      uses: microsoft-approved-actions/vstest@master
+      with:
+          testAssembly: Imageflow.TestDotNetFull.dll
+          searchFolder: ./tests/Imageflow.TestDotNetFull/bin/Release/
+          runInParallel: true
+          platform: x86
+          configuration: Release
     
+    - name: Legacy - Test Imageflow.TestDotNetFullPackageReference(x86)
+      if: matrix.test-legacy
+      uses: microsoft-approved-actions/vstest@master
+      with:
+        testAssembly: Imageflow.TestDotNetFullPackageReference.dll
+        searchFolder: ./tests/Imageflow.TestDotNetFullPackageReference/bin/Release/
+        runInParallel: true
+        platform: x86
+        configuration: Release
+    
+    - name: Legacy - Test Imageflow.TestDotNetFull(x64)
+      if: matrix.test-legacy
+      uses: microsoft-approved-actions/vstest@master
+      with:
+          testAssembly: Imageflow.TestDotNetFull.dll
+          searchFolder: ./tests/Imageflow.TestDotNetFull/bin/Release/
+          runInParallel: true
+          platform: x64
+          configuration: Release
+    - name: Legacy - Test Imageflow.TestDotNetFullPackageReference(x64)
+      if: matrix.test-legacy
+      uses: microsoft-approved-actions/vstest@master
+      with:
+        testAssembly: Imageflow.TestDotNetFullPackageReference.dll
+        searchFolder: ./tests/Imageflow.TestDotNetFullPackageReference/bin/Release/
+        runInParallel: true
+        platform: x64
+        configuration: Release
+      
+      
     - name: Test use in an AOT web app
       if: matrix.test-aot
-      run: ./tests/Imageflow.TestAOT/test.ps1
+      run: ./tests/Imageflow.TestWebAOT/test.ps1
       
   publish:
     needs: build
