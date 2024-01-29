@@ -9,10 +9,7 @@ using Imageflow.IO;
 namespace Imageflow.Fluent
 {
     [Obsolete("Use ImageJob instead")]
-    public class FluentBuildJob : ImageJob
-    {
-        
-    }
+    public class FluentBuildJob : ImageJob;
         
     public class ImageJob: IDisposable
     {
@@ -260,18 +257,18 @@ namespace Imageflow.Fluent
         }
 
 
-        private object BuildJsonWithPlaceholders()
-        {
-            var inputIo = _inputs.Select(pair =>
-                new {io_id = pair.Key, direction = "in", io = new {placeholder = (string?) null}});
-            var outputIo = _outputs.Select(pair =>
-                new {io_id = pair.Key, direction = "out", io = new {placeholder = (string?) null}});
-            return new
-            {
-                io = inputIo.Concat(outputIo).ToArray(),
-                framewise = ToFramewise()
-            };
-        }
+        // private object BuildJsonWithPlaceholders()
+        // {
+        //     var inputIo = _inputs.Select(pair =>
+        //         new {io_id = pair.Key, direction = "in", io = new {placeholder = (string?) null}});
+        //     var outputIo = _outputs.Select(pair =>
+        //         new {io_id = pair.Key, direction = "out", io = new {placeholder = (string?) null}});
+        //     return new
+        //     {
+        //         io = inputIo.Concat(outputIo).ToArray(),
+        //         framewise = ToFramewise()
+        //     };
+        // }
 
         private static ITemporaryFileProvider SystemTempProvider()
         {
@@ -485,7 +482,7 @@ namespace Imageflow.Fluent
 
      
         
-        private readonly HashSet<BuildItemBase> _nodesCreated = new HashSet<BuildItemBase>();
+        private readonly List<BuildItemBase> _nodesCreated = new List<BuildItemBase>(10);
        
 
         
@@ -493,10 +490,11 @@ namespace Imageflow.Fluent
         {
             AssertReady();
             
-            if (!_nodesCreated.Add(n))
+            if (_nodesCreated.Contains(n))
             {
                 throw new ImageflowAssertionFailed("Cannot add duplicate node");
             }
+            _nodesCreated.Add(n);
             if (n.Canvas != null && !_nodesCreated.Contains(n.Canvas))// || n.Canvas.Builder != this))
             {
                 throw new ImageflowAssertionFailed("You cannot use a canvas node from a different ImageJob");
