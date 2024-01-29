@@ -14,13 +14,11 @@ jobs:
         include:
           - os: macos-11.0
           - os: ubuntu-latest
+            test-aot: true
           - os: windows-latest
             pack: true
             docs: true
             coverage: true
-#          - os: ubuntu-latest
-#            sysjsonver: "8.0.1"
-#            rmemstreamver: "3.0.0 "
     runs-on: ${{matrix.os}}
     
     steps:
@@ -129,7 +127,10 @@ jobs:
         vstest.console /Platform:x86 tests\Imageflow.TestDotNetFullPackageReference\bin\Release\Imageflow.TestDotNetFullPackageReference.dll
         vstest.console /Platform:x64 tests\Imageflow.TestDotNetFullPackageReference\bin\Release\Imageflow.TestDotNetFullPackageReference.dll
     
-
+    - name: Test use in an AOT web app
+      if: matrix.test-aot
+      run: ./tests/Imageflow.TestAOT/test.ps1
+      
   publish:
     needs: build
     if: github.event_name == 'release'

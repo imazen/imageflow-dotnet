@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.Net", "..\..\src\Imageflow\Imageflow.Net.csproj", "{39E49DC7-9AA0-4277-823E-647EC2A06AFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.AllPlatforms", "..\..\src\Imageflow.AllPlatforms\Imageflow.AllPlatforms.csproj", "{D0DCD548-D5EF-42E2-928D-314C2842FCA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.TestWebAOT", "Imageflow.TestWebAOT.csproj", "{10EFCF39-A972-497A-8B74-243E261C9C62}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{39E49DC7-9AA0-4277-823E-647EC2A06AFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39E49DC7-9AA0-4277-823E-647EC2A06AFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39E49DC7-9AA0-4277-823E-647EC2A06AFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39E49DC7-9AA0-4277-823E-647EC2A06AFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0DCD548-D5EF-42E2-928D-314C2842FCA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0DCD548-D5EF-42E2-928D-314C2842FCA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0DCD548-D5EF-42E2-928D-314C2842FCA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0DCD548-D5EF-42E2-928D-314C2842FCA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10EFCF39-A972-497A-8B74-243E261C9C62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10EFCF39-A972-497A-8B74-243E261C9C62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10EFCF39-A972-497A-8B74-243E261C9C62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10EFCF39-A972-497A-8B74-243E261C9C62}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

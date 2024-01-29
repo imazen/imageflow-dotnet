@@ -3,7 +3,8 @@
     <AssemblyName>Imageflow.Net</AssemblyName>
     <Description>Bindings for the Imageflow image processing library. Also remember to install Imageflow.NativeRuntime.[your platform] or use Imageflow.AllPlatforms instead.</Description>
 
-    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
+    <IsTrimmable Condition="'$(TargetFramework)' == 'net8.0'">true</IsTrimmable>
     <IsPackable>true</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x64;x86</Platforms>
