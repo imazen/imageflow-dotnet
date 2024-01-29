@@ -14,7 +14,7 @@ jobs:
         include:
           - os: macos-11.0
           - os: ubuntu-latest
-            test-aot: false
+            test-aot: true
           - os: windows-latest
             pack: true
             docs: true
@@ -25,6 +25,14 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      
+    - uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os    }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+        
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
@@ -81,7 +89,7 @@ jobs:
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
-      if: matrix.os == 'windows-latest'
+      if: matrix.coverage
       with:
         files: 
         token: ${{ secrets.CODECOV_TOKEN }} # replace with your Codecov token
@@ -118,66 +126,16 @@ jobs:
         nuget restore  tests/Imageflow.TestDotNetFullPackageReference/Imageflow.TestDotNetFullPackageReference.csproj -SolutionDirectory src
         msbuild src/Imageflow.dnfull.sln /p:Configuration=Release /p:Platform="Any CPU"
 
-    - name: Legacy - Test Imageflow.TestDotNetFull(Any CPU)
+    - name: Legacy - Test Imageflow.TestDotNetFull and Imageflow.TestDotNetFullPackageReference
       if: matrix.test-legacy
-      uses: microsoft/vstest-action@v1.0.0
-      with:
-        testAssembly: Imageflow.TestDotNetFull.dll
-        searchFolder: ./tests/Imageflow.TestDotNetFull/bin/Release/
-        runInParallel: true
-        platform: Any CPU
+      run:  |
+        dotnet test tests/Imageflow.TestDotNetFull/bin/Release/Imageflow.TestDotNetFull.dll
+        dotnet test tests/Imageflow.TestDotNetFullPackageReference/bin/Release/Imageflow.TestDotNetFullPackageReference.dll
+        dotnet test tests/Imageflow.TestDotNetFull/bin/Release/Imageflow.TestDotNetFull.dll --platform:x86
+        dotnet test tests/Imageflow.TestDotNetFullPackageReference/bin/Release/Imageflow.TestDotNetFullPackageReference.dll --platform:x86
+        dotnet test tests/Imageflow.TestDotNetFull/bin/Release/Imageflow.TestDotNetFull.dll --platform:x64
+        dotnet test tests/Imageflow.TestDotNetFullPackageReference/bin/Release/Imageflow.TestDotNetFullPackageReference.dll --platform:x64
         
-        
-    - name: Legacy - Test Imageflow.TestDotNetFull(Any CPU)
-      if: matrix.test-legacy
-      uses: microsoft/vstest-action@v1.0.0
-      with:
-        testAssembly: Imageflow.TestDotNetFullPackageReference.dll
-        searchFolder: ./tests/Imageflow.TestDotNetFullPackageReference/bin/Release/
-        runInParallel: true
-        platform: Any CPU
-        
-        
-    - name: Legacy - Test Imageflow.TestDotNetFull(x86)
-      if: matrix.test-legacy
-      uses: microsoft/vstest-action@v1.0.0
-      with:
-          testAssembly: Imageflow.TestDotNetFull.dll
-          searchFolder: ./tests/Imageflow.TestDotNetFull/bin/Release/
-          runInParallel: true
-          platform: x86
-          
-    
-    - name: Legacy - Test Imageflow.TestDotNetFullPackageReference(x86)
-      if: matrix.test-legacy
-      uses: microsoft/vstest-action@v1.0.0
-      with:
-        testAssembly: Imageflow.TestDotNetFullPackageReference.dll
-        searchFolder: ./tests/Imageflow.TestDotNetFullPackageReference/bin/Release/
-        runInParallel: true
-        platform: x86
-        
-    
-    - name: Legacy - Test Imageflow.TestDotNetFull(x64)
-      if: matrix.test-legacy
-      uses: microsoft/vstest-action@v1.0.0
-      with:
-          testAssembly: Imageflow.TestDotNetFull.dll
-          searchFolder: ./tests/Imageflow.TestDotNetFull/bin/Release/
-          runInParallel: true
-          platform: x64
-          
-    - name: Legacy - Test Imageflow.TestDotNetFullPackageReference(x64)
-      if: matrix.test-legacy
-      uses: microsoft/vstest-action@v1.0.0
-      with:
-        testAssembly: Imageflow.TestDotNetFullPackageReference.dll
-        searchFolder: ./tests/Imageflow.TestDotNetFullPackageReference/bin/Release/
-        runInParallel: true
-        platform: x64
-        
-      
-      
     - name: Test use in an AOT web app
       if: matrix.test-aot
       run: ./tests/Imageflow.TestWebAOT/test.ps1
