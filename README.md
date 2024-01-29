@@ -1,5 +1,5 @@
-[![.NET Core](https://github.com/imazen/imageflow-dotnet/workflows/.NET%20Core/badge.svg)](https://github.com/imazen/imageflow-dotnet/actions?query=workflow%3A%22.NET+Core%22)
-[![Build status](https://ci.appveyor.com/api/projects/status/vqfofqe3bwqwdu4a?svg=true)](https://ci.appveyor.com/project/imazen/imageflow-dotnet)
+[![Build status](https://github.com/imazen/imageflow-dotnet/workflows/.NET%20Core/badge.svg)](https://github.com/imazen/imageflow-dotnet/actions?query=workflow%3A%22.NET+Core%22)
+
 
 
 Imageflow.NET is a .NET API for [Imageflow](https://github.com/imazen/imageflow), the fast image optimization and processing library for web servers. Imageflow focuses on security, quality, and performance - in that order. Imageflow.NET is a .NET 8.0 & .NET Standard 2.0 library, and as such is compatible with .NET 4.6.2+, .NET Core 2.0+, and .NET 5/6/7/8.
