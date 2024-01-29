@@ -82,6 +82,8 @@ namespace Imageflow.Fluent
         public Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(bool deleteFilesOnDispose) =>
             _builder.WriteJsonJobAndInputs(_token, _security, deleteFilesOnDispose);
         
+        internal string ToJson(SecurityOptions? securityOptions = null) => _builder.ToJson(securityOptions);
+        
         public async Task<BuildJobResult> InProcessAndDisposeAsync()
         {
             BuildJobResult r; 

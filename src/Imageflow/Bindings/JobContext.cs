@@ -41,7 +41,7 @@ namespace Imageflow.Bindings
 
         public bool HasError => NativeMethods.imageflow_context_has_error(Handle);
         
-        private static byte[] SerializeToJson<T>(T obj){
+        internal static byte[] SerializeToJson<T>(T obj){
             using (var stream = new MemoryStream())
             using (var writer = new StreamWriter(stream, new UTF8Encoding(false))){
                 JsonSerializer.Create().Serialize(writer, obj);
@@ -67,7 +67,10 @@ namespace Imageflow.Bindings
             AssertReady();
             return SendJsonBytes("v0.1/execute", JobContext.SerializeToJson(message));
         }
-
+        internal IJsonResponseProvider Execute(byte[] utf8Message){
+            AssertReady();
+            return SendJsonBytes("v0.1/execute", utf8Message);
+        }
         public ImageInfo GetImageInfo(int ioId)
         {
             AssertReady();

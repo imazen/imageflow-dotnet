@@ -14,10 +14,10 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="PolySharp" Version="1.*">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+<!--    <PackageReference Include="PolySharp" Version="1.*">-->
+<!--      <PrivateAssets>all</PrivateAssets>-->
+<!--      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
+<!--    </PackageReference>-->
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Imageflow.NativeTool.win-x86" Version="2.0.0-preview8" />

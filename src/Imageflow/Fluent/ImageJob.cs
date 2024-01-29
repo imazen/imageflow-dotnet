@@ -173,8 +173,23 @@ namespace Imageflow.Fluent
         [Obsolete("Use .Finish().SetCancellationToken(cancellationToken).InProcessAndDisposeAsync()")]
         public Task<BuildJobResult> FinishAndDisposeAsync(CancellationToken cancellationToken)
             => this.Finish().SetCancellationToken(cancellationToken).InProcessAndDisposeAsync();
+
+
+        internal byte[] ToJsonUtf8(SecurityOptions? securityOptions)
+        {
+            var message = new
+            {
+                security = securityOptions?.ToImageflowDynamic(),
+                framewise = ToFramewise()
+            };
+            return JobContext.SerializeToJson(message);
+        }
         
-    
+        internal string ToJson(SecurityOptions? securityOptions = default)
+        {
+            return Encoding.UTF8.GetString(ToJsonUtf8(securityOptions));
+        }
+
         internal async Task<BuildJobResult> FinishAsync(JobExecutionOptions executionOptions, SecurityOptions? securityOptions, CancellationToken cancellationToken)
         {
             var inputByteArrays = await Task.WhenAll(_inputs.Select( async pair => new KeyValuePair<int, ArraySegment<byte>>(pair.Key, await pair.Value.GetBytesAsync(cancellationToken))));
@@ -189,13 +204,8 @@ namespace Imageflow.Fluent
                 }
                 
                 //TODO: Use a Semaphore to limit concurrency
-
-                var message = new
-                {
-                    security = securityOptions?.ToImageflowDynamic(),
-                    framewise = ToFramewise()
-                };
-
+                var message = ToJsonUtf8(securityOptions);
+                
                 var response = executionOptions.OffloadCpuToThreadPool
                     ? await Task.Run(() => ctx.Execute(message), cancellationToken)
                     : ctx.Execute(message);

@@ -23,12 +23,6 @@
           "Microsoft.TestPlatform.TestHost": "15.3.0-preview-20170628-02"
         }
       },
-      "PolySharp": {
-        "type": "Direct",
-        "requested": "[1.*, )",
-        "resolved": "1.14.1",
-        "contentHash": "mOOmFYwad3MIOL14VCjj02LljyF1GNw1wP0YVlxtcPvqdxjGGMNdNJJxHptlry3MOd8b40Flm8RPOM8JOlN2sQ=="
-      },
       "xunit": {
         "type": "Direct",
         "requested": "[2.*, )",
@@ -1503,12 +1497,6 @@
           "Microsoft.TestPlatform.TestHost": "15.3.0-preview-20170628-02"
         }
       },
-      "PolySharp": {
-        "type": "Direct",
-        "requested": "[1.*, )",
-        "resolved": "1.14.1",
-        "contentHash": "mOOmFYwad3MIOL14VCjj02LljyF1GNw1wP0YVlxtcPvqdxjGGMNdNJJxHptlry3MOd8b40Flm8RPOM8JOlN2sQ=="
-      },
       "xunit": {
         "type": "Direct",
         "requested": "[2.*, )",
@@ -2973,12 +2961,6 @@
         "dependencies": {
           "Microsoft.TestPlatform.TestHost": "15.3.0-preview-20170628-02"
         }
-      },
-      "PolySharp": {
-        "type": "Direct",
-        "requested": "[1.*, )",
-        "resolved": "1.14.1",
-        "contentHash": "mOOmFYwad3MIOL14VCjj02LljyF1GNw1wP0YVlxtcPvqdxjGGMNdNJJxHptlry3MOd8b40Flm8RPOM8JOlN2sQ=="
       },
       "xunit": {
         "type": "Direct",
