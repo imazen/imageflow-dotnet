@@ -74,8 +74,11 @@ namespace Imageflow.Test
                 Assert.NotNull(info.LongVersionString);
                 Assert.NotNull(info.GitDescribeAlways);
                 var unused = info.BuildDate;
+                Assert.NotEqual(default, info.BuildDate);
                 var unused2 = info.GitTag;
+                Assert.NotNull(info.GitTag);
                 var unused3 = info.DirtyWorkingTree;
+                
             }
         }
         
