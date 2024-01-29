@@ -13,11 +13,15 @@
     <IsAotCompatible Condition="'$(TargetFramework)' == 'net8.0'">true</IsAotCompatible>
     <IsTrimmable Condition="'$(TargetFramework)' == 'net8.0'">true</IsTrimmable>
     <PolySharpIncludeRuntimeSupportedAttributes>true</PolySharpIncludeRuntimeSupportedAttributes>
+    <RootNamespace>Imageflow</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="[1.2.*,4)" />
-    <PackageReference Include="System.Text.Json" Version="[6.*,)" />
+
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="$(RecyclableMemoryStreamVersion" Condition="'$(RecyclableMemoryStreamVersion)' != ''" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="[1.2.*,4)" Condition="'$(RecyclableMemoryStreamVersion)' == ''" />
+    <PackageReference Include="System.Text.Json" Version="[6.*,)" Condition="'$(SystemTextJsonVersion)' == ''" />
+    <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" Condition="'$(SystemTextJsonVersion)' != ''" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="All" />

@@ -29,7 +29,7 @@
 
         <RestoreLockedMode>false</RestoreLockedMode>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <RootNamespace>Imageflow</RootNamespace>
+        
     
         
         <ImplicitUsings>enable</ImplicitUsings>

@@ -15,6 +15,9 @@ jobs:
           - os: macos-11.0
           - os: ubuntu-latest
             test-aot: true
+          - os: ubuntu-latest
+            SystemTextJsonVersion: 8.0.1
+            RecyclableMemoryStreamVersion: 3.0.0
           - os: windows-latest
             pack: true
             docs: true
@@ -63,7 +66,11 @@ jobs:
         dotnet clean ${{ env.CORE_SLN }} --configuration Release
         dotnet nuget locals all --clear
       if: github.event_name == 'release'
-
+    
+    - name: Test with ${{ matrix.SystemTextJsonVersion }} and ${{ matrix.RecyclableMemoryStreamVersion }}
+      if: matrix.SystemTextJsonVersion != null && matrix.RecyclableMemoryStreamVersion != null
+      run: |
+        dotnet test ${{ env.CORE_SLN }} -p:SystemTextJsonVersion=${{ matrix.SystemTextJsonVersion }} -p:RecyclableMemoryStreamVersion=${{ matrix.RecyclableMemoryStreamVersion }} -c Release
 
     - name: Install dependencies
       run: dotnet restore ${{ env.CORE_SLN }} --force-evaluate
