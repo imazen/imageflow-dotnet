@@ -541,7 +541,9 @@ namespace Imageflow.Fluent
         private JsonNode ToFramewiseGraph(ICollection<BuildItemBase> uniqueNodes)
         {
             var lowestUid = LowestUid(uniqueNodes) ?? 0;
-            var edges = CollectEdges(uniqueNodes);
+            var edges = CollectEdges(uniqueNodes)
+                .OrderBy(t => t.Item1)
+                .ThenBy(t => t.Item2).ToList();
             //var framewiseEdges = edges.Select(t => new
             // {
             //     from = t.Item1 - lowestUid,
@@ -556,10 +558,10 @@ namespace Imageflow.Fluent
             }).ToArray();
             
             
-            var framewiseNodes = new Dictionary<string, JsonNode?>(_nodesCreated.Count);
+            var nodes = new JsonObject();
             foreach (var n in uniqueNodes)
             {
-                framewiseNodes.Add((n.Uid - lowestUid).ToString(), n.NodeData );
+                nodes.Add((n.Uid - lowestUid).ToString(), n.NodeData );
             }
             // return new
             // {
@@ -574,7 +576,7 @@ namespace Imageflow.Fluent
                 ["graph"] = new JsonObject
                 {
                     ["edges"] = new JsonArray(framewiseEdges),
-                    ["nodes"] = new JsonObject(framewiseNodes)
+                    ["nodes"] = nodes
                 }
             };
         }

@@ -47,7 +47,8 @@ internal static class Helpers
         var resultBytes = job.First!.TryGetBytes()!.Value;
         return new Memory<byte>(resultBytes.Array, resultBytes.Offset, resultBytes.Count);
     }
-    public static byte[] GetResourceBytes(string resourceName)
+
+    private static byte[] GetResourceBytes(string resourceName)
     {
         var assembly = Assembly.GetExecutingAssembly();
         using var stream = assembly.GetManifestResourceStream(resourceName);
@@ -63,6 +64,4 @@ internal static class Helpers
 
 
 [JsonSerializable(typeof(VersionInfo))]
-internal partial class AppJsonSerializerContext : JsonSerializerContext
-{
-}
+internal partial class AppJsonSerializerContext : JsonSerializerContext;
