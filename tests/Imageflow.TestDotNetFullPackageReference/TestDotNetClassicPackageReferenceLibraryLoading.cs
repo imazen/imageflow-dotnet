@@ -8,7 +8,7 @@ namespace Imageflow.TestDotNetFullPackageReference
         [TestMethod]
         public void TestAccessAbi()
         {
-            using (var j = new Imageflow.Bindings.JobContext()) { }
+            using (var j = new Bindings.JobContext()) { }
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Imageflow.Fluent
         /// If this Destination is a BytesDestination, returns the ArraySegment - otherwise null
         /// Returns the byte segment for the given output ID (if that output is a BytesDestination)
         /// </summary>
-        public ArraySegment<byte>? TryGetBytes() => (Destination is BytesDestination d) ? d.GetBytes() : (ArraySegment<byte>?)null;
+        public ArraySegment<byte>? TryGetBytes() => (Destination is BytesDestination d) ? d.GetBytes() : default;
     }
     // Width = er.w,
     // Height = er.h,

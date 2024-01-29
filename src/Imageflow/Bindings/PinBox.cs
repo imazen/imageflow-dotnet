@@ -8,7 +8,7 @@ namespace Imageflow.Bindings
         private List<GCHandle>? _pinned;
         internal void AddPinnedData(GCHandle handle)
         {
-            if (_pinned == null) _pinned = new List<GCHandle>();
+            _pinned ??= new List<GCHandle>();
             _pinned.Add(handle);
         }
 

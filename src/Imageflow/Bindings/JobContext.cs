@@ -62,7 +62,7 @@ namespace Imageflow.Bindings
             {
                 Indented = true
             });
-            System.Text.Json.JsonSerializer.Serialize(utf8JsonWriter, obj, options);
+            JsonSerializer.Serialize(utf8JsonWriter, obj, options);
             utf8JsonWriter.Flush();
             return ms.ToArray();
         }
@@ -84,11 +84,11 @@ namespace Imageflow.Bindings
         [RequiresDynamicCode("Use SendMessage(string method, JsonNode message) instead for AOT compatibility")]
         public IJsonResponseProvider SendMessage<T>(string method, T message){
             AssertReady();
-            return SendJsonBytes(method, JobContext.SerializeToJson(message));
+            return SendJsonBytes(method, SerializeToJson(message));
         }
         public IJsonResponseProvider SendMessage(string method, JsonNode message){
             AssertReady();
-            return SendJsonBytes(method, JobContext.SerializeNode(message));
+            return SendJsonBytes(method, SerializeNode(message));
         }
 
         [Obsolete("Use ExecuteJsonNode instead for AOT compatibility")]
@@ -96,11 +96,11 @@ namespace Imageflow.Bindings
         [RequiresDynamicCode("Use ExecuteJsonNode instead for AOT compatibility")]
         public IJsonResponseProvider Execute<T>(T message){
             AssertReady();
-            return SendJsonBytes("v0.1/execute", JobContext.SerializeToJson(message));
+            return SendJsonBytes("v0.1/execute", SerializeToJson(message));
         }
         public IJsonResponseProvider ExecuteJsonNode(JsonNode message){
             AssertReady();
-            return SendJsonBytes("v0.1/execute", JobContext.SerializeNode(message));
+            return SendJsonBytes("v0.1/execute", SerializeNode(message));
         }
         
         internal IJsonResponseProvider Execute(byte[] utf8Message){
@@ -110,7 +110,7 @@ namespace Imageflow.Bindings
         public ImageInfo GetImageInfo(int ioId)
         {
             AssertReady();
-            using (var response = SendJsonBytes("v0.1/get_image_info", JobContext.SerializeNode(new JsonObject(){ {"io_id", ioId} })))
+            using (var response = SendJsonBytes("v0.1/get_image_info", SerializeNode(new JsonObject(){ {"io_id", ioId} })))
             {
                 var node = response.DeserializeJsonNode();
                 if (node == null) throw new ImageflowAssertionFailed("get_image_info response is null");
@@ -120,11 +120,11 @@ namespace Imageflow.Bindings
                 {
                     if (successValue?.GetValue<bool>() != true)
                     {
-                        throw ImageflowException.FromContext(this.Handle);
+                        throw ImageflowException.FromContext(Handle);
                     }
                     var dataValue = responseObj.TryGetPropertyValue("data", out var dataValueObj) ? dataValueObj : null;
                     if (dataValue == null) throw new ImageflowAssertionFailed("get_image_info response does not have a data property");
-                    var imageInfoValue = (dataValue.AsObject()?.TryGetPropertyValue("image_info", out var imageInfoValueObj) ?? false) ? imageInfoValueObj : null;
+                    var imageInfoValue = (dataValue.AsObject().TryGetPropertyValue("image_info", out var imageInfoValueObj)) ? imageInfoValueObj : null;
                     
                     if (imageInfoValue == null) throw new ImageflowAssertionFailed("get_image_info response does not have an image_info property");
                     return ImageInfo.FromDynamic(imageInfoValue);
@@ -150,7 +150,7 @@ namespace Imageflow.Bindings
         public VersionInfo GetVersionInfo()
         {
             AssertReady();
-            using (var response = SendJsonBytes("v1/get_version_info", JobContext.SerializeNode(new JsonObject())))
+            using (var response = SendJsonBytes("v1/get_version_info", SerializeNode(new JsonObject())))
             {
                 var node = response.DeserializeJsonNode();
                 if (node == null) throw new ImageflowAssertionFailed("get_version_info response is null");
@@ -160,11 +160,11 @@ namespace Imageflow.Bindings
                 {
                     if (successValue?.GetValue<bool>() != true)
                     {
-                        throw ImageflowException.FromContext(this.Handle);
+                        throw ImageflowException.FromContext(Handle);
                     }
                     var dataValue = responseObj.TryGetPropertyValue("data", out var dataValueObj) ? dataValueObj : null;
                     if (dataValue == null) throw new ImageflowAssertionFailed("get_version_info response does not have a data property");
-                    var versionInfoValue = (dataValue.AsObject()?.TryGetPropertyValue("version_info", out var versionInfoValueObj) ?? false) ? versionInfoValueObj : null;
+                    var versionInfoValue = (dataValue.AsObject().TryGetPropertyValue("version_info", out var versionInfoValueObj)) ? versionInfoValueObj : null;
                     
                     if (versionInfoValue == null) throw new ImageflowAssertionFailed("get_version_info response does not have an version_info property");
                     return VersionInfo.FromNode(versionInfoValue);
@@ -254,7 +254,7 @@ namespace Imageflow.Bindings
 
         internal void AddToDisposeQueue(IDisposable d)
         {
-            if (_toDispose == null) _toDispose = new List<IDisposable>(1);
+            _toDispose ??= new List<IDisposable>(1);
             _toDispose.Add(d);
         }
         

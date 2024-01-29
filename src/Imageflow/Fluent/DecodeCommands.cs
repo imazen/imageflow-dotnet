@@ -31,7 +31,7 @@ namespace Imageflow.Fluent
         public DecodeCommands SetWebPDownscaling(int targetWidthHint,
             int targetHeightHint)
         {
-            this.WebPDownscaleHint = new Size(targetWidthHint, targetHeightHint);
+            WebPDownscaleHint = new Size(targetWidthHint, targetHeightHint);
             return this;
         }
 

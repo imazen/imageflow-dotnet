@@ -29,9 +29,9 @@ imageflowApi.MapGet("/resize/width/{width}", async(int width) =>
 
 // Test basics during startup
 using var c = new JobContext();
-var vi = c.GetVersionInfo();
+var _ = c.GetVersionInfo();
 var t = Helpers.SizeIcon(10);
-var resultMemory = t.Result;
+var _2 = t.Result;
 
 app.Run();
 
@@ -39,11 +39,11 @@ internal static class Helpers
 {
     public static async Task<Memory<byte>> SizeIcon(int width)
     {
-        var imgBytes = Helpers.GetResourceBytes("icon.png");
-        var job = await new Imageflow.Fluent.ImageJob()
+        var imgBytes = GetResourceBytes("icon.png");
+        var job = await new ImageJob()
             .Decode(imgBytes)
             .Constrain(new Constraint((uint)width, 0))
-            .EncodeToBytes(new Imageflow.Fluent.MozJpegEncoder(90)).Finish().InProcessAsync();
+            .EncodeToBytes(new MozJpegEncoder(90)).Finish().InProcessAsync();
         var resultBytes = job.First!.TryGetBytes()!.Value;
         return new Memory<byte>(resultBytes.Array, resultBytes.Offset, resultBytes.Count);
     }

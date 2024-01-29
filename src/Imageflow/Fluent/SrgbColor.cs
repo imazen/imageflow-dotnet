@@ -6,20 +6,12 @@ namespace Imageflow.Fluent
     /// <summary>
     /// Represents a color in the sRGB colorspace
     /// </summary>
-    public struct SrgbColor
+    public readonly struct SrgbColor(byte r, byte g, byte b, byte a)
     {
-        public SrgbColor(byte r, byte g, byte b, byte a)
-        {
-            A = a;
-            R = r;
-            G = g;
-            B = b;
-        }
-
-        public byte A { get; private set; }
-        public byte R { get; private set; }
-        public byte G { get; private set; }
-        public byte B { get; private set; }
+        public byte A { get; private init; } = a;
+        public byte R { get; private init; } = r;
+        public byte G { get; private init; } = g;
+        public byte B { get; private init; } = b;
 
         private static byte Mask8(uint v, int index)
         {

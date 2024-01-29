@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using Imageflow.Bindings;
+﻿using Imageflow.Bindings;
 
 namespace Imageflow.Fluent
 {

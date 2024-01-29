@@ -14,19 +14,19 @@ namespace Imageflow.Fluent
     /// <summary>
     /// Represents a source backed by an ArraySegment or byte[] array.
     /// </summary>
-    public struct BytesSource : IBytesSource
+    public readonly struct BytesSource : IBytesSource
     {
         public BytesSource(byte[] bytes)
         {
-            this._bytes = new ArraySegment<byte>(bytes, 0, bytes.Length);
+            _bytes = new ArraySegment<byte>(bytes, 0, bytes.Length);
         }
         public BytesSource(byte[] bytes, int offset, int length)
         {
-            this._bytes = new ArraySegment<byte>(bytes, offset, length);
+            _bytes = new ArraySegment<byte>(bytes, offset, length);
         }
         public BytesSource(ArraySegment<byte> bytes)
         {
-            this._bytes = bytes;
+            _bytes = bytes;
         }
         
         private readonly ArraySegment<byte> _bytes;
@@ -40,22 +40,17 @@ namespace Imageflow.Fluent
     /// <summary>
     /// Represents a image source that is backed by a Stream. 
     /// </summary>
-    public class StreamSource : IBytesSource
+    public class StreamSource(Stream underlying, bool disposeUnderlying) : IBytesSource
     {
-        private static readonly RecyclableMemoryStreamManager Mgr = new RecyclableMemoryStreamManager();
-        public StreamSource(Stream underlying, bool disposeUnderlying)
-        {
-            _underlying = underlying;
-            _disposeUnderlying = disposeUnderlying;
-        }
-        private readonly Stream _underlying;
+        private static readonly RecyclableMemoryStreamManager Mgr 
+            = new RecyclableMemoryStreamManager();
         private RecyclableMemoryStream? _copy;
-        private readonly bool _disposeUnderlying;
+
         public void Dispose()
         {
-            if (_disposeUnderlying)
+            if (disposeUnderlying)
             {
-                _underlying?.Dispose();
+                underlying?.Dispose();
             }
             _copy?.Dispose();
         }
@@ -73,9 +68,9 @@ namespace Imageflow.Fluent
                 return new ArraySegment<byte>(_copy.GetBuffer(), 0,
                     (int) _copy.Length);
             }
-            var length = _underlying.CanSeek ? _underlying.Length : 0;
+            var length = underlying.CanSeek ? underlying.Length : 0;
             if (length >= int.MaxValue) throw new OverflowException("Streams cannot exceed 2GB");
-            switch (_underlying)
+            switch (underlying)
             {
                 case RecyclableMemoryStream underlyingRecMemoryStream:
                     return new ArraySegment<byte>(underlyingRecMemoryStream.GetBuffer(), 0,
@@ -91,7 +86,7 @@ namespace Imageflow.Fluent
             if (_copy == null)
             {
                 _copy = new RecyclableMemoryStream(Mgr, "StreamSource: IBytesSource", (int) length);
-                await _underlying.CopyToAsync(_copy,81920, cancellationToken);
+                await underlying.CopyToAsync(_copy,81920, cancellationToken);
             }
             
             return new ArraySegment<byte>(_copy.GetBuffer(), 0,

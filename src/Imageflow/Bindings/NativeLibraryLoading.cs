@@ -1,11 +1,12 @@
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Globalization;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
-
+#if !NET8_0_OR_GREATER
+using System.Reflection;
+#endif
 namespace Imageflow.Bindings
 {
     internal class LoadLogger : ILibraryLoadLogger
@@ -225,9 +226,9 @@ namespace Imageflow.Bindings
                 yield return Tuple.Create(true, AppDomain.CurrentDomain.RelativeSearchPath);
             }
             // look in System.AppContext.BaseDirectory
-            if (!string.IsNullOrEmpty(System.AppContext.BaseDirectory))
+            if (!string.IsNullOrEmpty(AppContext.BaseDirectory))
             {
-                yield return Tuple.Create(true, System.AppContext.BaseDirectory);
+                yield return Tuple.Create(true, AppContext.BaseDirectory);
             }
             
             // Look in the base directory from which .NET looks for managed assemblies
@@ -269,9 +270,7 @@ namespace Imageflow.Bindings
                 {
                     // First try the simple arch subdir since that is where the nuget native packages unpack
                     path = Path.Combine(directory, ArchitectureSubdir.Value, filename);
-                    if (!attemptedPaths.Contains(path))
-                    {
-                        attemptedPaths.Add(path);
+                    if (attemptedPaths.Add(path)){
                         yield return path;
                     }
                 }
@@ -279,9 +278,7 @@ namespace Imageflow.Bindings
                 // Try the folder itself
                 path = Path.Combine(directory, filename);
                 
-                if (!attemptedPaths.Contains(path))
-                {
-                    attemptedPaths.Add(path);
+                if (attemptedPaths.Add(path)){
                     yield return path;
                 }
 
@@ -290,9 +287,7 @@ namespace Imageflow.Bindings
                     // Last try native runtimes directory in case this is happening in .NET Core
                     path = Path.Combine(directory, "runtimes",
                         PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native", filename);
-                    if (!attemptedPaths.Contains(path))
-                    {
-                        attemptedPaths.Add(path);
+                    if (attemptedPaths.Add(path)){
                         yield return path;
                     }
                 }

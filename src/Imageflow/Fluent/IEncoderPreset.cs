@@ -234,13 +234,9 @@ namespace Imageflow.Fluent
     }
 
     
-    public class WebPLossyEncoder : IEncoderPreset
+    public class WebPLossyEncoder(float quality) : IEncoderPreset
     {
-        public WebPLossyEncoder(float quality)
-        {
-            Quality = quality;
-        }
-        public float? Quality { get; set; }
+        public float? Quality { get; set; } = quality;
 
         [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic() => new { webplossy = new { quality = Quality } };

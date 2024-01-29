@@ -21,7 +21,7 @@ namespace Imageflow.Fluent
             // return new BuildEndpoint(Builder,
             //    new {encode = new {io_id = ioId, preset = encoderPreset?.ToImageflowDynamic()}}, this, null);
             return new BuildEndpoint(Builder,
-                new JsonObject() {["encode"] = new JsonObject() {["io_id"] = ioId, ["preset"] = encoderPreset?.ToJsonNode()}}, this, null);
+                new JsonObject() {["encode"] = new JsonObject() {["io_id"] = ioId, ["preset"] = encoderPreset.ToJsonNode()}}, this, null);
         }
         /// <summary>
         /// Encode the result to the given destination (such as a BytesDestination or StreamDestination)
@@ -81,7 +81,7 @@ namespace Imageflow.Fluent
         /// <param name="h"></param>
         /// <param name="hints"></param>
         /// <returns></returns>
-        public BuildNode ConstrainWithin(uint? w, uint? h, ResampleHints hints)
+        public BuildNode ConstrainWithin(uint? w, uint? h, ResampleHints? hints)
         {
             var jsonObject = new JsonObject
             {
@@ -408,7 +408,7 @@ namespace Imageflow.Fluent
                     ["h"] = to.Height,
                     ["x"] = to.X,
                     ["y"] = to.Y,
-                    ["blend"] = blend?.ToString()?.ToLowerInvariant(),
+                    ["blend"] = blend?.ToString().ToLowerInvariant(),
                     ["hints"] = hints?.ToJsonNode()
                 }
             });
@@ -678,11 +678,8 @@ namespace Imageflow.Fluent
         /// <returns></returns>
         public BuildNode Watermark(IBytesSource source, int? ioId, WatermarkOptions watermark)
         {
-            if (ioId == null)
-            {
-                ioId = this.Builder.GenerateIoId();
-            }
-            this.Builder.AddInput(ioId.Value, source);
+            ioId ??= Builder.GenerateIoId();
+            Builder.AddInput(ioId.Value, source);
             // return To(new
             // {
             //     watermark = watermark.ToImageflowDynamic(ioId.Value)

@@ -65,7 +65,7 @@ namespace Imageflow.IO
     {
         public ITemporaryFile Create(bool cleanup, long capacity)
         {
-            return new TemporaryFile(System.IO.Path.GetTempFileName(), cleanup);
+            return new TemporaryFile(Path.GetTempFileName(), cleanup);
         }
         
     }

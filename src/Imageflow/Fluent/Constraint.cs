@@ -40,7 +40,7 @@ namespace Imageflow.Fluent
         
         public Constraint SetHints(ResampleHints hints)
         {
-            this.Hints = hints;
+            Hints = hints;
             return this;
         }
 
@@ -62,7 +62,7 @@ namespace Imageflow.Fluent
         {
             return new
             {
-                mode = Mode.ToString()?.ToLowerInvariant(),
+                mode = Mode.ToString().ToLowerInvariant(),
                 w = W,
                 h = H,
                 hints = Hints?.ToImageflowDynamic(),
@@ -73,8 +73,7 @@ namespace Imageflow.Fluent
 
         internal JsonNode ToJsonNode()
         {
-            var node = new JsonObject();
-            node.Add("mode", Mode.ToString()?.ToLowerInvariant());
+            var node = new JsonObject { { "mode", Mode.ToString().ToLowerInvariant() } };
             if (W != null) node.Add("w", W);
             if (H != null) node.Add("h", H);
             if (Hints != null) node.Add("hints", Hints.ToJsonNode());

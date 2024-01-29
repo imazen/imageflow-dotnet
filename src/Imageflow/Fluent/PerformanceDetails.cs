@@ -18,12 +18,12 @@ namespace Imageflow.Fluent
             {
                 foreach (var f in framesValue?.AsArray() ?? [])
                 {
-                    frames.Add(new PerformanceDetailsFrame(f));
+                    _frames.Add(new PerformanceDetailsFrame(f));
                 }
             }
         }
-        private List<PerformanceDetailsFrame> frames = new List<PerformanceDetailsFrame>();
-        public ICollection<PerformanceDetailsFrame> Frames => frames;
+        private readonly List<PerformanceDetailsFrame> _frames = new List<PerformanceDetailsFrame>();
+        public ICollection<PerformanceDetailsFrame> Frames => _frames;
 
         public string GetFirstFrameSummary()
         {

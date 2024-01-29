@@ -1,7 +1,5 @@
 ﻿using System.Text;
 using System.Text.Json.Nodes;
-using JsonNamingPolicy = System.Text.Json.JsonNamingPolicy;
-using JsonSerializerOptions = System.Text.Json.JsonSerializerOptions;
 using Utf8JsonReader = System.Text.Json.Utf8JsonReader;
 
 namespace Imageflow.Bindings
@@ -71,6 +69,7 @@ namespace Imageflow.Bindings
 
     }
 
+    // ReSharper disable once InconsistentNaming
     public static class IJsonResponseProviderExtensions
     {
         

@@ -126,15 +126,15 @@ namespace Imageflow.Fluent
                 {
                     throw new ImageflowAssertionFailed(requiredMessage);
                 }
-                
+                var ioId = ioIdValue?.GetValue<int>() ?? throw new ImageflowAssertionFailed(requiredMessage);
                 encodeResults.Add(new BuildEncodeResult
                 {
-                    IoId = ioIdValue?.GetValue<int>() ?? throw new ImageflowAssertionFailed(requiredMessage),
+                    IoId = ioId,
                     Width = wValue?.GetValue<int>() ?? throw new ImageflowAssertionFailed(requiredMessage),
                     Height = hValue?.GetValue<int>() ?? throw new ImageflowAssertionFailed(requiredMessage),
                     PreferredExtension = preferredExtensionValue?.GetValue<string>() ?? throw new ImageflowAssertionFailed(requiredMessage),
                     PreferredMimeType = preferredMimeTypeValue?.GetValue<string>() ?? throw new ImageflowAssertionFailed(requiredMessage),
-                    Destination = outputs[ioIdValue?.GetValue<int>() ?? throw new ImageflowAssertionFailed(requiredMessage)]
+                    Destination = outputs[ioId]
                 });
             }
             

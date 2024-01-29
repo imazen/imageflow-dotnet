@@ -45,7 +45,7 @@ namespace Imageflow.Bindings
             return new ImageInfo(imageInfo);
         }
 
-        public Fluent.PixelFormat FrameDecodesInto { get; private init; }
+        public PixelFormat FrameDecodesInto { get; private init; }
         public long ImageWidth { get; private init; }
         public long ImageHeight { get; private init; }
         public string PreferredMimeType { get; private init; }

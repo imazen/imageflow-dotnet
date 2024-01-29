@@ -133,7 +133,7 @@ namespace Imageflow.Fluent
                 foreach (var w in watermarks)
                 {
                     if (w.IoId == null && w.Source == null) throw new ArgumentException("InputWatermark instances cannot have both a null IoId and a null Source");
-                    if (w.IoId == null) w.IoId = this.GenerateIoId();
+                    w.IoId ??= GenerateIoId();
                     if (w.Source != null) AddInput(w.IoId.Value, w.Source);
                 }
             }
@@ -172,25 +172,25 @@ namespace Imageflow.Fluent
         public FinishJobBuilder Finish() => new FinishJobBuilder(this, default);
 
         [Obsolete("Use .Finish().InProcessAsync()")]
-        public Task<BuildJobResult> FinishAsync() => this.Finish().InProcessAsync();
+        public Task<BuildJobResult> FinishAsync() => Finish().InProcessAsync();
 
         [Obsolete("Use .Finish().SetCancellationToken(t).InProcessAsync()")]
         public Task<BuildJobResult> FinishAsync(CancellationToken cancellationToken)
-            => this.Finish().SetCancellationToken(cancellationToken).InProcessAsync();
+            => Finish().SetCancellationToken(cancellationToken).InProcessAsync();
         
         [Obsolete("Use .Finish().SetCancellationToken(cancellationToken).InSubprocessAsync(imageflowToolPath, outputBufferCapacity)")]
         public Task<BuildJobResult> FinishInSubprocessAsync(CancellationToken cancellationToken,
             string imageflowToolPath, long? outputBufferCapacity = null) =>
-            this.Finish().SetCancellationToken(cancellationToken)
+            Finish().SetCancellationToken(cancellationToken)
                 .InSubprocessAsync(imageflowToolPath, outputBufferCapacity);
         
         [Obsolete("Use .Finish().SetCancellationToken(cancellationToken).WriteJsonJobAndInputs(deleteFilesOnDispose)")]
         public Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(CancellationToken cancellationToken, bool deleteFilesOnDispose)
-            => this.Finish().SetCancellationToken(cancellationToken).WriteJsonJobAndInputs(deleteFilesOnDispose);
+            => Finish().SetCancellationToken(cancellationToken).WriteJsonJobAndInputs(deleteFilesOnDispose);
         
         [Obsolete("Use .Finish().SetCancellationToken(cancellationToken).InProcessAndDisposeAsync()")]
         public Task<BuildJobResult> FinishAndDisposeAsync(CancellationToken cancellationToken)
-            => this.Finish().SetCancellationToken(cancellationToken).InProcessAndDisposeAsync();
+            => Finish().SetCancellationToken(cancellationToken).InProcessAndDisposeAsync();
 
 
         internal byte[] ToJsonUtf8(SecurityOptions? securityOptions)
@@ -456,14 +456,14 @@ namespace Imageflow.Fluent
 
                 if (!string.IsNullOrWhiteSpace(errors) || results.ExitCode != 0)
                 {
-                    if (errors?.Contains("InvalidJson") ?? false)
+                    if (errors.Contains("InvalidJson"))
                     {
                         //throw new ImageflowException(errors + $"\n{JsonConvert.SerializeObject(job.JobMessage)}");
                         throw new ImageflowException(errors + $"\n{job.JobMessage}");
                     }
                     else
                     {
-                        throw new ImageflowException(errors ?? $"Unknown error from attempting to run subprocess {imageflowToolPath}");
+                        throw new ImageflowException(errors);
                     }
                 }
 

@@ -2,17 +2,11 @@ using System.Text.Json.Nodes;
 
 namespace Imageflow.Fluent
 {
-    public struct FrameSizeLimit
+    public readonly struct FrameSizeLimit(uint maxWidth, uint maxHeight, float maxMegapixels)
     {
-        public FrameSizeLimit(uint maxWidth, uint maxHeight, float maxMegapixels)
-        {
-            MaxWidth = maxWidth;
-            MaxHeight = maxHeight;
-            MaxMegapixels = maxMegapixels;
-        }
-       public uint MaxWidth { get; }
-       public uint MaxHeight { get; }
-       public float MaxMegapixels { get; }
+        public uint MaxWidth { get; } = maxWidth;
+       public uint MaxHeight { get; } = maxHeight;
+       public float MaxMegapixels { get; } = maxMegapixels;
 
        internal object ToImageflowDynamic()
        {

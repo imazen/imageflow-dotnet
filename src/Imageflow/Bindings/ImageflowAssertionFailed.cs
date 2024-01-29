@@ -4,11 +4,5 @@
     /// <summary>
     /// For bugs
     /// </summary>
-    public class ImageflowAssertionFailed : Exception
-    {
-        public ImageflowAssertionFailed(string message) : base(message)
-        {
-            
-        }
-    }
+    public class ImageflowAssertionFailed(string message) : Exception(message);
 }

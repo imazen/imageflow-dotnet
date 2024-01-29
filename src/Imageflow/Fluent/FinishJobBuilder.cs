@@ -56,7 +56,7 @@ namespace Imageflow.Fluent
         public FinishJobBuilder WithCancellationTimeout(int milliseconds)
         {
             _tokenSource = new CancellationTokenSource(milliseconds);
-            return this.WithCancellationToken(_tokenSource.Token);
+            return WithCancellationToken(_tokenSource.Token);
         }
         /// <summary>
         /// Replaces the CancellationToken with a timeout
@@ -66,7 +66,7 @@ namespace Imageflow.Fluent
         public FinishJobBuilder SetCancellationTimeout(int milliseconds)
         {
             _tokenSource = new CancellationTokenSource(milliseconds);
-            return this.WithCancellationToken(_tokenSource.Token);
+            return WithCancellationToken(_tokenSource.Token);
         }
 
         public Task<BuildJobResult> InProcessAsync() => _builder.FinishAsync(new JobExecutionOptions(),_security, _token);

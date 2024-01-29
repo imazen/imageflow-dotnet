@@ -15,7 +15,9 @@ namespace Imageflow.Bindings
             OutlivesContext = 1,
         }
         
+        // ReSharper disable once InconsistentNaming
         public const int ABI_MAJOR = 3;
+        // ReSharper disable once InconsistentNaming
         public const int ABI_MINOR = 0;
 
         [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]

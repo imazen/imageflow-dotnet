@@ -52,10 +52,9 @@ namespace Imageflow.Bindings
         
         internal static ImageflowException FromContext(JobContextHandle c, ulong defaultBufferSize = 2048, string? additionalInfo = null)
         {
-            var result = ErrorFetchResult.BufferTooSmall;
             for (var bufferSize = defaultBufferSize; bufferSize < MaxBufferSize; bufferSize *= 2)
             {
-                result = TryGetErrorString(c, bufferSize, out var message);
+                var result = TryGetErrorString(c, bufferSize, out var message);
                 switch (result)
                 {
                     case ErrorFetchResult.Success:

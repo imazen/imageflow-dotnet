@@ -20,10 +20,8 @@ namespace Imageflow.Fluent
         [Obsolete("Use Finish().WithCancellationTimeout")]
         public FinishJobBuilder FinishWithTimeout(int milliseconds)
         {
-            using (var tokenSource = new CancellationTokenSource(milliseconds))
-            {
-                return FinishWithToken(tokenSource.Token);
-            }
+            using var tokenSource = new CancellationTokenSource(milliseconds);
+            return FinishWithToken(tokenSource.Token);
         }
         
     }

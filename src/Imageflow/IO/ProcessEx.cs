@@ -73,7 +73,7 @@ namespace Imageflow.IO
             };
 
             var standardOutputResults = new TaskCompletionSource<string[]>();
-            process.OutputDataReceived += (sender, args) => {
+            process.OutputDataReceived += (_, args) => {
                 if (args.Data != null)
                     standardOutput.Add(args.Data);
                 else

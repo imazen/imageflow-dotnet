@@ -9,12 +9,13 @@ namespace Imageflow.Fluent
         Task FlushAsync(CancellationToken cancellationToken);
     }
 
+    // ReSharper disable once InconsistentNaming
     public static class IOutputDestinationExtensions
     {
         public static async Task CopyFromStreamAsync(this IOutputDestination dest, Stream stream,
             CancellationToken cancellationToken)
         {
-            if (stream.CanRead && stream.CanSeek)
+            if (stream is { CanRead: true, CanSeek: true })
             {
                 await dest.RequestCapacityAsync((int) stream.Length);
             }
@@ -73,37 +74,31 @@ namespace Imageflow.Fluent
         }
     }
 
-    public class StreamDestination : IOutputDestination
+    public class StreamDestination(Stream underlying, bool disposeUnderlying) : IOutputDestination
     {
-        private readonly Stream _underlying;
-        private readonly bool _disposeUnderlying;
-        public StreamDestination(Stream underlying, bool disposeUnderlying)
-        {
-            _underlying = underlying;
-            _disposeUnderlying = disposeUnderlying;
-        }
-
         public void Dispose()
         {
-            if (_disposeUnderlying) _underlying?.Dispose();
+            if (disposeUnderlying) underlying?.Dispose();
         }
 
         public Task RequestCapacityAsync(int bytes)
         {
-            if (_underlying.CanSeek && _underlying.CanWrite) _underlying.SetLength(bytes);
+            if (underlying is { CanSeek: true, CanWrite: true }) underlying.SetLength(bytes);
             return Task.CompletedTask;
         }
 
         public Task WriteAsync(ArraySegment<byte> bytes, CancellationToken cancellationToken)
         {
             if (bytes.Array == null) throw new ImageflowAssertionFailed("StreamDestination.WriteAsync called with null array");
-            return _underlying.WriteAsync(bytes.Array, bytes.Offset, bytes.Count, cancellationToken);
+            return underlying.WriteAsync(bytes.Array, bytes.Offset, bytes.Count, cancellationToken);
         }
 
         public Task FlushAsync(CancellationToken cancellationToken)
         {
-            if (_underlying.CanSeek && _underlying.CanWrite && _underlying.Position < _underlying.Length) _underlying.SetLength(_underlying.Position);
-            return _underlying.FlushAsync(cancellationToken);
+            if (underlying is { CanSeek: true, CanWrite: true } 
+                && underlying.Position < underlying.Length)
+                underlying.SetLength(underlying.Position);
+            return underlying.FlushAsync(cancellationToken);
         }
     }
 }

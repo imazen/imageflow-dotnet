@@ -1,3 +1,4 @@
+// ReSharper disable InconsistentNaming
 namespace Imageflow.Fluent
 {
     [Obsolete("Use new Imazen.Common.FileTypeDetection.FileTypeDetector().GuessMimeType(data) instead")]
@@ -26,6 +27,7 @@ namespace Imageflow.Fluent
             PostScript,
             Mp3,
             Pdf,
+            // ReSharper disable once IdentifierTypo
             FLIF,
             AIFF,
             TrueTypeFont,
