@@ -119,7 +119,7 @@ namespace Imageflow.Fluent
         /// <param name="watermarks"></param>
         /// <returns></returns>
         public BuildEndpoint BuildCommandString(IBytesSource source, IOutputDestination dest, string commandString,
-            ICollection<InputWatermark> watermarks)
+            ICollection<InputWatermark>? watermarks)
             => BuildCommandString(source, null, dest, null, commandString, watermarks);
         public BuildEndpoint BuildCommandString(IBytesSource source, int? sourceIoId, IOutputDestination dest, int? destIoId, string commandString, ICollection<InputWatermark>? watermarks)
         {
