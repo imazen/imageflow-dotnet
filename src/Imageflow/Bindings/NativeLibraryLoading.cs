@@ -245,14 +245,19 @@ namespace Imageflow.Bindings
                         "runtimes", PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native"));
                 
             }
-
-            #if NETSTANDARD2_0
-            // Look in the folder that *this* assembly is located.
-            var assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            if (!string.IsNullOrEmpty(assemblyLocation))
-                yield return Tuple.Create(true, assemblyLocation);
-            #endif
             
+            string? assemblyLocation = null;
+            #if !NETCOREAPP && !NET5_0_OR_GREATER && !NET8_0_OR_GREATER
+            try{
+                // Look in the folder that *this* assembly is located.
+                assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                
+            } catch (NotImplementedException){
+                // ignored
+            }
+            #endif
+            if (!string.IsNullOrEmpty(assemblyLocation))
+                yield return Tuple.Create(true, assemblyLocation!);
         }
 
         internal static IEnumerable<string> SearchPossibilitiesForFile(string filename, IEnumerable<string>? customSearchDirectories = null)
