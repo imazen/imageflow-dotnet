@@ -22,7 +22,7 @@ jobs:
         include:
           - os: macos-11.0
           - os: ubuntu-latest
-            test-aot: true
+            test_aot: true
           - os: ubuntu-latest
             SystemTextJsonVersion: 8.0.1
             RecyclableMemoryStreamVersion: 3.0.0
@@ -30,7 +30,7 @@ jobs:
             pack: true
             docs: true
             coverage: true
-            test-legacy: true
+            test_legacy: true
             
     runs-on: ${{matrix.os}}
     
@@ -128,21 +128,23 @@ jobs:
       if: matrix.pack
       with:
         name: NuGetPackages
-        path: NuGetPackages/Release/*.nupkg
+        path: |
+          NuGetPackages/Release/*.nupkg
+          NuGetPackages/Release/*.snupkg
 
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.3.2
-      if: matrix.os == 'windows-latest' && matrix.test-legacy
+      if: matrix.os == 'windows-latest' && matrix.test_legacy
       
     - name: Build legacy projects on Windows
-      if: matrix.test-legacy
+      if: matrix.test_legacy
       run: |
         nuget restore  tests/Imageflow.TestDotNetFull/Imageflow.TestDotNetFull.csproj -SolutionDirectory src
         nuget restore  tests/Imageflow.TestDotNetFullPackageReference/Imageflow.TestDotNetFullPackageReference.csproj -SolutionDirectory src
         msbuild src/Imageflow.dnfull.sln /p:Configuration=Release /p:Platform="Any CPU"
 
     - name: Legacy - Test Imageflow.TestDotNetFull and Imageflow.TestDotNetFullPackageReference
-      if: matrix.test-legacy
+      if: matrix.test_legacy
       run:  |
         dotnet test tests/Imageflow.TestDotNetFull/bin/Release/Imageflow.TestDotNetFull.dll
         dotnet test tests/Imageflow.TestDotNetFullPackageReference/bin/Release/Imageflow.TestDotNetFullPackageReference.dll
@@ -152,7 +154,7 @@ jobs:
         dotnet test tests/Imageflow.TestDotNetFullPackageReference/bin/Release/Imageflow.TestDotNetFullPackageReference.dll --platform:x64
         
     - name: Test use in an AOT web app
-      if: matrix.test-aot
+      if: matrix.test_aot
       shell: pwsh
       run: ./tests/Imageflow.TestWebAOT/test.ps1
       
@@ -178,4 +180,4 @@ jobs:
       - name: Publish NuGet packages to Nuget.org
         if: steps.version.outputs.is_valid == 'true' && github.event_name == 'release'
         run: |
-          dotnet nuget push NuGetPackages/*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_API_KEY }} --source nuget.org
+          dotnet nuget push NuGetPackages/*.nupkg --skip-duplicate --api-key ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
