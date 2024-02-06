@@ -263,7 +263,36 @@ namespace Imageflow.Test
             }
 
         }
+        [Fact]
+        public async Task TestBuildCommandStringWithStreamsAndWatermarks()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            // var stream1 = new BufferedStream(new System.IO.MemoryStream(imageBytes));
+            // var stream2 = new BufferedStream(new System.IO.MemoryStream(imageBytes));
+            var stream1 = new BufferedStream(new MemoryStream(imageBytes));
+            Assert.Equal(137, stream1.ReadByte());
+            stream1.Seek(0, SeekOrigin.Begin);
+            var stream2 = new BufferedStream(new MemoryStream(imageBytes));
+            var stream3 = new BufferedStream(new MemoryStream(imageBytes));
+            using (var b = new ImageJob())
+            {
+                var watermarks = new List<InputWatermark>();
+                watermarks.Add(new InputWatermark(new StreamSource(stream1,true), new WatermarkOptions()));
+                watermarks.Add(new InputWatermark(new StreamSource(stream2,true), new WatermarkOptions().SetGravity(new ConstraintGravity(100,100))));
+                
+                var r = await b.BuildCommandString(
+                    new StreamSource(stream3,true), 
+                    new BytesDestination(), 
+                    "width=3&height=2&mode=stretch&scale=both&format=webp",watermarks).Finish().InProcessAsync();
 
+                Assert.Equal(3, r.First!.Width);
+                Assert.Equal("webp", r.First.PreferredExtension);
+                Assert.True(r.First.TryGetBytes().HasValue);
+            }
+
+        }
+        
+        
         [Fact]
         public async Task TestFilesystemJobPrep()
         {

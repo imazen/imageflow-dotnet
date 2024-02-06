@@ -18,11 +18,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="$(RecyclableMemoryStreamVersion)" Condition="'$(RecyclableMemoryStreamVersion)' != ''" />
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="[1.2.*,4)" Condition="'$(RecyclableMemoryStreamVersion)' == ''" />
-    <PackageReference Include="System.Text.Json" Version="[6.*,)" Condition="'$(SystemTextJsonVersion)' == ''" />
-    <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" Condition="'$(SystemTextJsonVersion)' != ''" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="[2.*,4)" /> 
+    <PackageReference Include="System.Text.Json" Version="[6.*,)"/>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="All" />

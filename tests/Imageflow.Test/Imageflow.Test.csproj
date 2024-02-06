@@ -27,7 +27,10 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.*" />
     <PackageReference Include="Newtonsoft.Json" Version="[13.0.3,14)" />
     <PackageReference Include="coverlet.collector" Version="3.1.0" />
-
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="$(RecyclableMemoryStreamVersion)" Condition="'$(RecyclableMemoryStreamVersion)' != ''" />
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.3.2" Condition="'$(RecyclableMemoryStreamVersion)' == ''" />
+    <PackageReference Include="System.Text.Json" Version="[6.*,)" Condition="'$(SystemTextJsonVersion)' == ''" />
+    <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" Condition="'$(SystemTextJsonVersion)' != ''" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Imageflow.AllPlatforms\Imageflow.AllPlatforms.csproj" />

@@ -36,8 +36,8 @@
       },
       "Microsoft.IO.RecyclableMemoryStream": {
         "type": "Transitive",
-        "resolved": "1.2.2",
-        "contentHash": "LA4RBTStohA0hAAs6oKchmIC5M5Mjd5MwfB7vbbl+312N5kXj8abTGOgwZy6ASJYLCiqiiK5kHS0hDGEgfkB8g=="
+        "resolved": "2.3.2",
+        "contentHash": "Oh1qXXFdJFcHozvb4H6XYLf2W0meZFuG0A+TfapFPj9z5fd4vxiARGEhAaLj/6XWQaMYIv4SH/9Q6H78Hw0E2Q=="
       },
       "System.Runtime.CompilerServices.Unsafe": {
         "type": "Transitive",
@@ -74,7 +74,7 @@
       "imageflow.net": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.IO.RecyclableMemoryStream": "[1.2.*, 4.0.0)",
+          "Microsoft.IO.RecyclableMemoryStream": "[2.*, 4.0.0)",
           "System.Text.Json": "[6.*, )"
         }
       }
