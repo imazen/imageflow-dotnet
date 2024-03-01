@@ -1,17 +1,32 @@
-﻿namespace Imageflow.Bindings
+﻿using System.Runtime.InteropServices;
+using Imageflow.Internal.Helpers;
+
+namespace Imageflow.Bindings
 {
     
     /// <summary>
     /// An UnmanagedMemoryStream that checks that the underlying Imageflow context isn't in a disposed or errored state
     /// </summary>
-    /// <inheritdoc cref="UnmanagedMemoryStream"/>
+    /// <inheritdoc cref="UnmanagedMemoryStream"/>\
+    ///
+    [Obsolete("This class will be removed in a future version; it has no benefit over Memory<byte> and IMemoryOwner<byte>")]
     public sealed class ImageflowUnmanagedReadStream : UnmanagedMemoryStream
     {
         private readonly IAssertReady _underlying;
+        private SafeHandle? _handle;
+        private int _handleReferenced;
         
-        internal unsafe ImageflowUnmanagedReadStream(IAssertReady underlying, IntPtr buffer, UIntPtr length) : base( (byte*)buffer.ToPointer(), (long)length.ToUInt64(), (long)length.ToUInt64(), FileAccess.Read)
+        internal unsafe ImageflowUnmanagedReadStream(IAssertReady underlying, SafeHandle handle, IntPtr buffer, UIntPtr length) : base( (byte*)buffer.ToPointer(), (long)length.ToUInt64(), (long)length.ToUInt64(), FileAccess.Read)
         {
             _underlying = underlying;
+            _handle = handle;
+            var addRefSucceeded = false;
+            _handle.DangerousAddRef(ref addRefSucceeded);
+            _handleReferenced = addRefSucceeded ? 1 : 0;
+            if (!addRefSucceeded)
+            {
+                throw new ArgumentException("SafeHandle.DangerousAddRef failed", nameof(handle));
+            }
         }
 
         private void CheckSafe()
@@ -52,6 +67,16 @@
         {
             CheckSafe();
             return base.CopyToAsync(destination, bufferSize, cancellationToken);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            // Interlocked exchange to only release ref once
+            if (1 == Interlocked.Exchange(ref _handleReferenced, 0))
+            {
+                _handle?.DangerousRelease();
+                _handle = null;
+            }
         }
     }
 }

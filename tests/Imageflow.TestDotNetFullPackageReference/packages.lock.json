@@ -44,8 +44,8 @@
       },
       "Microsoft.IO.RecyclableMemoryStream": {
         "type": "Transitive",
-        "resolved": "2.3.2",
-        "contentHash": "Oh1qXXFdJFcHozvb4H6XYLf2W0meZFuG0A+TfapFPj9z5fd4vxiARGEhAaLj/6XWQaMYIv4SH/9Q6H78Hw0E2Q==",
+        "resolved": "3.0.0",
+        "contentHash": "irv0HuqoH8Ig5i2fO+8dmDNdFdsrO+DoQcedwIlb810qpZHBNQHZLW7C/AHBQDgLLpw2T96vmMAy/aE4Yj55Sg==",
         "dependencies": {
           "System.Memory": "4.5.5"
         }
@@ -126,7 +126,9 @@
       "imageflow.net": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.IO.RecyclableMemoryStream": "[2.*, 4.0.0)",
+          "Microsoft.IO.RecyclableMemoryStream": "[3.*, 4.0.0)",
+          "System.Buffers": "[4.*, )",
+          "System.Memory": "[4.*, )",
           "System.Text.Json": "[6.*, )"
         }
       }

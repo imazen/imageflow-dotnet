@@ -4,20 +4,34 @@ namespace Imageflow.Fluent
 {
     public class InputWatermark
     {
+        [Obsolete("Use InputWatermark(IMemorySource source, WatermarkOptions watermark) instead")]
         public InputWatermark(IBytesSource source, int ioId, WatermarkOptions watermark)
+        {
+            Source = source.ToMemorySource();
+            IoId = ioId;
+            Watermark = watermark;
+        }
+        [Obsolete("Use InputWatermark(IMemorySource source, WatermarkOptions watermark) instead")]
+        public InputWatermark(IBytesSource source, WatermarkOptions watermark)
+        {
+            Source = source.ToMemorySource();
+            Watermark = watermark;
+        }
+
+        public InputWatermark(IAsyncMemorySource source, WatermarkOptions watermark)
+        {
+            Source = source;
+            Watermark = watermark;
+        }
+        
+        public InputWatermark(IAsyncMemorySource source, int ioId, WatermarkOptions watermark)
         {
             Source = source;
             IoId = ioId;
             Watermark = watermark;
         }
         
-        public InputWatermark(IBytesSource source, WatermarkOptions watermark)
-        {
-            Source = source;
-            Watermark = watermark;
-        }
-        
-        public IBytesSource Source { get; set; }
+        public IAsyncMemorySource Source { get; set; }
         public int? IoId { get; set; }
         public WatermarkOptions Watermark { get; set;  }
 

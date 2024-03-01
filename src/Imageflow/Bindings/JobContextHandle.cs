@@ -1,11 +1,14 @@
 using System.Runtime.ConstrainedExecution;
+using Imageflow.Internal.Helpers;
 using Microsoft.Win32.SafeHandles;
 
 namespace Imageflow.Bindings
 {
     
     /// <summary>
-    /// The handle is ready even if there is an error condition stored in the context
+    /// The handle is ready even if there is an error condition stored in the context.
+    ///
+    /// AddRef and Release should be called. 
     /// </summary>
     internal sealed class JobContextHandle : SafeHandleZeroOrMinusOneIsInvalid, IAssertReady
     {

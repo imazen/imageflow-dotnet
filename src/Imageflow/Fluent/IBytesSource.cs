@@ -1,7 +1,10 @@
-﻿using Microsoft.IO;
+﻿using System.Buffers;
+using Imageflow.Internal.Helpers;
+using Microsoft.IO;
 
 namespace Imageflow.Fluent
 {
+    [Obsolete("Use IMemorySource instead")]
     public interface IBytesSource: IDisposable
     {
         /// <summary>
@@ -10,10 +13,11 @@ namespace Imageflow.Fluent
         /// <returns></returns>
         Task<ArraySegment<byte>> GetBytesAsync(CancellationToken cancellationToken);
     }
-    
+
     /// <summary>
-    /// Represents a source backed by an ArraySegment or byte[] array.
+    /// Represents a source backed by an ArraySegment or byte[] array. Use MemorySource for ReadOnlyMemory<byte> backed memory instead.
     /// </summary>
+    [Obsolete("Use MemorySource instead")]
     public readonly struct BytesSource : IBytesSource
     {
         public BytesSource(byte[] bytes)
@@ -34,16 +38,25 @@ namespace Imageflow.Fluent
         public void Dispose()
         {
         }
-        public Task<ArraySegment<byte>> GetBytesAsync(CancellationToken cancellationToken) => Task.FromResult(_bytes);
+
+        public Task<ArraySegment<byte>> GetBytesAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(_bytes);
+        }
         
+        public static implicit operator MemorySource(BytesSource source)
+        {
+            return new MemorySource(source._bytes);
+        }
     }
     /// <summary>
     /// Represents a image source that is backed by a Stream. 
     /// </summary>
+    [Obsolete("Use BufferedStreamSource instead")]
     public class StreamSource(Stream underlying, bool disposeUnderlying) : IBytesSource
     {
-        private static readonly RecyclableMemoryStreamManager Mgr 
-            = new RecyclableMemoryStreamManager();
+        private static readonly RecyclableMemoryStreamManager Mgr
+            = new();
         private RecyclableMemoryStream? _copy;
 
         public void Dispose()
@@ -70,17 +83,11 @@ namespace Imageflow.Fluent
             }
             var length = underlying.CanSeek ? underlying.Length : 0;
             if (length >= int.MaxValue) throw new OverflowException("Streams cannot exceed 2GB");
-            switch (underlying)
+            
+            if (underlying is MemoryStream underlyingMemoryStream &&
+                underlyingMemoryStream.TryGetBufferSliceAllWrittenData(out var underlyingBuffer))
             {
-                case RecyclableMemoryStream underlyingRecMemoryStream:
-                    return new ArraySegment<byte>(underlyingRecMemoryStream.GetBuffer(), 0,
-                        (int) length);
-                case MemoryStream underlyingMemoryStream:
-                    if (underlyingMemoryStream.TryGetBuffer(out var underlyingBuffer))
-                    {
-                        return underlyingBuffer;
-                    }
-                    break;
+                return underlyingBuffer;
             }
 
             if (_copy == null)
@@ -92,5 +99,24 @@ namespace Imageflow.Fluent
             return new ArraySegment<byte>(_copy.GetBuffer(), 0,
                 (int) _copy.Length);
         }
+
+        internal bool AsyncPreferred => _copy != null && underlying is not MemoryStream && underlying is not UnmanagedMemoryStream;
+
+        public static implicit operator BytesSourceAdapter(StreamSource source)
+        {
+            return new BytesSourceAdapter(source);
+        }
     }
+    
+    public static class BytesSourceExtensions
+    {
+#pragma warning disable CS0618 // Type or member is obsolete
+        public static IAsyncMemorySource ToMemorySource(this IBytesSource source)
+#pragma warning restore CS0618 // Type or member is obsolete
+        {
+           return new BytesSourceAdapter(source);
+        }
+    }
+
 }
+

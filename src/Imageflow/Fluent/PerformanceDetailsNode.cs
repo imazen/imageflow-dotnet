@@ -1,6 +1,6 @@
 namespace Imageflow.Fluent
 {
-    public struct PerformanceDetailsNode
+    public record struct PerformanceDetailsNode
     {
         
         public string Name { get; internal init; }

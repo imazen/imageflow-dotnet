@@ -49,25 +49,25 @@ namespace Imageflow.Fluent
         /// <returns></returns>
         public BuildEncodeResult? TryGet(int ioId) => _encodeResults.TryGetValue(ioId, out var result) ? result : null;
 
-        internal static BuildJobResult From(IJsonResponseProvider response, Dictionary<int, IOutputDestination> outputs)
+        internal static BuildJobResult From(IJsonResponse response, Dictionary<int, IOutputDestination> outputs)
         {
-            var v = response.DeserializeJsonNode();
-            if (v == null) throw new ImageflowAssertionFailed("BuildJobResult.From cannot parse response " + response.GetString());
+            var v = response.Parse();
+            if (v == null) throw new ImageflowAssertionFailed("BuildJobResult.From cannot parse response " + response.CopyString());
             bool? success = v.AsObject().TryGetPropertyValue("success", out var successValue) 
                 ? successValue?.GetValue<bool>() 
                 : null;
             switch (success)
             {
                 case false:
-                    throw new ImageflowAssertionFailed("BuildJobResult.From cannot convert a failure: " + response.GetString());
+                    throw new ImageflowAssertionFailed("BuildJobResult.From cannot convert a failure: " + response.CopyString());
                 case null:
-                    throw new ImageflowAssertionFailed("BuildJobResult.From cannot parse response " + response.GetString());
+                    throw new ImageflowAssertionFailed("BuildJobResult.From cannot parse response " + response.CopyString());
             }
             
             var data = v.AsObject().TryGetPropertyValue("data", out var dataValue) 
                 ? dataValue
                 : null;
-            if (data == null) throw new ImageflowAssertionFailed("BuildJobResult.From cannot parse response ('data' missing) " + response.GetString());
+            if (data == null) throw new ImageflowAssertionFailed("BuildJobResult.From cannot parse response ('data' missing) " + response.CopyString());
 
 
             // IEnumerable<dynamic> encodes = (v.data.job_result ?? v.data.build_result).encodes;
@@ -98,7 +98,7 @@ namespace Imageflow.Fluent
                 : null;
             
             if (jobResult == null) data.AsObject().TryGetPropertyValue("build_result", out jobResultValue);
-            if (jobResult == null) throw new ImageflowAssertionFailed("BuildJobResult.From cannot parse response (missing job_result or build_result) " + response.GetString());
+            if (jobResult == null) throw new ImageflowAssertionFailed("BuildJobResult.From cannot parse response (missing job_result or build_result) " + response.CopyString());
             
             var encodeResults = new List<BuildEncodeResult>();
             if (!jobResult.AsObject().TryGetPropertyValue("encodes", out var encodeArray))
@@ -111,7 +111,7 @@ namespace Imageflow.Fluent
             {
                 throw new ImageflowAssertionFailed("decodes = null");
             }
-            var requiredMessage = "BuildJobResult.From cannot parse response (missing required properties io_id, w, h, preferred_extension, or preferred_mime_type) " + response.GetString();    
+            var requiredMessage = "BuildJobResult.From cannot parse response (missing required properties io_id, w, h, preferred_extension, or preferred_mime_type) " + response.CopyString();    
 
             // Parse from JsonNode
             foreach (var encode in encodeArray?.AsArray() ?? [])

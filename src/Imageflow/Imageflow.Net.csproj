@@ -3,7 +3,7 @@
     <AssemblyName>Imageflow.Net</AssemblyName>
     <Description>Bindings for the Imageflow image processing library. Also remember to install Imageflow.NativeRuntime.[your platform] or use Imageflow.AllPlatforms instead.</Description>
 
-    <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;netstandard2.0;netstandard2.1</TargetFrameworks>
     <IsTrimmable Condition="'$(TargetFramework)' == 'net8.0'">true</IsTrimmable>
     <IsPackable>true</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -18,7 +18,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="[2.*,4)" /> 
+    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="[3.*,4)" /> 
+    <PackageReference Include="System.Memory" Version="[4.*,)" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
+    <PackageReference Include="System.Buffers" Version="[4.*,)" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
     <PackageReference Include="System.Text.Json" Version="[6.*,)"/>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,8 @@
 ﻿## Changelog
 
+
+InputWatermark.Source is now IMemorySource instead of IBytesSource
+
 ## v0.11 (2024-01-29)
 
 New features: 

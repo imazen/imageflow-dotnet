@@ -666,9 +666,19 @@ namespace Imageflow.Fluent
         /// <param name="source"></param>
         /// <param name="watermark"></param>
         /// <returns></returns>
+        [Obsolete("Use Watermark(IMemorySource source, ..) instead. BufferedStreamSource and MemorySource are preferred over BytesSource and StreamSource.")]
         public BuildNode Watermark(IBytesSource source, WatermarkOptions watermark) =>
-            Watermark(source, null, watermark);
+            Watermark(source.ToMemorySource(), null, watermark);
         
+        /// <summary>
+        /// Draw a watermark from the given BufferedStreamSource or MemorySource
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="watermark"></param>
+        /// <returns></returns>
+        public BuildNode Watermark(IAsyncMemorySource source, WatermarkOptions watermark) =>
+            Watermark(source, null, watermark);
+
         /// <summary>
         /// Draw a watermark from the given BytesSource or StreamSource
         /// </summary>
@@ -676,7 +686,20 @@ namespace Imageflow.Fluent
         /// <param name="ioId"></param>
         /// <param name="watermark"></param>
         /// <returns></returns>
+        [Obsolete("Use Watermark(IMemorySource source, ..) instead.  BufferedStreamSource and MemorySource are preferred over BytesSource and StreamSource.")]
         public BuildNode Watermark(IBytesSource source, int? ioId, WatermarkOptions watermark)
+        {
+            return Watermark(source.ToMemorySource(), ioId, watermark);
+        }
+
+        /// <summary>
+        /// Draw a watermark from the given BufferedStreamSource or MemorySource 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="ioId"></param>
+        /// <param name="watermark"></param>
+        /// <returns></returns>
+        public BuildNode Watermark(IAsyncMemorySource source, int? ioId, WatermarkOptions watermark)
         {
             ioId ??= Builder.GenerateIoId();
             Builder.AddInput(ioId.Value, source);
