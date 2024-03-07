@@ -18,6 +18,7 @@
 
     <EnablePackageValidation>true</EnablePackageValidation>
     <PackageValidationBaselineVersion>0.10.2</PackageValidationBaselineVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
