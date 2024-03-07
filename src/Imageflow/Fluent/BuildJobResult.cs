@@ -9,7 +9,7 @@ namespace Imageflow.Fluent
     {
         
         [Obsolete("Use ImageJob.FinishAsync() to get a result; you should never create a BuildJobResult directly.")]
-        public BuildJobResult(){
+        internal BuildJobResult(){
             _encodeResults = new Dictionary<int, BuildEncodeResult>();
             DecodeResults = new List<BuildDecodeResult>();
             EncodeResults = new List<BuildEncodeResult>();

@@ -16,6 +16,7 @@ It is now possible to provide ReadOnlyMemory<byte> data and IOwnedMemory<byte> d
 ## v0.12 (2024-02-06)
 
 * Fix compatibility with RecyclableMemoryStream 3.x, drop compatibility with 1.x
+* Remove default constructor on BuildJobResult and BuildEncodeResult; these are not user-created types.  
 
 ## v0.11 (2024-01-29)
 

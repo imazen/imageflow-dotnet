@@ -14,7 +14,7 @@ namespace Imageflow.Fluent
         //     Destination = destination;
         // }
         
-        public BuildEncodeResult()
+        internal BuildEncodeResult()
         {
         }
         // maps to "preferred_mime_type" in json
