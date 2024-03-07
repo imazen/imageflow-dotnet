@@ -2,11 +2,16 @@
 
 ## v0.13
 
-This release makes user-facing changes: 
+This release makes user-facing changes with deprecation warnings. Please review your build warnings to avoid breakage in the future.
 
+* There are new classes for attaching source image data to jobs; use MemorySource.* over ByteSource and BufferedStreamSource.* instead of StreamSource.
+* Microsoft.IO.RecyclableMemoryStream 3.x is now required
+* System.Buffers and System.Memory 4.x+ are now required on .NET 4.x / .NET Standard 2.0
+* InputWatermark.Source is now IMemorySource instead of IBytesSource
 
+It also makes lots of internal changes to increase performance, eliminate unnecessary allocations/copies, and improve compatibility with AOT and trimming.
 
-InputWatermark.Source is now IMemorySource instead of IBytesSource\
+It is now possible to provide ReadOnlyMemory<byte> data and IOwnedMemory<byte> data, without copying to a byte[] array. The new IAsyncMemorySource interface allows for asynchronous data sources, and the new IMemorySource interface allows for synchronous data sources. 
 
 ## v0.12 (2024-02-06)
 
