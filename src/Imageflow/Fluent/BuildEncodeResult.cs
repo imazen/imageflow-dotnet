@@ -1,6 +1,6 @@
 namespace Imageflow.Fluent
 {
-    public class BuildEncodeResult
+    public record class BuildEncodeResult
     {
         // internal BuildEncodeResult(string preferredMimeType, 
         //     string preferredExtension, int ioId, int width, int height, IOutputDestination destination)
@@ -14,7 +14,7 @@ namespace Imageflow.Fluent
         //     Destination = destination;
         // }
         
-        internal BuildEncodeResult()
+        public BuildEncodeResult()
         {
         }
         // maps to "preferred_mime_type" in json

@@ -7,8 +7,6 @@ namespace Imageflow.Internal.Helpers;
 // The .NET Foundation licenses this file to you under the MIT license.
 // Imazen licenses any changes to th
 
-#nullable enable
-
 internal static partial class ArgumentNullThrowHelper
 {
     /// <summary>Throws an <see cref="ArgumentNullException"/> if <paramref name="argument"/> is null.</summary>
@@ -37,4 +35,20 @@ internal static partial class ArgumentNullThrowHelper
     internal static void Throw(string? paramName) =>
         throw new ArgumentNullException(paramName);
 #endif
+}
+
+internal static class ObjectDisposedHelper
+{
+    public static void ThrowIf([DoesNotReturnIf(true)]bool condition, object instance)
+    {
+#if NET8_0_OR_GREATER
+
+        ObjectDisposedException.ThrowIf(condition, instance);
+#else 
+        if (condition)
+        {
+            throw new ObjectDisposedException(instance?.GetType().Name);
+        }
+#endif
+    }
 }

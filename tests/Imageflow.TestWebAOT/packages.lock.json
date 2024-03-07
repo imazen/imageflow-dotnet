@@ -4,9 +4,9 @@
     "net8.0": {
       "Microsoft.DotNet.ILCompiler": {
         "type": "Direct",
-        "requested": "[8.0.1, )",
-        "resolved": "8.0.1",
-        "contentHash": "vEmBtYRsH2gpnUJ9p7ElgB2UZSx5+CF2nHVr2QJ/3kzlfAYBxqXMx3VmQcxOcrsDEuF4/n1VH95qobrj8xnPdw=="
+        "requested": "[8.0.2, )",
+        "resolved": "8.0.2",
+        "contentHash": "rGE3+673xn1iZJCoMIuUb9lhqje4DiCB+qTyPAJ97Bw15c4N69ZbMAO/GJyxchaoLJCHIPXP52hwxEzqrllwCg=="
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",

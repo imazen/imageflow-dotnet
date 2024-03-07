@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 using Imageflow.Fluent;
 using Xunit;
 using Xunit.Abstractions;
@@ -49,7 +48,7 @@ public class TestJson
                     .RoundAllImageCornersPercent(100, AnyColor.Black)
                     .RoundAllImageCorners(1, AnyColor.Transparent)
                     .ConstrainWithin(5, 5)
-                    .Watermark(new BytesSource(Array.Empty<byte>()),
+                    .Watermark(new MemorySource(new byte[]{}),
                         new WatermarkOptions()
                             .SetMarginsLayout(
                                 new WatermarkMargins(WatermarkAlign.Image, 1, 1, 1, 1),

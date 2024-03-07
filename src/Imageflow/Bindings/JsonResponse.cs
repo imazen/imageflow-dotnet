@@ -123,15 +123,12 @@ namespace Imageflow.Bindings
         
         public unsafe ReadOnlySpan<byte> BorrowBytes()
         {
-            unsafe
-            {
-                Read(out var _, out var utf8Buffer, out var bufferSize);
-                if (utf8Buffer == IntPtr.Zero) return ReadOnlySpan<byte>.Empty;
-                if (bufferSize == UIntPtr.Zero) return ReadOnlySpan<byte>.Empty;
-                if (bufferSize.ToUInt64() > int.MaxValue) throw new ArgumentOutOfRangeException(nameof(bufferSize));
+            Read(out var _, out var utf8Buffer, out var bufferSize);
+            if (utf8Buffer == IntPtr.Zero) return ReadOnlySpan<byte>.Empty;
+            if (bufferSize == UIntPtr.Zero) return ReadOnlySpan<byte>.Empty;
+            if (bufferSize.ToUInt64() > int.MaxValue) throw new ArgumentOutOfRangeException(nameof(bufferSize));
 
-                return new ReadOnlySpan<byte>((void*)utf8Buffer, (int)bufferSize);
-            }
+            return new ReadOnlySpan<byte>((void*)utf8Buffer, (int)bufferSize);
         }
         
         public MemoryManager<byte> BorrowMemory()

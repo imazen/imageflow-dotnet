@@ -1,7 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Imageflow.Bindings;
-
-namespace Imageflow.Fluent;
+﻿namespace Imageflow.Fluent;
 
 public interface IAsyncMemorySource: IDisposable
 {

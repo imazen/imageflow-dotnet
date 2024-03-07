@@ -81,7 +81,7 @@ namespace Imageflow.IO
             };
 
             var standardErrorResults = new TaskCompletionSource<string[]>();
-            process.ErrorDataReceived += (sender, args) => {
+            process.ErrorDataReceived += (_, args) => {
                 if (args.Data != null)
                     standardError.Add(args.Data);
                 else

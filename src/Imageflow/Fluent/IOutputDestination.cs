@@ -126,6 +126,7 @@ namespace Imageflow.Fluent
         private MemoryStream? _m;
         public void Dispose()
         {
+            
         }
 
         public Task RequestCapacityAsync(int bytes)

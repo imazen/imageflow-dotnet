@@ -1,7 +1,16 @@
 ﻿## Changelog
 
+## v0.13
 
-InputWatermark.Source is now IMemorySource instead of IBytesSource
+This release makes user-facing changes: 
+
+
+
+InputWatermark.Source is now IMemorySource instead of IBytesSource\
+
+## v0.12 (2024-02-06)
+
+* Fix compatibility with RecyclableMemoryStream 3.x, drop compatibility with 1.x
 
 ## v0.11 (2024-01-29)
 
@@ -23,6 +32,10 @@ public static dynamic? DeserializeDynamic(this IJsonResponseProvider p)
 
 public static T? Deserialize<T>(this IJsonResponseProvider p) where T : class
 ```
+
+To accommodate the shift to `System.Text.Json`, interface members `ToJsonNode()` have been added to `IEncoderPreset` and `IWatermarkConstraintBox`. Nobody should be implementing these anyway, other than the Imageflow library itself.
+
+The `object` parameter in `BuildItemBase` protected constructor has been changed to `System.Text.Json.Nodes.JsonNode`.
 
 Deprecated lots of APIs, including the following:
 ```

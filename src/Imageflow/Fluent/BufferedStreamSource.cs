@@ -20,7 +20,7 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
     }
     
     private readonly bool _seekToStart;
-    private readonly Stream _underlying;
+    private Stream? _underlying;
     private readonly bool _disposeUnderlying;
 
     private static readonly RecyclableMemoryStreamManager Mgr
@@ -33,14 +33,18 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
         if (_disposeUnderlying)
         {
             _underlying?.Dispose();
+            _underlying = null;
         }
 
         _copy?.Dispose();
+        _copy = null;
+        
     }
     
     private bool TryGetWrittenMemory(
         out ReadOnlyMemory<byte> memory)
     {
+        ObjectDisposedHelper.ThrowIf(_underlying == null, this);
         var memStream = _underlying as MemoryStream ?? _copy;
         if (memStream != null)
         {
@@ -65,6 +69,7 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
     /// <exception cref="OverflowException"></exception>
     public async ValueTask<ReadOnlyMemory<byte>> BorrowReadOnlyMemoryAsync(CancellationToken cancellationToken)
     {
+        ObjectDisposedHelper.ThrowIf(_underlying == null, this);
         if (TryGetWrittenMemory(out var segment))
         {
             return segment;
@@ -85,6 +90,7 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
     
     public ReadOnlyMemory<byte> BorrowReadOnlyMemory()
     {
+        ObjectDisposedHelper.ThrowIf(_underlying == null, this);
         if (TryGetWrittenMemory(out var segment))
         {
             return segment;
@@ -107,19 +113,50 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
     public bool AsyncPreferred => _underlying is not MemoryStream && _underlying is not UnmanagedMemoryStream;
 
 
+    /// <summary>
+    /// Seeks to the beginning of the stream before reading.
+    /// You swear not to close, dispose, or reuse the stream or its underlying memory/stream until after this wrapper and the job are disposed.
+    /// <strong>You remain responsible for disposing and cleaning up the stream after the job is disposed.</strong>
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <returns></returns>
     public static IAsyncMemorySource BorrowEntireStream(Stream stream)
     {
         return new BufferedStreamSource(stream, false, true);
     }
+    /// <summary>
+    /// <strong>You remain responsible for disposing and cleaning up the stream after the job is disposed.</strong>
+    /// Only reads from the current position to the end of the image file. 
+    /// You swear not to close, dispose, or reuse the stream or its underlying memory/stream until after this wrapper and the job are disposed.
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <returns></returns>
     public static IAsyncMemorySource BorrowStreamRemainder(Stream stream)
     {
         return new BufferedStreamSource(stream, false, false);
     }
-    public static IAsyncMemorySource UseEntireStreamAndDispose(Stream stream)
+    
+    /// <summary>
+    /// The stream will be closed and disposed with the BufferedStreamSource. You must not close, dispose, or reuse the stream or its underlying streams/buffers until after the job and the owning objects are disposed.
+    /// <remarks>You must not close, dispose, or reuse the stream or its underlying streams/buffers until after the job and the owning objects are disposed. <br/>
+    ///
+    /// The BufferedStreamSource will still need to be disposed after the job, either with a using declaration or by transferring ownership of it to the job (which should be in a using declaration).</remarks>
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <returns></returns>
+    public static IAsyncMemorySource UseEntireStreamAndDisposeWithSource(Stream stream)
     {
         return new BufferedStreamSource(stream, true, true);
     }
-    public static IAsyncMemorySource UseStreamRemainderAndDispose(Stream stream)
+    
+    /// <summary>
+    /// The stream will be closed and disposed with the BufferedStreamSource.
+    /// <strong>You must not close, dispose, or reuse the stream or its underlying streams/buffers until after the job and the owning objects are disposed.</strong>
+    /// strong>The BufferedStreamSource will still need to be disposed after the job, either with a using declaration or by transferring ownership of it to the job (which should be in a using declaration).</strong>
+    /// </summary>
+    /// <param name="stream"></param>
+    /// <returns></returns>
+    public static IAsyncMemorySource UseStreamRemainderAndDisposeWithSource(Stream stream)
     {
         return new BufferedStreamSource(stream, true, false);
     }

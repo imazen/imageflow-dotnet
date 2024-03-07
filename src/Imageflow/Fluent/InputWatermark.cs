@@ -4,14 +4,14 @@ namespace Imageflow.Fluent
 {
     public class InputWatermark
     {
-        [Obsolete("Use InputWatermark(IMemorySource source, WatermarkOptions watermark) instead")]
+        [Obsolete("Call .ToMemorySource() on the source to use InputWatermark(IMemorySource source, WatermarkOptions watermark instead. For improved performance, use the new BufferedStreamSource and MemorySource classes directly.")]
         public InputWatermark(IBytesSource source, int ioId, WatermarkOptions watermark)
         {
             Source = source.ToMemorySource();
             IoId = ioId;
             Watermark = watermark;
         }
-        [Obsolete("Use InputWatermark(IMemorySource source, WatermarkOptions watermark) instead")]
+        [Obsolete("Call .ToMemorySource() on the source to use InputWatermark(IMemorySource source, WatermarkOptions watermark instead. For improved performance, use the new BufferedStreamSource and MemorySource classes directly.")]
         public InputWatermark(IBytesSource source, WatermarkOptions watermark)
         {
             Source = source.ToMemorySource();

@@ -533,7 +533,7 @@ namespace Imageflow.Bindings
     [SecurityCritical]
     internal static class UnixLoadLibrary
     {
-        // TODO: unsure if this works on Mac OS X; it might be libc instead
+        // TODO: unsure if this works on Mac OS X; it might be libc instead. dncore works, but mono is untested
         [DllImport("libdl.so", SetLastError = true, CharSet = CharSet.Ansi)]
         private static extern IntPtr dlopen(string fileName, int flags);
 

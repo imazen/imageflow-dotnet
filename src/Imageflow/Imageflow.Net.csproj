@@ -15,6 +15,9 @@
     <PolySharpIncludeRuntimeSupportedAttributes>true</PolySharpIncludeRuntimeSupportedAttributes>
     <RootNamespace>Imageflow</RootNamespace>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageValidationBaselineVersion>0.10.2</PackageValidationBaselineVersion>
   </PropertyGroup>
 
   <ItemGroup>

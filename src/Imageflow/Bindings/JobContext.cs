@@ -241,7 +241,7 @@ namespace Imageflow.Bindings
         {
             AssertReady();
 #if NETSTANDARD2_1_OR_GREATER
-            // TODO: Use ArrayPoolBufferWriter instead? Adds CommunityToolkit.HighPerformance dependency
+            // MAYBE: Use ArrayPoolBufferWriter instead? Adds CommunityToolkit.HighPerformance dependency
             var writer = new ArrayBufferWriter<byte>(4096);
             var utf8JsonWriter = new Utf8JsonWriter(writer, new JsonWriterOptions
             {

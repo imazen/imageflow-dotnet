@@ -1,5 +1,4 @@
-﻿using System.Buffers;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
@@ -53,7 +52,7 @@ namespace Imageflow.Fluent
         public BuildNode Decode(Stream source, bool disposeStream) => Decode( source, disposeStream, GenerateIoId());
         
         public BuildNode Decode(Stream source, bool disposeStream, int ioId) => 
-            Decode( disposeStream ? BufferedStreamSource.UseEntireStreamAndDispose(source) 
+            Decode( disposeStream ? BufferedStreamSource.UseEntireStreamAndDisposeWithSource(source) 
                 : BufferedStreamSource.BorrowEntireStream(source), ioId);
         
 
@@ -127,21 +126,21 @@ namespace Imageflow.Fluent
 
 
         
-        [Obsolete("Use overloads that take a MemorySource")]
+        [Obsolete("Use a BufferedStreamSource or MemorySource for the source parameter instead")]
         public BuildEndpoint BuildCommandString(IBytesSource source, IOutputDestination dest, string commandString) => BuildCommandString(source, null, dest, null, commandString);
-        [Obsolete("Use overloads that take a MemorySource")]
+        [Obsolete("Use a BufferedStreamSource or MemorySource for the source parameter instead")]
         public BuildEndpoint BuildCommandString(IBytesSource source, int? sourceIoId, IOutputDestination dest,
             int? destIoId, string commandString)
             => BuildCommandString(source, sourceIoId, dest, destIoId, commandString, null);
         
 
 
-        [Obsolete("Use overloads that take a MemorySource")]
+        [Obsolete("Use a BufferedStreamSource or MemorySource for the source parameter instead")]
         public BuildEndpoint BuildCommandString(IBytesSource source, IOutputDestination dest, string commandString,
             ICollection<InputWatermark>? watermarks)
             => BuildCommandString(source, null, dest, null, commandString, watermarks);
         
-        [Obsolete("Use overloads that take a MemorySource")]
+        [Obsolete("Use a BufferedStreamSource or MemorySource for the source parameter instead")]
         public BuildEndpoint BuildCommandString(IBytesSource source, int? sourceIoId, IOutputDestination dest,
             int? destIoId, string commandString, ICollection<InputWatermark>? watermarks)
         {
@@ -405,7 +404,7 @@ namespace Imageflow.Fluent
                     job.Cleanup.Add(file);
                     return (io_id: pair.Key, direction: "in",
                         io: new JsonObject {{"file", file.Path}},
-                        bytes, Length: bytes.Length, File: file);
+                        bytes, bytes.Length, File: file);
   
                 }))).ToArray();
                 
@@ -689,7 +688,7 @@ namespace Imageflow.Fluent
         /// </summary>
         /// <param name="image"></param>
         /// <returns></returns>
-        [Obsolete("Use GetImageInfoAsync(IMemorySource ...) instead; this method disposes the source and will be removed in a future version")]
+        [Obsolete("Use GetImageInfoAsync(IMemorySource, DataLifetime) instead; this method is less efficient and lacks clarity on disposing the source.")]
         public static Task<ImageInfo> GetImageInfo(IBytesSource image)
             => GetImageInfo(image, CancellationToken.None);
         
@@ -700,7 +699,7 @@ namespace Imageflow.Fluent
         /// <param name="image"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        [Obsolete("Use GetImageInfoAsync(IMemorySource ..) instead; this method disposes the source and will be removed in a future version")]
+        [Obsolete("Use GetImageInfoAsync(IMemorySource, DataLifetime) instead; this method is less efficient and lacks clarity on disposing the source.")]
         public static async Task<ImageInfo> GetImageInfo(IBytesSource image, CancellationToken cancellationToken)
         {
             try
@@ -723,29 +722,51 @@ namespace Imageflow.Fluent
         /// Does NOT dispose the IMemorySource.
         /// </summary>
         /// <param name="image"></param>
+        /// <param name="disposeSource"></param>
         /// <returns></returns>
-        public static ImageInfo GetImageInfo(IMemorySource image)
+        public static ImageInfo GetImageInfo(IMemorySource image, SourceLifetime disposeSource)
         {
-            var inputMemory = image.BorrowReadOnlyMemory();
-            using var ctx = new JobContext();
-            ctx.AddInputBytesPinned(0, inputMemory, MemoryLifetimePromise.MemoryValidUntilAfterJobDisposed);
-            return ctx.GetImageInfo(0);
+            try
+            {
+                var inputMemory = image.BorrowReadOnlyMemory();
+                using var ctx = new JobContext();
+                ctx.AddInputBytesPinned(0, inputMemory, MemoryLifetimePromise.MemoryValidUntilAfterJobDisposed);
+                return ctx.GetImageInfo(0);
+            }finally
+            {
+                if (disposeSource != SourceLifetime.Borrowed)
+                {
+                    image.Dispose();
+                }
+            }
         }
-        
+
         /// <summary>
         /// Returns dimensions and format of the provided image stream or memory.
         /// Does not offload processing to a thread pool; will be CPU bound unless IMemorySource is not yet in memory.
         /// Does not dispose the IMemorySource.
         /// </summary>
         /// <param name="image"></param>
+        /// <param name="disposeSource"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public static async ValueTask<ImageInfo> GetImageInfoAsync(IAsyncMemorySource image, CancellationToken cancellationToken = default)
+        public static async ValueTask<ImageInfo> GetImageInfoAsync(IAsyncMemorySource image, SourceLifetime disposeSource, CancellationToken cancellationToken = default)
         {
-            var inputMemory = await image.BorrowReadOnlyMemoryAsync(cancellationToken);
-            using var ctx = new JobContext();
-            ctx.AddInputBytesPinned(0, inputMemory, MemoryLifetimePromise.MemoryValidUntilAfterJobDisposed);
-            return ctx.GetImageInfo(0);
+            try
+            {
+                var inputMemory = await image.BorrowReadOnlyMemoryAsync(cancellationToken);
+                if (inputMemory.Length == 0) throw new ArgumentException("Input image is empty");
+                if (cancellationToken.IsCancellationRequested) throw new TaskCanceledException();
+                using var ctx = new JobContext();
+                ctx.AddInputBytesPinned(0, inputMemory, MemoryLifetimePromise.MemoryValidUntilAfterJobDisposed);
+                return ctx.GetImageInfo(0);
+            }finally
+            {
+                if (disposeSource != SourceLifetime.Borrowed)
+                {
+                    image.Dispose();
+                }
+            }
         }
         /// <summary>
         /// Returns true if it is likely that Imageflow can decode the given image based on the first 12 bytes of the file. 

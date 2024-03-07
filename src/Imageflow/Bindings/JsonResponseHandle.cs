@@ -22,11 +22,9 @@ namespace Imageflow.Bindings
             {
                 throw new ArgumentException("SafeHandle.DangerousAddRef failed", nameof(parent));
             }
-            _handleReferenced = addRefSucceeded ? 1 : 0;
 
         }
 
-        private int _handleReferenced = 0;
         public JobContextHandle ParentContext { get; }
 
         public bool IsValid => !IsInvalid && !IsClosed && ParentContext.IsValid;

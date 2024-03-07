@@ -387,7 +387,7 @@ namespace Imageflow.Fluent
         /// <param name="hints"></param>
         /// <param name="blend"></param>
         /// <returns></returns>
-        public BuildNode DrawImageExactTo(BuildNode canvas, Rectangle to, ResampleHints hints, CompositingMode? blend) 
+        public BuildNode DrawImageExactTo(BuildNode canvas, Rectangle to, ResampleHints? hints, CompositingMode? blend) 
         //     => NodeWithCanvas(canvas, new
         // {
         //     draw_image_exact = new

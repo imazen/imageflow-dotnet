@@ -16,7 +16,8 @@ namespace Imageflow.Test
         }
 
         [Fact]
-        public async void TestGetImageInfo()
+        [Obsolete("Obsolete")]
+        public async void TestGetImageInfoLegacy()
         {
             var imageBytes = Convert.FromBase64String(
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
@@ -30,6 +31,37 @@ namespace Imageflow.Test
             Assert.Equal(PixelFormat.Bgra_32, info.FrameDecodesInto);
         }
         
+        // test the new GetImageInfoAsync
+        [Fact]
+        public async void TestGetImageInfoAsync()
+        {
+            var imageBytes = Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+            var info = await ImageJob.GetImageInfoAsync(new MemorySource(imageBytes),SourceLifetime.NowOwnedAndDisposedByTask);
+            
+            Assert.Equal(1, info.ImageWidth);
+            Assert.Equal(1, info.ImageHeight);
+            Assert.Equal("png", info.PreferredExtension);
+            Assert.Equal("image/png", info.PreferredMimeType);
+            Assert.Equal(PixelFormat.Bgra_32, info.FrameDecodesInto);
+        }
+
+        // Test GetImageInfo 
+        [Fact]
+        public void TestGetImageInfoSync()
+        {
+            var imageBytes = Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+            var info = ImageJob.GetImageInfo(new MemorySource(imageBytes),SourceLifetime.NowOwnedAndDisposedByTask);
+            
+            Assert.Equal(1, info.ImageWidth);
+            Assert.Equal(1, info.ImageHeight);
+            Assert.Equal("png", info.PreferredExtension);
+            Assert.Equal("image/png", info.PreferredMimeType);
+            Assert.Equal(PixelFormat.Bgra_32, info.FrameDecodesInto);
+        }
 
 
         [Fact]
@@ -85,7 +117,7 @@ namespace Imageflow.Test
                     .RoundAllImageCornersPercent(100, AnyColor.Black)
                     .RoundAllImageCorners(1, AnyColor.Transparent)
                     .ConstrainWithin(5, 5)
-                    .Watermark(new BytesSource(imageBytes), 
+                    .Watermark(new MemorySource(imageBytes), 
                         new WatermarkOptions()
                             .SetMarginsLayout(
                                 new WatermarkMargins(WatermarkAlign.Image, 1,1,1,1), 
@@ -230,7 +262,7 @@ namespace Imageflow.Test
             {
                 
                 var r = await b.BuildCommandString(
-                    new BytesSource(imageBytes), // or new StreamSource(Stream stream, bool disposeStream)
+                    new MemorySource(imageBytes), // or new StreamSource(Stream stream, bool disposeStream)
                     new BytesDestination(), // or new StreamDestination
                     "width=3&height=2&mode=stretch&scale=both&format=webp")
                     .Finish().InProcessAsync();
@@ -243,7 +275,8 @@ namespace Imageflow.Test
         }
         
         [Fact]
-        public async Task TestBuildCommandStringWithWatermarks()
+        [Obsolete("Obsolete")]
+        public async Task TestBuildCommandStringWithWatermarksLegacy()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
             using (var b = new ImageJob())
@@ -263,8 +296,31 @@ namespace Imageflow.Test
             }
 
         }
+        
         [Fact]
-        public async Task TestBuildCommandStringWithStreamsAndWatermarks()
+        public async Task TestBuildCommandStringWithWatermarks()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            using (var b = new ImageJob())
+            {
+                var watermarks = new List<InputWatermark>();
+                watermarks.Add(new InputWatermark(new MemorySource(imageBytes), new WatermarkOptions()));
+                watermarks.Add(new InputWatermark(new MemorySource(imageBytes), new WatermarkOptions().SetGravity(new ConstraintGravity(100,100))));
+                
+                var r = await b.BuildCommandString(
+                    new MemorySource(imageBytes), 
+                    new BytesDestination(), 
+                    "width=3&height=2&mode=stretch&scale=both&format=webp",watermarks).Finish().InProcessAsync();
+
+                Assert.Equal(3, r.First!.Width);
+                Assert.Equal("webp", r.First.PreferredExtension);
+                Assert.True(r.First.TryGetBytes().HasValue);
+            }
+
+        }
+        [Fact]
+        [Obsolete("Obsolete")]
+        public async Task TestBuildCommandStringWithStreamsAndWatermarksLegacy()
         {
             var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
             // var stream1 = new BufferedStream(new System.IO.MemoryStream(imageBytes));
@@ -292,7 +348,32 @@ namespace Imageflow.Test
 
         }
         
-        
+        [Fact]
+        public async Task TestBuildCommandStringWithStreamsAndWatermarks()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            // var stream1 = new BufferedStream(new System.IO.MemoryStream(imageBytes));
+            // var stream2 = new BufferedStream(new System.IO.MemoryStream(imageBytes));
+            var stream1 = new BufferedStream(new MemoryStream(imageBytes));
+            Assert.Equal(137, stream1.ReadByte());
+            stream1.Seek(0, SeekOrigin.Begin);
+            var stream2 = new BufferedStream(new MemoryStream(imageBytes));
+            var stream3 = new BufferedStream(new MemoryStream(imageBytes));
+            using var b = new ImageJob();
+            var watermarks = new List<InputWatermark>();
+            watermarks.Add(new InputWatermark(BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream1), new WatermarkOptions()));
+            watermarks.Add(new InputWatermark(BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream2), new WatermarkOptions().SetGravity(new ConstraintGravity(100,100))));
+                
+            var r = await b.BuildCommandString(
+                BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream3), 
+                new BytesDestination(), 
+                "width=3&height=2&mode=stretch&scale=both&format=webp",watermarks).Finish().InProcessAsync();
+
+            Assert.Equal(3, r.First!.Width);
+            Assert.Equal("webp", r.First.PreferredExtension);
+            Assert.True(r.First.TryGetBytes().HasValue);
+        }
+
         [Fact]
         public async Task TestFilesystemJobPrep()
         {
@@ -381,7 +462,7 @@ namespace Imageflow.Test
                     JpegDownscalingMode = DecoderDownscalingMode.Fastest,
                     DiscardColorProfile = true
                 };
-                var r = await b.Decode(new BytesSource(imageBytes), 0, cmd)
+                var r = await b.Decode(new MemorySource(imageBytes), 0, cmd)
                     .Distort(30, 20, new ResampleHints().SetSharpen(50.0f, SharpenWhen.Always).SetResampleFilters(InterpolationFilter.Robidoux_Fast, InterpolationFilter.Cubic))
                     .ConstrainWithin(5, 5)
                     .EncodeToBytes(new LodePngEncoder()).Finish().InProcessAsync();
