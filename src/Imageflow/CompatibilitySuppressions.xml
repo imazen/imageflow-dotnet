@@ -59,13 +59,6 @@
   </Suppression>
   <Suppression>
     <DiagnosticId>CP0009</DiagnosticId>
-    <Target>T:Imageflow.Fluent.BuildEncodeResult</Target>
-    <Left>lib/netstandard2.0/Imageflow.Net.dll</Left>
-    <Right>lib/netstandard2.0/Imageflow.Net.dll</Right>
-    <IsBaselineSuppression>true</IsBaselineSuppression>
-  </Suppression>
-  <Suppression>
-    <DiagnosticId>CP0009</DiagnosticId>
     <Target>T:Imageflow.Fluent.BuildJobResult</Target>
     <Left>lib/netstandard2.0/Imageflow.Net.dll</Left>
     <Right>lib/netstandard2.0/Imageflow.Net.dll</Right>

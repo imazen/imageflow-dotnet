@@ -78,6 +78,27 @@ public class TestJson
                 else
                     Console.Error.WriteLine(e.ToString());
             }
+            
+            // For using SystemTextJson.JsonDiffPatch, which fails to diff rn, and also requires Json 8.0
+            // var expectedJson =
+            //     JsonNode.Parse(SortPropertiesRecursive(JsonNode.Parse(expected))!.ToString()); //JsonNode.Parse(expected);
+            // var actualJson =
+            //     JsonNode.Parse(SortPropertiesRecursive(JsonNode.Parse(jsonStr))!.ToString()); //JsonNode.Parse(jsonStr);
+            // try
+            // {
+            //     JsonAssert.Equal(expectedJson, actualJson);
+            //
+            // }
+            // catch (Exception e)
+            // {
+            //     Console.Error.WriteLine("Expected: " + expectedJson);
+            //     Console.Error.WriteLine("Actual: " + actualJson);
+            //     // Don't throw on CI
+            //     if (Environment.GetEnvironmentVariable("CI") == null)
+            //         throw;
+            //     else
+            //         Console.Error.WriteLine(e.ToString());
+            // }
         }
 
         private static JsonNode? SortPropertiesRecursive(JsonNode? n)
