@@ -6,7 +6,7 @@ namespace Imageflow.Fluent;
 
 public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
 {
-    private BufferedStreamSource(Stream stream, bool disposeUnderlying, bool seekToStart = true)
+    private BufferedStreamSource(Stream stream, bool disposeUnderlying, bool seekToStart)
     {
         if (stream.Position != 0 && !stream.CanSeek && seekToStart)
         {
@@ -129,7 +129,7 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
     }
     /// <summary>
     /// <strong>You remain responsible for disposing and cleaning up the stream after the job is disposed.</strong>
-    /// Only reads from the current position to the end of the image file. 
+    /// Only reads from the current position to the end of the image file.
     /// You swear not to close, dispose, or reuse the stream or its underlying memory/stream until after this wrapper and the job are disposed.
     /// </summary>
     /// <param name="stream"></param>
@@ -154,8 +154,8 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
 
     /// <summary>
     /// The stream will be closed and disposed with the BufferedStreamSource.
-    /// <strong>You must not close, dispose, or reuse the stream or its underlying streams/buffers until after the job and the owning objects are disposed.</strong>
-    /// strong>The BufferedStreamSource will still need to be disposed after the job, either with a using declaration or by transferring ownership of it to the job (which should be in a using declaration).</strong>
+    /// <remarks>You must not close, dispose, or reuse the stream or its underlying streams/buffers until after the job and the owning objects are disposed.
+    /// The BufferedStreamSource will still need to be disposed after the job, either with a using declaration or by transferring ownership of it to the job (which should be in a using declaration).</remarks>
     /// </summary>
     /// <param name="stream"></param>
     /// <returns></returns>

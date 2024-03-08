@@ -1,7 +1,7 @@
 using System.Buffers;
 using System.Runtime.CompilerServices;
 
-namespace Imageflow.Internal.Helpers;
+namespace Imageflow.Internal.Helpers.Unused;
 
 internal unsafe class UnmanagedMemoryManager : MemoryManager<byte>
 {

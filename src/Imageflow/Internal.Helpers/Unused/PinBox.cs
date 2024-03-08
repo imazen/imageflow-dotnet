@@ -1,7 +1,7 @@
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 
-namespace Imageflow.Internal.Helpers;
+namespace Imageflow.Internal.Helpers.Unused;
 
 internal class PinBox : CriticalFinalizerObject, IDisposable
 {

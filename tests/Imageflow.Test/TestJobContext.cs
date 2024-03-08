@@ -8,8 +8,9 @@ using Newtonsoft.Json;
 
 using Xunit;
 using Xunit.Abstractions;
-
+#if NET8_0_OR_GREATER
 using JsonNamingPolicy = System.Text.Json.JsonNamingPolicy;
+#endif
 using JsonSerializerOptions = System.Text.Json.JsonSerializerOptions;
 #pragma warning disable CS0618 // Type or member is obsolete
 
