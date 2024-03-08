@@ -35,7 +35,6 @@ public static class IOutputDestinationExtensions
         await dest.FlushAsync(cancellationToken);
     }
 
-
     internal static async ValueTask AdaptedWriteAsync(this IOutputDestination dest, ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
     {
         if (MemoryMarshal.TryGetArray(data, out ArraySegment<byte> segment))
@@ -78,7 +77,6 @@ public static class IOutputDestinationExtensions
             ArrayPool<byte>.Shared.Return(rent);
         }
     }
-
 
     // internal static IAsyncOutputSink ToAsyncOutputSink(this IOutputDestination dest, bool disposeUnderlying = true)
     // {

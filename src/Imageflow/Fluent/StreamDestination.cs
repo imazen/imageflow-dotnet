@@ -7,18 +7,29 @@ public class StreamDestination(Stream underlying, bool disposeUnderlying) : IOut
 {
     public void Dispose()
     {
-        if (disposeUnderlying) underlying?.Dispose();
+        if (disposeUnderlying)
+        {
+            underlying?.Dispose();
+        }
     }
 
     public Task RequestCapacityAsync(int bytes)
     {
-        if (underlying is { CanSeek: true, CanWrite: true }) underlying.SetLength(bytes);
+        if (underlying is { CanSeek: true, CanWrite: true })
+        {
+            underlying.SetLength(bytes);
+        }
+
         return Task.CompletedTask;
     }
 
     public Task WriteAsync(ArraySegment<byte> bytes, CancellationToken cancellationToken)
     {
-        if (bytes.Array == null) throw new ImageflowAssertionFailed("StreamDestination.WriteAsync called with null array");
+        if (bytes.Array == null)
+        {
+            throw new ImageflowAssertionFailed("StreamDestination.WriteAsync called with null array");
+        }
+
         return underlying.WriteAsync(bytes.Array, bytes.Offset, bytes.Count, cancellationToken);
     }
 
@@ -36,7 +47,10 @@ public class StreamDestination(Stream underlying, bool disposeUnderlying) : IOut
     {
         if (underlying is { CanSeek: true, CanWrite: true }
             && underlying.Position < underlying.Length)
+        {
             underlying.SetLength(underlying.Position);
+        }
+
         return underlying.FlushAsync(cancellationToken);
     }
 }

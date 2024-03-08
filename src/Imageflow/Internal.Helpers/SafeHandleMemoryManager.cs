@@ -115,5 +115,4 @@ internal sealed unsafe class SafeHandleMemoryManager : MemoryManager<byte>
         }
     }
 
-
 }

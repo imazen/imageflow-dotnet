@@ -9,6 +9,5 @@ using System.Runtime.CompilerServices;
 
 [assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2219:Do not raise exceptions in finally clauses", Justification = "<Pending>", Scope = "member", Target = "~M:Imageflow.Bindings.JobContext.Dispose")]
 
-
 // internals visible to Imageflow.Test
 [assembly: InternalsVisibleTo("Imageflow.Test")]

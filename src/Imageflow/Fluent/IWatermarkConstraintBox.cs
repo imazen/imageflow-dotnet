@@ -1,11 +1,10 @@
 using System.Text.Json.Nodes;
 
-namespace Imageflow.Fluent
+namespace Imageflow.Fluent;
+
+public interface IWatermarkConstraintBox
 {
-    public interface IWatermarkConstraintBox
-    {
-        [Obsolete("Use ToJsonNode() instead")]
-        object ToImageflowDynamic();
-        JsonNode ToJsonNode();
-    }
+    [Obsolete("Use ToJsonNode() instead")]
+    object ToImageflowDynamic();
+    JsonNode ToJsonNode();
 }

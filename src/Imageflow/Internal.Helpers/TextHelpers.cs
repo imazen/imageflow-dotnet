@@ -58,6 +58,4 @@ internal static class TextHelpers
         return true;
     }
 
-
-
 }

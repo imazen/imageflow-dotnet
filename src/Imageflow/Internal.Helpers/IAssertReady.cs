@@ -1,7 +1,6 @@
-namespace Imageflow.Internal.Helpers
+namespace Imageflow.Internal.Helpers;
+
+internal interface IAssertReady
 {
-    internal interface IAssertReady
-    {
-        void AssertReady();
-    }
+    void AssertReady();
 }

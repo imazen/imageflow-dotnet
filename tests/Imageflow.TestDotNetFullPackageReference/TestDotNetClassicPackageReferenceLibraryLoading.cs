@@ -1,14 +1,11 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+namespace Imageflow.TestDotNetFullPackageReference;
 
-namespace Imageflow.TestDotNetFullPackageReference
+[Microsoft.VisualStudio.TestTools.UnitTesting.TestClass]
+public class TestDotNetClassicPackageReferenceLibraryLoading
 {
-    [TestClass]
-    public class TestDotNetClassicPackageReferenceLibraryLoading
-    {
-        [TestMethod]
-        public void TestAccessAbi()
-        {
-            using (var j = new Bindings.JobContext()) { }
-        }
+[Microsoft.VisualStudio.TestTools.UnitTesting.TestMethod]
+public void TestAccessAbi()
+{
+    using (var j = new Bindings.JobContext()) { }
     }
 }

@@ -1,39 +1,41 @@
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 
-namespace Imageflow.Internal.Helpers
+namespace Imageflow.Internal.Helpers;
+
+internal class PinBox : CriticalFinalizerObject, IDisposable
 {
-    internal class PinBox : CriticalFinalizerObject, IDisposable
+    private List<GCHandle>? _pinned;
+    internal void AddPinnedData(GCHandle handle)
     {
-        private List<GCHandle>? _pinned;
-        internal void AddPinnedData(GCHandle handle)
-        {
-            _pinned ??= new List<GCHandle>();
-            _pinned.Add(handle);
-        }
+        _pinned ??= new List<GCHandle>();
+        _pinned.Add(handle);
+    }
 
-        public void Dispose()
-        {
-            UnpinAll();
-            GC.SuppressFinalize(this);
-        }
+    public void Dispose()
+    {
+        UnpinAll();
+        GC.SuppressFinalize(this);
+    }
 
-        private void UnpinAll()
+    private void UnpinAll()
+    {
+        //Unpin GCHandles
+        if (_pinned != null)
         {
-            //Unpin GCHandles
-            if (_pinned != null)
+            foreach (var active in _pinned)
             {
-                foreach (var active in _pinned)
+                if (active.IsAllocated)
                 {
-                    if (active.IsAllocated) active.Free();
+                    active.Free();
                 }
-                _pinned = null;
             }
+            _pinned = null;
         }
+    }
 
-        ~PinBox()
-        {
-            UnpinAll();
-        }
+    ~PinBox()
+    {
+        UnpinAll();
     }
 }

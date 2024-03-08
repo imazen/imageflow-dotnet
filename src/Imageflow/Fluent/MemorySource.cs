@@ -21,7 +21,6 @@ public sealed class MemorySource : IAsyncMemorySource, IMemorySource
         return new MemorySource(null, ownedMemory, promise);
     }
 
-
     private MemorySource(ReadOnlyMemory<byte>? borrowedMemory, IMemoryOwner<byte>? ownedMemory,
         MemoryLifetimePromise promise)
     {
@@ -58,7 +57,6 @@ public sealed class MemorySource : IAsyncMemorySource, IMemorySource
     {
         _borrowedMemory = new ReadOnlyMemory<byte>(bytes.Array, bytes.Offset, bytes.Count);
     }
-
 
     public static IAsyncMemorySource Borrow(ReadOnlyMemory<byte> borrowedMemory, MemoryLifetimePromise promise)
     {

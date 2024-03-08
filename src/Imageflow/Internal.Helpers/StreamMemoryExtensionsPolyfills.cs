@@ -41,7 +41,6 @@ internal static class StreamMemoryExtensionsPolyfills
 #endif
     }
 
-
     internal static void WriteMemory(this Stream stream, ReadOnlyMemory<byte> buffer)
     {
 #if NETSTANDARD2_1_OR_GREATER

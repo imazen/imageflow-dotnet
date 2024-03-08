@@ -13,7 +13,10 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
             throw new ArgumentException("Stream must be seekable if seekToStart is true");
         }
         var length = stream.CanSeek ? stream.Length : 0;
-        if (length >= int.MaxValue) throw new OverflowException("Streams cannot exceed 2GB");
+        if (length >= int.MaxValue)
+        {
+            throw new OverflowException("Streams cannot exceed 2GB");
+        }
 
         _underlying = stream;
         _disposeUnderlying = disposeUnderlying;
@@ -112,7 +115,6 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
     }
 
     public bool AsyncPreferred => _underlying is not MemoryStream && _underlying is not UnmanagedMemoryStream;
-
 
     /// <summary>
     /// Seeks to the beginning of the stream before reading.
