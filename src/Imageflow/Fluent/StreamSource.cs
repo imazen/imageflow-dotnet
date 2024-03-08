@@ -5,21 +5,24 @@ using Microsoft.IO;
 namespace Imageflow.Fluent;
 
 /// <summary>
-/// Represents a image source that is backed by a Stream. 
+/// Represents a image source that is backed by a Stream.
 /// </summary>
 [Obsolete("Use BufferedStreamSource.UseStreamRemainderAndDispose() or BufferedStreamSource.BorrowStreamRemainder() instead")]
 public class StreamSource(Stream underlying, bool disposeUnderlying) : IBytesSource
 {
-    private static readonly RecyclableMemoryStreamManager Mgr
+    private static readonly RecyclableMemoryStreamManager _mgr
         = new();
     private RecyclableMemoryStream? _copy;
+    private Stream? _underlying = underlying;
 
     public void Dispose()
     {
         if (disposeUnderlying)
         {
-            underlying?.Dispose();
+            _underlying?.Dispose();
         }
+
+        _underlying = null;
         _copy?.Dispose();
     }
 
@@ -31,18 +34,19 @@ public class StreamSource(Stream underlying, bool disposeUnderlying) : IBytesSou
     /// <exception cref="OverflowException"></exception>
     public async Task<ArraySegment<byte>> GetBytesAsync(CancellationToken cancellationToken)
     {
+        ObjectDisposedHelper.ThrowIf(_underlying == null, this);
         if (_copy != null)
         {
             return new ArraySegment<byte>(_copy.GetBuffer(), 0,
                 (int)_copy.Length);
         }
-        var length = underlying.CanSeek ? underlying.Length : 0;
+        var length = _underlying.CanSeek ? _underlying.Length : 0;
         if (length >= int.MaxValue)
         {
             throw new OverflowException("Streams cannot exceed 2GB");
         }
 
-        if (underlying is MemoryStream underlyingMemoryStream &&
+        if (_underlying is MemoryStream underlyingMemoryStream &&
             underlyingMemoryStream.TryGetBufferSliceAllWrittenData(out var underlyingBuffer))
         {
             return underlyingBuffer;
@@ -50,15 +54,15 @@ public class StreamSource(Stream underlying, bool disposeUnderlying) : IBytesSou
 
         if (_copy == null)
         {
-            _copy = new RecyclableMemoryStream(Mgr, "StreamSource: IBytesSource", length);
-            await underlying.CopyToAsync(_copy, 81920, cancellationToken).ConfigureAwait(false);
+            _copy = new RecyclableMemoryStream(_mgr, "StreamSource: IBytesSource", length);
+            await _underlying.CopyToAsync(_copy, 81920, cancellationToken).ConfigureAwait(false);
         }
 
         return new ArraySegment<byte>(_copy.GetBuffer(), 0,
             (int)_copy.Length);
     }
 
-    internal bool AsyncPreferred => _copy != null && underlying is not MemoryStream && underlying is not UnmanagedMemoryStream;
+    internal bool AsyncPreferred => _copy != null && _underlying is not MemoryStream && _underlying is not UnmanagedMemoryStream;
 
     public static implicit operator BytesSourceAdapter(StreamSource source)
     {
