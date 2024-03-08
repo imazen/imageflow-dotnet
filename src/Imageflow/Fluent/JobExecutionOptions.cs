@@ -1,7 +1,6 @@
-namespace Imageflow.Fluent
+namespace Imageflow.Fluent;
+
+internal class JobExecutionOptions
 {
-    internal class JobExecutionOptions
-    {
-        internal bool OffloadCpuToThreadPool { get; set; } = false;
-    }
+    internal bool OffloadCpuToThreadPool { get; set; }
 }

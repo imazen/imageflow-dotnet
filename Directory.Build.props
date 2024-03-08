@@ -28,7 +28,7 @@
         <PackageTags>Image;Resize;Optimize;Crop;Gif;Jpg;Jpeg;Bitmap;Png;Core;WebP;ImageResizer;Imageflow;Rotate;Imaging;Crunch</PackageTags>
 
         <RestoreLockedMode>false</RestoreLockedMode>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        
         
     
         

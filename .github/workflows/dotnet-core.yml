@@ -25,7 +25,6 @@ jobs:
             test_aot: true
           - os: ubuntu-latest
             SystemTextJsonVersion: 8.0.1
-            RecyclableMemoryStreamVersion: 3.0.0
           - os: windows-latest
             pack: true
             docs: true

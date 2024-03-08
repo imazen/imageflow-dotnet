@@ -2,9 +2,9 @@
 
 
 
-Imageflow.NET is a .NET API for [Imageflow](https://github.com/imazen/imageflow), the fast image optimization and processing library for web servers. Imageflow focuses on security, quality, and performance - in that order. Imageflow.NET is a .NET 8.0 & .NET Standard 2.0 library, and as such is compatible with .NET 4.6.2+, .NET Core 2.0+, and .NET 5/6/7/8.
+Imageflow.NET is a .NET API for [Imageflow](https://github.com/imazen/imageflow), the fast image optimization and processing library for web servers. Imageflow focuses on security, quality, and performance - in that order. Imageflow.NET is a .NET 8.0 & .NET Standard 2.0 library, and as such is compatible with .NET 4.6.2+, .NET Core 2.0+, and .NET 5/6/7/8/9.
 
-Note: We recently switched from Newtonsoft to System.Text.Json to support AOT and trimming; see [CHANGES.md](https://github.com/imazen/imageflow-dotnet/blob/master/CHANGES.md) for details and some breaking changes.
+Note: We recently switched from Newtonsoft to System.Text.Json to support AOT and trimming; see [CHANGES.md](https://github.com/imazen/imageflow-dotnet/blob/master/CHANGES.md) for details and some breaking changes. There are also new classes for attaching source image data to jobs; use MemorySource.* over ByteSource and BufferedStreamSource.* instead of StreamSource.
 
 ### On .NET Core 3.x and .NET 5/6/7/8 (or if using PackageReference on .NET 4.x)
 
@@ -48,7 +48,7 @@ public async void TestGetImageInfo()
     var imageBytes = Convert.FromBase64String(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
 
-    var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
+    var info = await ImageJob.GetImageInfo(new MemorySource(imageBytes));
     
     Assert.Equal(info.ImageWidth, 1);
     Assert.Equal(info.ImageHeight, 1);
@@ -149,7 +149,7 @@ public async Task TestBuildCommandString()
     {
         
         var r = await b.BuildCommandString(
-            new BytesSource(imageBytes), // or new StreamSource(Stream stream, bool disposeStream)
+            new MemorySource(imageBytes), // or new StreamSource(Stream stream, bool disposeStream)
             new BytesDestination(), // or new StreamDestination
             "width=3&height=2&mode=stretch&scale=both&format=webp&webp.quality=80")
             .Finish().InProcessAsync();
