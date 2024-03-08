@@ -22,4 +22,8 @@ jobs:
       - name: 'Qodana Scan'
         uses: JetBrains/qodana-action@v2023.3
         env:
+          qodana:
+            net:
+              solution: ./Imageflow.sln
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+          qodana_net_solution: ./Imageflow.sln
