@@ -49,7 +49,7 @@ public readonly struct SrgbColor(byte r, byte g, byte b, byte a)
     public static SrgbColor FromHex(string s)
     {
         s = s.TrimStart('#');
-        var v = uint.Parse(s, NumberStyles.HexNumber);
+        var v = uint.Parse(s, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         switch (s.Length)
         {
             case 3: return RGBA(Expand4(v, 2), Expand4(v, 1), Expand4(v, 0), 0xff);

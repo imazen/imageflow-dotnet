@@ -101,7 +101,9 @@ public static class IOutputDestinationExtensions
 
         int bytesRead;
         while ((bytesRead =
+#pragma warning disable CA1835
                    await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) != 0)
+#pragma warning restore CA1835
         {
             await dest.WriteAsync(new ArraySegment<byte>(buffer, 0, bytesRead), cancellationToken)
                 .ConfigureAwait(false);

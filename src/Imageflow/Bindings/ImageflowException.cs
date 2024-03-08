@@ -65,7 +65,7 @@ public class ImageflowException : Exception
                     return new ImageflowException("Imageflow context has no error stored; cannot fetch error message");
                 case ErrorFetchResult.BufferTooSmall: break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new NotImplementedException($"Unknown error fetching error: {result}");
             }
         }
 

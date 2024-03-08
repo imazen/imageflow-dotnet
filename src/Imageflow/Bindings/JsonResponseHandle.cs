@@ -8,7 +8,7 @@ namespace Imageflow.Bindings;
 
 /// <summary>
 /// A child SafeHandle that increments the reference count on JobContextHandle when created and decrements it when disposed.
-/// 
+///
 /// </summary>
 internal sealed class JsonResponseHandle : SafeHandleZeroOrMinusOneIsInvalid, IAssertReady
 {
@@ -33,15 +33,8 @@ internal sealed class JsonResponseHandle : SafeHandleZeroOrMinusOneIsInvalid, IA
 
     public void AssertReady()
     {
-        if (!ParentContext.IsValid)
-        {
-            throw new ObjectDisposedException("Imageflow JobContextHandle");
-        }
-
-        if (!IsValid)
-        {
-            throw new ObjectDisposedException("Imageflow JsonResponseHandle");
-        }
+        ObjectDisposedHelper.ThrowIf(!ParentContext.IsValid, ParentContext);
+        ObjectDisposedHelper.ThrowIf(!IsValid, this);
     }
 
 #pragma warning disable SYSLIB0004
@@ -51,7 +44,7 @@ internal sealed class JsonResponseHandle : SafeHandleZeroOrMinusOneIsInvalid, IA
     {
         // The base class, the caller, handles interlocked / sync and preventing multiple calls.
         // We check ParentContext just in case someone went wild with DangerousRelease elsewhere.
-        // It's a process-ending error if ParentContext is invalid. 
+        // It's a process-ending error if ParentContext is invalid.
         if (ParentContext.IsValid)
         {
             NativeMethods.imageflow_json_response_destroy(ParentContext, handle);

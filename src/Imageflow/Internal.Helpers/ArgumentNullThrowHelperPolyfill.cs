@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
@@ -24,7 +25,7 @@ internal static class Argument
             Throw(paramName);
         }
 #else
-        Argument.ThrowIfNull(argument, paramName);
+        ArgumentNullException.ThrowIfNull(argument, paramName);
 #endif
     }
 
@@ -39,6 +40,7 @@ internal static class Argument
 
 internal static class ObjectDisposedHelper
 {
+    [StackTraceHidden]
     public static void ThrowIf([DoesNotReturnIf(true)] bool condition, object instance)
     {
 #if NET8_0_OR_GREATER

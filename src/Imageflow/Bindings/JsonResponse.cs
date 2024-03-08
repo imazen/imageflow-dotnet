@@ -99,10 +99,7 @@ internal sealed class ImageflowJsonResponse : IJsonResponseProvider, IAssertRead
     public void AssertReady()
     {
         _handle.ParentContext.AssertReady();
-        if (!_handle.IsValid)
-        {
-            throw new ObjectDisposedException("Imageflow JsonResponse");
-        }
+        ObjectDisposedHelper.ThrowIf(!_handle.IsValid, this);
     }
 
     private void Read(out int statusCode, out IntPtr utf8Buffer, out UIntPtr bufferSize)

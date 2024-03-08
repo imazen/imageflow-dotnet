@@ -29,7 +29,9 @@ internal static class StreamMemoryExtensionsPolyfills
             {
                 buffer.Span.CopyTo(rent);
 
+#pragma warning disable CA1835
                 await stream.WriteAsync(rent, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
+#pragma warning restore CA1835
             }
             finally
             {

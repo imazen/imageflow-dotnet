@@ -45,7 +45,7 @@ internal class LoadLogger : ILibraryLoadLogger
     {
         var sb = new StringBuilder(_log.Select((e) => e.Basename?.Length ?? 0 + e.FullPath?.Length ?? 0 + 20)
             .Sum());
-        sb.AppendFormat("Looking for \"{0}\" RID=\"{1}-{2}\", IsUnix={3}, IsDotNetCore={4} RelativeSearchPath=\"{5}\"\n",
+        sb.AppendFormat(CultureInfo.InvariantCulture, "Looking for \"{0}\" RID=\"{1}-{2}\", IsUnix={3}, IsDotNetCore={4} RelativeSearchPath=\"{5}\"\n",
             Filename,
             RuntimeFileLocator.PlatformRuntimePrefix.Value,
             RuntimeFileLocator.ArchitectureSubdir.Value, RuntimeFileLocator.IsUnix,
@@ -53,18 +53,18 @@ internal class LoadLogger : ILibraryLoadLogger
             AppDomain.CurrentDomain.RelativeSearchPath);
         if (FirstException != null)
         {
-            sb.AppendFormat("Before searching: {0}\n", FirstException.Message);
+            sb.AppendFormat(CultureInfo.InvariantCulture, "Before searching: {0}\n", FirstException.Message);
         }
 
         foreach (var e in _log)
         {
             if (e.PreviouslyLoaded)
             {
-                sb.AppendFormat("\"{0}\" is already {1}", e.Basename, Verb);
+                sb.AppendFormat(CultureInfo.InvariantCulture, "\"{0}\" is already {1}", e.Basename, Verb);
             }
             else if (!e.FileExists)
             {
-                sb.AppendFormat("File not found: {0}", e.FullPath);
+                sb.AppendFormat(CultureInfo.InvariantCulture, "File not found: {0}", e.FullPath);
             }
             else if (e.LoadErrorCode.HasValue)
             {
@@ -72,7 +72,7 @@ internal class LoadLogger : ILibraryLoadLogger
                     ? string.Format(CultureInfo.InvariantCulture, "0x{0:X8}", e.LoadErrorCode.Value)
                     : e.LoadErrorCode.Value.ToString(CultureInfo.InvariantCulture);
 
-                sb.AppendFormat("Error \"{0}\" ({1}) loading {2} from {3}",
+                sb.AppendFormat(CultureInfo.InvariantCulture, "Error \"{0}\" ({1}) loading {2} from {3}",
                     new Win32Exception(e.LoadErrorCode.Value).Message,
                     errorCode,
                     e.Basename, e.FullPath);
@@ -83,7 +83,7 @@ internal class LoadLogger : ILibraryLoadLogger
                     var installed = Environment.Is64BitProcess ? "32-bit (x86)" : "64-bit (x86_64)";
                     var needed = Environment.Is64BitProcess ? "64-bit (x86_64)" : "32-bit (x86)";
 
-                    sb.AppendFormat("\n> You have installed a {0} copy of imageflow.dll but need the {1} version",
+                    sb.AppendFormat(CultureInfo.InvariantCulture, "\n> You have installed a {0} copy of imageflow.dll but need the {1} version",
                         installed, needed);
                 }
 
@@ -93,12 +93,12 @@ internal class LoadLogger : ILibraryLoadLogger
                     var crtLink = "https://aka.ms/vs/16/release/vc_redist."
                                   + (Environment.Is64BitProcess ? "x64.exe" : "x86.exe");
 
-                    sb.AppendFormat("\n> You may need to install the C Runtime from {0}", crtLink);
+                    sb.AppendFormat(CultureInfo.InvariantCulture, "\n> You may need to install the C Runtime from {0}", crtLink);
                 }
             }
             else
             {
-                sb.AppendFormat("{0} {1} in {2}", Verb, e.Basename, e.FullPath);
+                sb.AppendFormat(CultureInfo.InvariantCulture, "{0} {1} in {2}", Verb, e.Basename, e.FullPath);
             }
             sb.Append('\n');
         }
@@ -262,7 +262,7 @@ internal static class RuntimeFileLocator
         try{
             // Look in the folder that *this* assembly is located.
             assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            
+
         } catch (NotImplementedException){
             // ignored
         }
@@ -352,7 +352,7 @@ public static class ExecutableLocator
 
     private static readonly Lazy<ConcurrentDictionary<string, string>> ExecutablePathsByName = new Lazy<ConcurrentDictionary<string, string>>(() => new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);
 
-    // Not yet implemented. 
+    // Not yet implemented.
     // static readonly Lazy<ConcurrentDictionary<string, IntPtr>> LibraryHandlesByFullPath = new Lazy<ConcurrentDictionary<string, IntPtr>>(() => new ConcurrentDictionary<string, IntPtr>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);
 
     /// <summary>
@@ -429,7 +429,7 @@ internal static class NativeLibraryLoader
             caughtException = b;
         }
 
-        //Try loading 
+        //Try loading
         var logger = new LoadLogger
         { FirstException = caughtException, Filename = GetFilenameWithoutDirectory(basename) };
         if (TryLoadByBasename(basename, logger, out _, customSearchDirectories))
@@ -449,7 +449,7 @@ internal static class NativeLibraryLoader
 
     private static readonly Lazy<ConcurrentDictionary<string, IntPtr>> LibraryHandlesByBasename = new Lazy<ConcurrentDictionary<string, IntPtr>>(() => new ConcurrentDictionary<string, IntPtr>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);
 
-    // Not yet implemented. 
+    // Not yet implemented.
     // static readonly Lazy<ConcurrentDictionary<string, IntPtr>> LibraryHandlesByFullPath = new Lazy<ConcurrentDictionary<string, IntPtr>>(() => new ConcurrentDictionary<string, IntPtr>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);
 
     /// <summary>
@@ -536,7 +536,7 @@ internal static class WindowsLoadLibrary
 
     public static IntPtr Execute(string fileName)
     {
-        // Look in the library dir instead of the process dir 
+        // Look in the library dir instead of the process dir
         const uint loadWithAlteredSearchPath = 0x00000008;
         return LoadLibraryEx(fileName, IntPtr.Zero, loadWithAlteredSearchPath);
     }

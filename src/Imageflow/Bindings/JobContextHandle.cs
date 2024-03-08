@@ -9,7 +9,7 @@ namespace Imageflow.Bindings;
 /// <summary>
 /// The handle is ready even if there is an error condition stored in the context.
 ///
-/// AddRef and Release should be called. 
+/// AddRef and Release should be called.
 /// </summary>
 internal sealed class JobContextHandle : SafeHandleZeroOrMinusOneIsInvalid, IAssertReady
 {
@@ -39,10 +39,7 @@ internal sealed class JobContextHandle : SafeHandleZeroOrMinusOneIsInvalid, IAss
 
     public void AssertReady()
     {
-        if (!IsValid)
-        {
-            throw new ObjectDisposedException("Imageflow JobContextHandle");
-        }
+        ObjectDisposedHelper.ThrowIf(!IsValid, this);
     }
 
     public ImageflowException? DisposeAllowingException()

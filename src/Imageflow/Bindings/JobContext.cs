@@ -19,11 +19,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     {
         get
         {
-            if (!_handle.IsValid)
-            {
-                throw new ObjectDisposedException("Imageflow JobContext");
-            }
-
+            ObjectDisposedHelper.ThrowIf(!_handle.IsValid, this);
             return _handle;
         }
     }
@@ -354,11 +350,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
 
     public void AssertReady()
     {
-        if (!_handle.IsValid)
-        {
-            throw new ObjectDisposedException("Imageflow JobContext");
-        }
-
+        ObjectDisposedHelper.ThrowIf(!_handle.IsValid, this);
         if (HasError)
         {
             throw ImageflowException.FromContext(Handle);
@@ -646,7 +638,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     [Obsolete("Use a higher-level wrapper like the Fluent API instead; they can use faster code paths")]
     public Stream GetOutputBuffer(int ioId)
     {
-        if (!_ioSet.ContainsKey(ioId) || _ioSet[ioId] != IoKind.OutputBuffer)
+        if (!_ioSet.TryGetValue(ioId, out var value) || value != IoKind.OutputBuffer)
         {
             throw new ArgumentException($"ioId {ioId} does not correspond to an output buffer", nameof(ioId));
         }
@@ -669,7 +661,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     /// <exception cref="ImageflowAssertionFailed"></exception>
     internal unsafe Span<byte> BorrowOutputBuffer(int ioId)
     {
-        if (!_ioSet.ContainsKey(ioId) || _ioSet[ioId] != IoKind.OutputBuffer)
+        if (!_ioSet.TryGetValue(ioId, out var value) || value != IoKind.OutputBuffer)
         {
             throw new ArgumentException($"ioId {ioId} does not correspond to an output buffer", nameof(ioId));
         }
@@ -693,7 +685,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     /// <exception cref="ImageflowAssertionFailed"></exception>
     internal IMemoryOwner<byte> BorrowOutputBufferMemoryAndAddReference(int ioId)
     {
-        if (!_ioSet.ContainsKey(ioId) || _ioSet[ioId] != IoKind.OutputBuffer)
+        if (!_ioSet.TryGetValue(ioId, out var value) || value != IoKind.OutputBuffer)
         {
             throw new ArgumentException($"ioId {ioId} does not correspond to an output buffer", nameof(ioId));
         }
@@ -721,10 +713,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     public bool IsDisposed => !_handle.IsValid;
     public void Dispose()
     {
-        if (IsDisposed)
-        {
-            throw new ObjectDisposedException("Imageflow JobContext");
-        }
+        ObjectDisposedHelper.ThrowIf(IsDisposed, this);
 
         if (Interlocked.Exchange(ref _refCount, 0) > 0)
         {

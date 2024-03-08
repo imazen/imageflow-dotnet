@@ -484,7 +484,7 @@ internal static class MagicBytes
                 break;
 
             default:
-                throw new ArgumentOutOfRangeException();
+                throw new NotImplementedException();
         }
         return null;
     }

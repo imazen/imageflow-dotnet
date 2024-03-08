@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -623,7 +624,7 @@ public class ImageJob : IDisposable
         var nodes = new JsonObject();
         foreach (var n in uniqueNodes)
         {
-            nodes.Add((n.Uid - lowestUid).ToString(), n.NodeData);
+            nodes.Add((n.Uid - lowestUid).ToString(CultureInfo.InvariantCulture), n.NodeData);
         }
         // return new
         // {
@@ -645,10 +646,7 @@ public class ImageJob : IDisposable
 
     private void AssertReady()
     {
-        if (_disposed)
-        {
-            throw new ObjectDisposedException("ImageJob");
-        }
+        ObjectDisposedHelper.ThrowIf(_disposed, this);
     }
 
     public void Dispose()
