@@ -6,19 +6,26 @@ namespace Imageflow.Fluent
     /// <summary>
     /// Represents a color with or without transparency.
     /// </summary>
-    public struct AnyColor
+    public readonly struct AnyColor
     {
-        private ColorKind _kind;
-        private SrgbColor _srgb;
-        public static AnyColor Black => new AnyColor {_kind = ColorKind.Black};
-        public static AnyColor Transparent => new AnyColor {_kind = ColorKind.Transparent};
+        private AnyColor(ColorKind kind, SrgbColor srgb = default)
+        {
+            _kind = kind;
+            _srgb = srgb;
+        }
+        private readonly ColorKind _kind;
+        private readonly SrgbColor _srgb;
+        public static AnyColor Black => new AnyColor(ColorKind.Black);
+        public static AnyColor Transparent => new AnyColor(ColorKind.Transparent);
+
         /// <summary>
         /// Parses color in RGB, RGBA, RRGGBB or RRGGBBAA format
         /// </summary>
         /// <param name="hex"></param>
         /// <returns></returns>
-        public static AnyColor FromHexSrgb(string hex) => new AnyColor {_kind = ColorKind.Srgb, _srgb = SrgbColor.FromHex(hex)};
-        public static AnyColor Srgb(SrgbColor c) => new AnyColor {_kind = ColorKind.Srgb, _srgb = c};
+        public static AnyColor FromHexSrgb(string hex) => new AnyColor(ColorKind.Srgb, SrgbColor.FromHex(hex));
+
+        public static AnyColor Srgb(SrgbColor c) => new AnyColor(ColorKind.Srgb, c);
 
         [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic()
