@@ -24,7 +24,7 @@ imageflowApi.MapGet("/version", () =>
 });
 imageflowApi.MapGet("/resize/width/{width}", async (int width) =>
 {
-    var resultMemory = await Helpers.SizeIcon(width);
+    var resultMemory = await Helpers.SizeIcon(width).ConfigureAwait(false);
     return Results.Bytes(resultMemory, "image/jpeg");
 });
 
@@ -44,7 +44,7 @@ internal static class Helpers
         var job = await new ImageJob()
             .Decode(imgBytes)
             .Constrain(new Constraint((uint)width, 0))
-            .EncodeToBytes(new MozJpegEncoder(90)).Finish().InProcessAsync();
+            .EncodeToBytes(new MozJpegEncoder(90)).Finish().InProcessAsync().ConfigureAwait(false);
         var resultBytes = job.First!.TryGetBytes()!.Value;
         return new Memory<byte>(resultBytes.Array, resultBytes.Offset, resultBytes.Count);
     }
@@ -65,4 +65,4 @@ internal static class Helpers
 
 
 [JsonSerializable(typeof(VersionInfo))]
-internal partial class AppJsonSerializerContext : JsonSerializerContext;
+internal sealed partial class AppJsonSerializerContext : JsonSerializerContext;

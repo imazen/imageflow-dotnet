@@ -50,7 +50,8 @@ public class TestJson
                 .RoundAllImageCornersPercent(100, AnyColor.Black)
                 .RoundAllImageCorners(1, AnyColor.Transparent)
                 .ConstrainWithin(5, 5)
-                .Watermark(new MemorySource(new byte[] { }),
+                // ReSharper disable once UseCollectionExpression
+                .Watermark(new MemorySource(Array.Empty<byte>()),
                     new WatermarkOptions()
                         .SetMarginsLayout(
                             new WatermarkMargins(WatermarkAlign.Image, 1, 1, 1, 1),
@@ -144,7 +145,7 @@ public class TestJson
         {
             return null;
         }
-        throw new Exception("Unexpected node type: " + n?.GetType());
+        throw new NotSupportedException("Unexpected node type: " + n?.GetType());
     }
 
 }

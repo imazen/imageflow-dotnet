@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
 using Imageflow.Bindings;
@@ -8,6 +9,7 @@ using Xunit.Abstractions;
 
 namespace Imageflow.Test
 {
+    [SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task")]
     public class TestApi
     {
         private readonly ITestOutputHelper output;
@@ -49,7 +51,7 @@ namespace Imageflow.Test
             Assert.Equal(PixelFormat.Bgra_32, info.FrameDecodesInto);
         }
 
-        // Test GetImageInfo 
+        // Test GetImageInfo
         [Fact]
         public void TestGetImageInfoSync()
         {
@@ -403,7 +405,7 @@ namespace Imageflow.Test
                         using (var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
 #pragma warning restore CA1416
                         {
-                        } // Will throw filenotfoundexception if missing 
+                        } // Will throw filenotfoundexception if missing
                     }
                 }
 
