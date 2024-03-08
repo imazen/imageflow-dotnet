@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.Net", "src\Imageflow\Imageflow.Net.csproj", "{0156A967-E9B3-4E86-B5A2-2390B245DA73}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.AllPlatforms", "src\Imageflow.AllPlatforms\Imageflow.AllPlatforms.csproj", "{A1F674DC-66D7-481D-8059-FC0E83052E74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.Test", "tests\Imageflow.Test\Imageflow.Test.csproj", "{DD7A112C-A488-47EE-AA66-3496173E02BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.TestWebAOT", "tests\Imageflow.TestWebAOT\Imageflow.TestWebAOT.csproj", "{A5C78623-E13B-4E09-80D1-9C77A1C3DCA3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0156A967-E9B3-4E86-B5A2-2390B245DA73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0156A967-E9B3-4E86-B5A2-2390B245DA73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0156A967-E9B3-4E86-B5A2-2390B245DA73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0156A967-E9B3-4E86-B5A2-2390B245DA73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1F674DC-66D7-481D-8059-FC0E83052E74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1F674DC-66D7-481D-8059-FC0E83052E74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1F674DC-66D7-481D-8059-FC0E83052E74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1F674DC-66D7-481D-8059-FC0E83052E74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD7A112C-A488-47EE-AA66-3496173E02BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD7A112C-A488-47EE-AA66-3496173E02BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD7A112C-A488-47EE-AA66-3496173E02BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD7A112C-A488-47EE-AA66-3496173E02BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5C78623-E13B-4E09-80D1-9C77A1C3DCA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5C78623-E13B-4E09-80D1-9C77A1C3DCA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5C78623-E13B-4E09-80D1-9C77A1C3DCA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5C78623-E13B-4E09-80D1-9C77A1C3DCA3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
