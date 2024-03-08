@@ -371,7 +371,7 @@ namespace Imageflow.Fluent
                 {
                     using (var stream = pair.Key.ReadFromBeginning())
                     {
-                        await pair.Value.CopyFromStreamAsync(stream, token);
+                        await pair.Value.CopyFromStreamAsyncInternal(stream, token);
                     }
                 }
             }

@@ -1,6 +1,6 @@
 namespace Imageflow.Fluent
 {
-    public record class BuildEncodeResult
+    public record BuildEncodeResult
     {
         // internal BuildEncodeResult(string preferredMimeType, 
         //     string preferredExtension, int ioId, int width, int height, IOutputDestination destination)

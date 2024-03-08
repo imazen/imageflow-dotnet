@@ -4,7 +4,7 @@ using Imageflow.Bindings;
 namespace Imageflow.Fluent
 {
     /// <summary>
-    /// Represents a color in the sRGB colorspace
+    /// Represents a color in the sRGB colorspace. Default value: transparent black.
     /// </summary>
     public readonly struct SrgbColor(byte r, byte g, byte b, byte a)
     {

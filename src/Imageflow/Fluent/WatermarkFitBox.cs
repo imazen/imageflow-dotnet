@@ -18,6 +18,7 @@ namespace Imageflow.Fluent
             Y2 = y2;
         }
         public WatermarkAlign RelativeTo { get; set; } = WatermarkAlign.Image;
+        
         public float X1 { get; set; }
         public float Y1 { get; set; } 
         public float X2 { get; set; } = 100;
