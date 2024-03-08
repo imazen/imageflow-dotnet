@@ -25,11 +25,11 @@ internal sealed class JobContextHandle : SafeHandleZeroOrMinusOneIsInvalid, IAss
 
             if (NativeMethods.imageflow_abi_compatible(NativeMethods.ABI_MAJOR, NativeMethods.ABI_MINOR))
             {
-                throw new OutOfMemoryException("Failed to create Imageflow JobContext");
+                throw new ImageflowException("Failed to create Imageflow JobContext (yet other calls succeed); this may indicate an out-of-memory condition.");
             }
             var major = NativeMethods.imageflow_abi_version_major();
             var minor = NativeMethods.imageflow_abi_version_minor();
-            throw new Exception(
+            throw new NotSupportedException(
                 $".NET Imageflow bindings only support ABI {NativeMethods.ABI_MAJOR}.{NativeMethods.ABI_MINOR}. libimageflow ABI {major}.{minor} is loaded.");
         }
         SetHandle(ptr);
