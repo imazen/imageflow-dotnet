@@ -11,7 +11,7 @@ public sealed class MemorySource : IAsyncMemorySource, IMemorySource
 
     public static IAsyncMemorySource TakeOwnership(IMemoryOwner<byte> ownedMemory, MemoryLifetimePromise promise)
     {
-        ArgumentNullThrowHelper.ThrowIfNull(ownedMemory);
+        Argument.ThrowIfNull(ownedMemory);
         if (promise != MemoryLifetimePromise.MemoryOwnerDisposedByMemorySource)
         {
             throw new ArgumentException(
@@ -26,7 +26,7 @@ public sealed class MemorySource : IAsyncMemorySource, IMemorySource
     {
         if (promise == MemoryLifetimePromise.MemoryOwnerDisposedByMemorySource)
         {
-            ArgumentNullThrowHelper.ThrowIfNull(ownedMemory);
+            Argument.ThrowIfNull(ownedMemory);
             if (borrowedMemory.HasValue)
             {
                 throw new ArgumentException(
@@ -39,7 +39,7 @@ public sealed class MemorySource : IAsyncMemorySource, IMemorySource
             throw new ArgumentNullException(nameof(borrowedMemory));
         }
 
-        ArgumentNullThrowHelper.ThrowIfNull(borrowedMemory);
+        Argument.ThrowIfNull(borrowedMemory);
         _borrowedMemory = borrowedMemory;
         _ownedMemory = ownedMemory;
     }

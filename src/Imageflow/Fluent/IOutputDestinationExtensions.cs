@@ -25,14 +25,14 @@ public static class IOutputDestinationExtensions
     {
         if (dest is IAsyncOutputSink sink)
         {
-            await sink.FastRequestCapacityAsync(data.Length);
-            await sink.FastWriteAsync(data, cancellationToken);
-            await sink.FastFlushAsync(cancellationToken);
+            await sink.FastRequestCapacityAsync(data.Length).ConfigureAwait(false);
+            await sink.FastWriteAsync(data, cancellationToken).ConfigureAwait(false);
+            await sink.FastFlushAsync(cancellationToken).ConfigureAwait(false);
             return;
         }
-        await dest.RequestCapacityAsync(data.Length);
-        await dest.AdaptedWriteAsync(data, cancellationToken);
-        await dest.FlushAsync(cancellationToken);
+        await dest.RequestCapacityAsync(data.Length).ConfigureAwait(false);
+        await dest.AdaptedWriteAsync(data, cancellationToken).ConfigureAwait(false);
+        await dest.FlushAsync(cancellationToken).ConfigureAwait(false);
     }
 
     internal static async ValueTask AdaptedWriteAsync(this IOutputDestination dest, ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
@@ -86,14 +86,14 @@ public static class IOutputDestinationExtensions
     [Obsolete("Users should not write to IOutputDestination directly; this is only for Imageflow internal use.")]
     public static async Task CopyFromStreamAsync(this IOutputDestination dest, Stream stream,
         CancellationToken cancellationToken)
-    => await dest.CopyFromStreamAsyncInternal(stream, cancellationToken);
+    => await dest.CopyFromStreamAsyncInternal(stream, cancellationToken).ConfigureAwait(false);
 
     internal static async Task CopyFromStreamAsyncInternal(this IOutputDestination dest, Stream stream,
         CancellationToken cancellationToken)
     {
         if (stream is { CanRead: true, CanSeek: true })
         {
-            await dest.RequestCapacityAsync((int)stream.Length);
+            await dest.RequestCapacityAsync((int)stream.Length).ConfigureAwait(false);
         }
 
         const int bufferSize = 81920;
@@ -107,6 +107,6 @@ public static class IOutputDestinationExtensions
                 .ConfigureAwait(false);
         }
 
-        await dest.FlushAsync(cancellationToken);
+        await dest.FlushAsync(cancellationToken).ConfigureAwait(false);
     }
 }

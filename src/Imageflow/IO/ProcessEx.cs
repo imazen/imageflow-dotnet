@@ -131,7 +131,7 @@ internal static class ProcessEx
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
 
-            return await tcs.Task;
+            return await tcs.Task.ConfigureAwait(false);
         }
     }
 }

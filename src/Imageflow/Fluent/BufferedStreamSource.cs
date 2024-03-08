@@ -83,7 +83,7 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
             _underlying.Seek(0, SeekOrigin.Begin);
         }
         _copy = new RecyclableMemoryStream(Mgr, "BufferedStreamSource: IMemorySource", _underlying.CanSeek ? _underlying.Length : 0);
-        await _underlying.CopyToAsync(_copy, 81920, cancellationToken);
+        await _underlying.CopyToAsync(_copy, 81920, cancellationToken).ConfigureAwait(false);
         _copy.Seek(0, SeekOrigin.Begin);
         if (!TryGetWrittenMemory(out segment))
         {

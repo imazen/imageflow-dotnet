@@ -43,7 +43,7 @@ public class PerformanceDetails
         foreach (var n in Frames.First().Nodes)
         {
             sb.Append(n.Name);
-            sb.Append("(");
+            sb.Append('(');
             sb.Append((n.WallMicroseconds / 1000.0).ToString("0.####"));
             sb.Append("ms) ");
         }

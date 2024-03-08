@@ -89,7 +89,7 @@ public class FinishJobBuilder
         BuildJobResult r;
         try
         {
-            r = await InProcessAsync();
+            r = await InProcessAsync().ConfigureAwait(false);
         }
         finally
         {

@@ -23,7 +23,7 @@ public class ImageJob : IDisposable
     {
         if (_inputs.ContainsKey(ioId) || _outputs.ContainsKey(ioId))
         {
-            throw new ArgumentException("ioId", $"ioId {ioId} has already been assigned");
+            throw new ArgumentException($"ioId {ioId} has already been assigned", nameof(ioId));
         }
 
         _inputs.Add(ioId, source);
@@ -32,7 +32,7 @@ public class ImageJob : IDisposable
     {
         if (_inputs.ContainsKey(ioId) || _outputs.ContainsKey(ioId))
         {
-            throw new ArgumentException("ioId", $"ioId {ioId} has already been assigned");
+            throw new ArgumentException($"ioId {ioId} has already been assigned", nameof(ioId));
         }
 
         _outputs.Add(ioId, destination);
@@ -148,7 +148,7 @@ public class ImageJob : IDisposable
     public BuildEndpoint BuildCommandString(byte[] source, IOutputDestination dest, string commandString) => BuildCommandString(new MemorySource(source), dest, commandString);
 
     /// <summary>
-    /// Modify the input image (source) with the given command string and watermarks and encode to the (dest) 
+    /// Modify the input image (source) with the given command string and watermarks and encode to the (dest)
     /// </summary>
     /// <param name="source"></param>
     /// <param name="dest"></param>
@@ -265,7 +265,7 @@ public class ImageJob : IDisposable
     internal async Task<BuildJobResult> FinishAsync(JobExecutionOptions executionOptions, SecurityOptions? securityOptions, CancellationToken cancellationToken)
     {
         var inputByteArrays = await Task.WhenAll(
-            _inputs.Select(async pair => new KeyValuePair<int, ReadOnlyMemory<byte>>(pair.Key, await pair.Value.BorrowReadOnlyMemoryAsync(cancellationToken))));
+            _inputs.Select(async pair => new KeyValuePair<int, ReadOnlyMemory<byte>>(pair.Key, await pair.Value.BorrowReadOnlyMemoryAsync(cancellationToken).ConfigureAwait(false)))).ConfigureAwait(false);
         using (var ctx = new JobContext())
         {
             foreach (var pair in inputByteArrays)
@@ -282,7 +282,7 @@ public class ImageJob : IDisposable
             var message = CreateJsonNodeForFramewiseWithSecurityOptions(securityOptions);
 
             var response = executionOptions.OffloadCpuToThreadPool
-                ? await Task.Run(() => ctx.InvokeExecute(message), cancellationToken)
+                ? await Task.Run(() => ctx.InvokeExecute(message), cancellationToken).ConfigureAwait(false)
                 : ctx.InvokeExecute(message);
 
             // TODO: Should we handle failure before copying out the buffers??
@@ -292,7 +292,7 @@ public class ImageJob : IDisposable
                 foreach (var pair in _outputs)
                 {
                     using var memOwner = ctx.BorrowOutputBufferMemoryAndAddReference(pair.Key);
-                    await pair.Value.AdaptiveWriteAllAsync(memOwner.Memory, cancellationToken);
+                    await pair.Value.AdaptiveWriteAllAsync(memOwner.Memory, cancellationToken).ConfigureAwait(false);
                 }
                 return BuildJobResult.From(response, _outputs);
             }
@@ -377,7 +377,7 @@ public class ImageJob : IDisposable
             {
                 using (var stream = pair.Key.ReadFromBeginning())
                 {
-                    await pair.Value.CopyFromStreamAsyncInternal(stream, token);
+                    await pair.Value.CopyFromStreamAsyncInternal(stream, token).ConfigureAwait(false);
                 }
             }
         }
@@ -404,7 +404,7 @@ public class ImageJob : IDisposable
 
             var inputFiles = (await Task.WhenAll(_inputs.Select(async pair =>
             {
-                var bytes = await pair.Value.BorrowReadOnlyMemoryAsync(cancellationToken);
+                var bytes = await pair.Value.BorrowReadOnlyMemoryAsync(cancellationToken).ConfigureAwait(false);
 
                 var file = job.Provider.Create(cleanupFiles, bytes.Length);
                 job.Cleanup.Add(file);
@@ -412,7 +412,7 @@ public class ImageJob : IDisposable
                     io: new JsonObject { { "file", file.Path } },
                     bytes, bytes.Length, File: file);
 
-            }))).ToArray();
+            })).ConfigureAwait(false)).ToArray();
 
             var outputCapacity = outputBufferCapacity ?? inputFiles.Max(v => v.Length) * 2;
             var outputFiles = _outputs.Select(pair =>
@@ -427,7 +427,7 @@ public class ImageJob : IDisposable
             foreach (var f in inputFiles)
             {
                 using var accessor = f.File.WriteFromBeginning();
-                await accessor.WriteMemoryAsync(f.bytes, cancellationToken);
+                await accessor.WriteMemoryAsync(f.bytes, cancellationToken).ConfigureAwait(false);
             }
 
             // job.JobMessage = new
@@ -505,7 +505,7 @@ public class ImageJob : IDisposable
             throw new FileNotFoundException("Cannot find imageflow_tool using path \"" + imageflowToolPath + "\" and currect folder \"" + Directory.GetCurrentDirectory() + "\"");
         }
 
-        using (var job = await PrepareForSubprocessAsync(cancellationToken, securityOptions, true, outputBufferCapacity))
+        using (var job = await PrepareForSubprocessAsync(cancellationToken, securityOptions, true, outputBufferCapacity).ConfigureAwait(false))
         {
 
             var startInfo = new ProcessStartInfo
@@ -517,7 +517,7 @@ public class ImageJob : IDisposable
                 FileName = imageflowToolPath
             };
 
-            var results = await ProcessEx.RunAsync(startInfo, cancellationToken);
+            var results = await ProcessEx.RunAsync(startInfo, cancellationToken).ConfigureAwait(false);
 
             var output = results.GetBufferedOutputStream();
             var errors = results.GetStandardErrorString();
@@ -535,7 +535,7 @@ public class ImageJob : IDisposable
                 }
             }
 
-            await job.CopyOutputsToDestinations(cancellationToken);
+            await job.CopyOutputsToDestinations(cancellationToken).ConfigureAwait(false);
 
             var outputMemory = output.GetWrittenMemory();
             return BuildJobResult.From(new MemoryJsonResponse(results.ExitCode, outputMemory), _outputs);
@@ -544,7 +544,7 @@ public class ImageJob : IDisposable
 
     internal async Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(CancellationToken cancellationToken, SecurityOptions? securityOptions, bool deleteFilesOnDispose)
     {
-        return await PrepareForSubprocessAsync(cancellationToken, securityOptions, deleteFilesOnDispose);
+        return await PrepareForSubprocessAsync(cancellationToken, securityOptions, deleteFilesOnDispose).ConfigureAwait(false);
     }
 
     private readonly List<BuildItemBase> _nodesCreated = new List<BuildItemBase>(10);
@@ -598,10 +598,10 @@ public class ImageJob : IDisposable
     internal JsonNode ToFramewise()
     {
         var nodes = CollectUnique();
-        return ToFramewiseGraph(nodes);
+        return ImageJob.ToFramewiseGraph(nodes);
     }
 
-    private JsonNode ToFramewiseGraph(ICollection<BuildItemBase> uniqueNodes)
+    private static JsonNode ToFramewiseGraph(ICollection<BuildItemBase> uniqueNodes)
     {
         var lowestUid = LowestUid(uniqueNodes) ?? 0;
         var edges = CollectEdges(uniqueNodes)
@@ -707,7 +707,7 @@ public class ImageJob : IDisposable
     {
         try
         {
-            var inputByteArray = await image.GetBytesAsync(cancellationToken);
+            var inputByteArray = await image.GetBytesAsync(cancellationToken).ConfigureAwait(false);
             using (var ctx = new JobContext())
             {
                 ctx.AddInputBytesPinned(0, inputByteArray);
@@ -758,7 +758,7 @@ public class ImageJob : IDisposable
     {
         try
         {
-            var inputMemory = await image.BorrowReadOnlyMemoryAsync(cancellationToken);
+            var inputMemory = await image.BorrowReadOnlyMemoryAsync(cancellationToken).ConfigureAwait(false);
             if (inputMemory.Length == 0)
             {
                 throw new ArgumentException("Input image is empty");
@@ -782,7 +782,7 @@ public class ImageJob : IDisposable
         }
     }
     /// <summary>
-    /// Returns true if it is likely that Imageflow can decode the given image based on the first 12 bytes of the file. 
+    /// Returns true if it is likely that Imageflow can decode the given image based on the first 12 bytes of the file.
     /// </summary>
     /// <param name="first12Bytes">The first 12 or more bytes of the file</param>
     /// <returns></returns>
@@ -795,7 +795,7 @@ public class ImageJob : IDisposable
     /// <summary>
     /// Returns a MIME type string such as "image/jpeg" based on the provided first 12 bytes of the file.
     /// Only guaranteed to work for image types Imageflow supports, but support for more file types may be added
-    /// later. 
+    /// later.
     /// </summary>
     /// <param name="first12Bytes">The first 12 or more bytes of the file</param>
     /// <returns></returns>

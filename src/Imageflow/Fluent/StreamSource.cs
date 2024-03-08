@@ -51,7 +51,7 @@ public class StreamSource(Stream underlying, bool disposeUnderlying) : IBytesSou
         if (_copy == null)
         {
             _copy = new RecyclableMemoryStream(Mgr, "StreamSource: IBytesSource", length);
-            await underlying.CopyToAsync(_copy, 81920, cancellationToken);
+            await underlying.CopyToAsync(_copy, 81920, cancellationToken).ConfigureAwait(false);
         }
 
         return new ArraySegment<byte>(_copy.GetBuffer(), 0,

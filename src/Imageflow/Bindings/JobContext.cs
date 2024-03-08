@@ -451,10 +451,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     public void AddInputBytes(int ioId, byte[] buffer, long offset, long count)
     {
-        if (buffer == null)
-        {
-            throw new ArgumentNullException(nameof(buffer));
-        }
+        Argument.ThrowIfNull(buffer);
 
         if (offset > int.MaxValue)
         {
@@ -520,10 +517,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     /// <exception cref="ArgumentNullException"></exception>
     public void AddInputBytesPinned(int ioId, byte[] buffer)
     {
-        if (buffer == null)
-        {
-            throw new ArgumentNullException(nameof(buffer));
-        }
+        Argument.ThrowIfNull(buffer);
 
         AddInputBytesPinned(ioId, new ReadOnlyMemory<byte>(buffer), MemoryLifetimePromise.MemoryIsOwnedByRuntime);
     }
@@ -553,10 +547,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     public void AddInputBytesPinned(int ioId, byte[] buffer, long offset, long count)
     {
-        if (buffer == null)
-        {
-            throw new ArgumentNullException(nameof(buffer));
-        }
+        Argument.ThrowIfNull(buffer);
 
         if (offset > int.MaxValue)
         {

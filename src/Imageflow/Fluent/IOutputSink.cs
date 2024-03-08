@@ -18,8 +18,8 @@ internal static class OutputSinkExtensions
 {
     public static async ValueTask WriteAllAsync(this IAsyncOutputSink sink, ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
     {
-        await sink.FastRequestCapacityAsync(data.Length);
-        await sink.FastWriteAsync(data, cancellationToken);
-        await sink.FastFlushAsync(cancellationToken);
+        await sink.FastRequestCapacityAsync(data.Length).ConfigureAwait(false);
+        await sink.FastWriteAsync(data, cancellationToken).ConfigureAwait(false);
+        await sink.FastFlushAsync(cancellationToken).ConfigureAwait(false);
     }
 }
