@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+
 using Imageflow.Bindings;
 
 namespace Imageflow.Fluent
@@ -25,7 +26,7 @@ namespace Imageflow.Fluent
                     var name = n.AsObject().TryGetPropertyValue("name", out var nameValue)
                             ? nameValue?.GetValue<string>()
                             : throw new ImageflowAssertionFailed("PerformanceDetailsFrame node name is null");
-                        
+
                     var microseconds = n.AsObject().TryGetPropertyValue("wall_microseconds", out var microsecondsValue)
                         ? microsecondsValue?.GetValue<long>()
                         : throw new ImageflowAssertionFailed("PerformanceDetailsFrame node wall_microseconds is null");

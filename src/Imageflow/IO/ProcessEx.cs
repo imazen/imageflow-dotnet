@@ -1,5 +1,6 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text;
+
 using Microsoft.IO;
 
 namespace Imageflow.IO
@@ -45,14 +46,14 @@ namespace Imageflow.IO
 
     internal static class ProcessEx
     {
-        
+
         public static Task<ProcessResults> RunAsync(string fileName)
             => RunAsync(new ProcessStartInfo(fileName));
 
         public static Task<ProcessResults> RunAsync(string fileName, string arguments)
             => RunAsync(new ProcessStartInfo(fileName, arguments));
-        
-        public static Task<ProcessResults> RunAsync(ProcessStartInfo processStartInfo) 
+
+        public static Task<ProcessResults> RunAsync(ProcessStartInfo processStartInfo)
             => RunAsync(processStartInfo, CancellationToken.None);
 
         public static async Task<ProcessResults> RunAsync(ProcessStartInfo processStartInfo, CancellationToken cancellationToken)
@@ -67,13 +68,15 @@ namespace Imageflow.IO
             var standardOutput = new List<string>();
             var standardError = new List<string>();
 
-            var process = new Process {
+            var process = new Process
+            {
                 StartInfo = processStartInfo,
                 EnableRaisingEvents = true
             };
 
             var standardOutputResults = new TaskCompletionSource<string[]>();
-            process.OutputDataReceived += (_, args) => {
+            process.OutputDataReceived += (_, args) =>
+            {
                 if (args.Data != null)
                     standardOutput.Add(args.Data);
                 else
@@ -81,27 +84,33 @@ namespace Imageflow.IO
             };
 
             var standardErrorResults = new TaskCompletionSource<string[]>();
-            process.ErrorDataReceived += (_, args) => {
+            process.ErrorDataReceived += (_, args) =>
+            {
                 if (args.Data != null)
                     standardError.Add(args.Data);
                 else
                     standardErrorResults.SetResult(standardError.ToArray());
             };
 
-            process.Exited += (sender, args) => {
+            process.Exited += (sender, args) =>
+            {
                 // Since the Exited event can happen asynchronously to the output and error events, 
                 // we use the task results for stdout/stderr to ensure they both closed
                 tcs.TrySetResult(new ProcessResults(process, standardOutputResults.Task.Result, standardErrorResults.Task.Result));
             };
 
             using (cancellationToken.Register(
-                callback: () => {
+                callback: () =>
+                {
                     tcs.TrySetCanceled();
-                    try {
+                    try
+                    {
                         if (!process.HasExited)
                             process.Kill();
-                    } catch (InvalidOperationException) { }
-                })) {
+                    }
+                    catch (InvalidOperationException) { }
+                }))
+            {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 if (process.Start() == false)

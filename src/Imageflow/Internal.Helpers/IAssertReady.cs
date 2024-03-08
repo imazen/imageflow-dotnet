@@ -1,4 +1,4 @@
-﻿namespace Imageflow.Internal.Helpers
+namespace Imageflow.Internal.Helpers
 {
     internal interface IAssertReady
     {

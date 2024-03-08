@@ -12,8 +12,8 @@ namespace Imageflow.Bindings
     internal class LoadLogger : ILibraryLoadLogger
     {
         internal string Verb = "loaded";
-        internal string Filename = $"{ RuntimeFileLocator.SharedLibraryPrefix.Value}";
-        
+        internal string Filename = $"{RuntimeFileLocator.SharedLibraryPrefix.Value}";
+
         internal Exception? FirstException;
         internal Exception? LastException;
 
@@ -67,8 +67,8 @@ namespace Imageflow.Bindings
                     string errorCode = e.LoadErrorCode.Value < 0
                         ? string.Format(CultureInfo.InvariantCulture, "0x{0:X8}", e.LoadErrorCode.Value)
                         : e.LoadErrorCode.Value.ToString(CultureInfo.InvariantCulture);
-                    
-                    sb.AppendFormat("Error \"{0}\" ({1}) loading {2} from {3}", 
+
+                    sb.AppendFormat("Error \"{0}\" ({1}) loading {2} from {3}",
                         new Win32Exception(e.LoadErrorCode.Value).Message,
                         errorCode,
                         e.Basename, e.FullPath);
@@ -76,7 +76,7 @@ namespace Imageflow.Bindings
                     if (e.LoadErrorCode.Value == 193 &&
                         RuntimeFileLocator.PlatformRuntimePrefix.Value == "win")
                     {
-                        var installed = Environment.Is64BitProcess ? "32-bit (x86)" : "64-bit (x86_64)" ;
+                        var installed = Environment.Is64BitProcess ? "32-bit (x86)" : "64-bit (x86_64)";
                         var needed = Environment.Is64BitProcess ? "64-bit (x86_64)" : "32-bit (x86)";
 
                         sb.AppendFormat("\n> You have installed a {0} copy of imageflow.dll but need the {1} version",
@@ -86,10 +86,10 @@ namespace Imageflow.Bindings
                     if (e.LoadErrorCode.Value == 126 &&
                         RuntimeFileLocator.PlatformRuntimePrefix.Value == "win")
                     {
-                        var crtLink = "https://aka.ms/vs/16/release/vc_redist." 
+                        var crtLink = "https://aka.ms/vs/16/release/vc_redist."
                                       + (Environment.Is64BitProcess ? "x64.exe" : "x86.exe");
 
-                        sb.AppendFormat("\n> You may need to install the C Runtime from {0}",crtLink);
+                        sb.AppendFormat("\n> You may need to install the C Runtime from {0}", crtLink);
                     }
                 }
                 else
@@ -116,7 +116,7 @@ namespace Imageflow.Bindings
         internal static readonly Lazy<bool> IsDotNetCore = new Lazy<bool>(() =>
                 true
             , LazyThreadSafetyMode.PublicationOnly);
-        #else
+#else
         internal static readonly Lazy<bool> IsDotNetCore = new Lazy<bool>(() =>
                 typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.CodeBase.Contains("Microsoft.NETCore.App")
             , LazyThreadSafetyMode.PublicationOnly);
@@ -177,7 +177,7 @@ namespace Imageflow.Bindings
                     return "dll";
             }
         }, LazyThreadSafetyMode.PublicationOnly);
-        
+
         /// <summary>
         /// The output subdirectory that NuGet .props/.targets should be copying unmanaged binaries to.
         /// If you're using .NET Core you don't need this.
@@ -208,7 +208,7 @@ namespace Imageflow.Bindings
         /// </summary>
         /// <param name="customSearchDirectories"></param>
         /// <returns></returns>
-        private static IEnumerable<Tuple<bool,string>> BaseFolders(IEnumerable<string>? customSearchDirectories = null)
+        private static IEnumerable<Tuple<bool, string>> BaseFolders(IEnumerable<string>? customSearchDirectories = null)
         {
             // Prioritize user suggestions
             if (customSearchDirectories != null)
@@ -218,7 +218,7 @@ namespace Imageflow.Bindings
                     yield return Tuple.Create(true, d);
                 }
             }
-            
+
             // First look in AppDomain.CurrentDomain.RelativeSearchPath - if it is within the BaseDirectory
             if (!string.IsNullOrEmpty(AppDomain.CurrentDomain.RelativeSearchPath) &&
                 AppDomain.CurrentDomain.RelativeSearchPath.StartsWith(AppDomain.CurrentDomain.BaseDirectory))
@@ -230,24 +230,24 @@ namespace Imageflow.Bindings
             {
                 yield return Tuple.Create(true, AppContext.BaseDirectory);
             }
-            
+
             // Look in the base directory from which .NET looks for managed assemblies
             yield return Tuple.Create(true, AppDomain.CurrentDomain.BaseDirectory);
-            
+
             //Issue #17 - Azure Functions 2.0 - https://github.com/imazen/imageflow-dotnet/issues/17
             // If the BaseDirectory is /bin/, look one step outside of it.
-            if(AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).EndsWith("bin"))
+            if (AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).EndsWith("bin"))
             {
                 //Look in the parent directory if we're in /bin/, but only look in ../runtimes/:rid:/native
                 var dir = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory);
                 if (dir != null)
-                    yield return Tuple.Create(false, Path.Combine(dir.FullName, 
+                    yield return Tuple.Create(false, Path.Combine(dir.FullName,
                         "runtimes", PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native"));
-                
+
             }
-            
+
             string? assemblyLocation = null;
-            #if !NETCOREAPP && !NET5_0_OR_GREATER && !NET8_0_OR_GREATER
+#if !NETCOREAPP && !NET5_0_OR_GREATER && !NET8_0_OR_GREATER
             try{
                 // Look in the folder that *this* assembly is located.
                 assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -255,7 +255,7 @@ namespace Imageflow.Bindings
             } catch (NotImplementedException){
                 // ignored
             }
-            #endif
+#endif
             if (!string.IsNullOrEmpty(assemblyLocation))
                 yield return Tuple.Create(true, assemblyLocation!);
         }
@@ -275,15 +275,17 @@ namespace Imageflow.Bindings
                 {
                     // First try the simple arch subdir since that is where the nuget native packages unpack
                     path = Path.Combine(directory, ArchitectureSubdir.Value, filename);
-                    if (attemptedPaths.Add(path)){
+                    if (attemptedPaths.Add(path))
+                    {
                         yield return path;
                     }
                 }
 
                 // Try the folder itself
                 path = Path.Combine(directory, filename);
-                
-                if (attemptedPaths.Add(path)){
+
+                if (attemptedPaths.Add(path))
+                {
                     yield return path;
                 }
 
@@ -292,7 +294,8 @@ namespace Imageflow.Bindings
                     // Last try native runtimes directory in case this is happening in .NET Core
                     path = Path.Combine(directory, "runtimes",
                         PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native", filename);
-                    if (attemptedPaths.Add(path)){
+                    if (attemptedPaths.Add(path))
+                    {
                         yield return path;
                     }
                 }
@@ -311,21 +314,21 @@ namespace Imageflow.Bindings
             return SearchPossibilitiesForFile(filename, customSearchDirectories).FirstOrDefault(File.Exists);
         }
     }
-    
+
     internal interface ILibraryLoadLogger
     {
         void NotifyAttempt(string basename, string? fullPath, bool fileExists, bool previouslyLoaded, int? loadErrorCode);
     }
-    
-    
+
+
     public static class ExecutableLocator
     {
- 
+
         private static string GetFilenameWithoutDirectory(string basename) => RuntimeFileLocator.ExecutableExtension.Value.Length > 0
             ? $"{basename}.{RuntimeFileLocator.ExecutableExtension.Value}"
             : basename;
-        
-        
+
+
         /// <summary>
         /// Raises an exception if the file couldn't be found
         /// </summary>
@@ -342,7 +345,7 @@ namespace Imageflow.Bindings
             logger.RaiseException();
             return null;
         }
-        
+
         private static readonly Lazy<ConcurrentDictionary<string, string>> ExecutablePathsByName = new Lazy<ConcurrentDictionary<string, string>>(() => new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);
 
         // Not yet implemented. 
@@ -388,11 +391,11 @@ namespace Imageflow.Bindings
             return false;
         }
     }
-    
-    
+
+
     internal static class NativeLibraryLoader
     {
-        private static string GetFilenameWithoutDirectory(string basename) =>  $"{RuntimeFileLocator.SharedLibraryPrefix.Value}{basename}.{RuntimeFileLocator.SharedLibraryExtension.Value}";
+        private static string GetFilenameWithoutDirectory(string basename) => $"{RuntimeFileLocator.SharedLibraryPrefix.Value}{basename}.{RuntimeFileLocator.SharedLibraryExtension.Value}";
 
         /// <summary>
         /// Attempts to resolve DllNotFoundException and BadImageFormatExceptions
@@ -420,10 +423,10 @@ namespace Imageflow.Bindings
             {
                 caughtException = b;
             }
-            
+
             //Try loading 
             var logger = new LoadLogger
-                { FirstException = caughtException, Filename = GetFilenameWithoutDirectory(basename) };
+            { FirstException = caughtException, Filename = GetFilenameWithoutDirectory(basename) };
             if (TryLoadByBasename(basename, logger, out var _, customSearchDirectories))
             {
                 try
@@ -475,9 +478,9 @@ namespace Imageflow.Bindings
                 if (success) LibraryHandlesByBasename.Value[basename] = handle;
                 return success;
             }
-        }     
+        }
 
-              
+
         private static bool TryLoadByBasenameInternal(string basename, ILibraryLoadLogger log, out IntPtr handle, IEnumerable<string>? customSearchDirectories = null)
         {
             var filename = GetFilenameWithoutDirectory(basename);
@@ -500,13 +503,13 @@ namespace Imageflow.Bindings
             handle = IntPtr.Zero;
             return false;
         }
-        
+
         private static bool LoadLibrary(string fullPath, out IntPtr handle, out int? errorCode)
         {
             handle = RuntimeFileLocator.IsUnix ? UnixLoadLibrary.Execute(fullPath) : WindowsLoadLibrary.Execute(fullPath);
             if (handle == IntPtr.Zero)
             {
-                errorCode = Marshal.GetLastWin32Error(); 
+                errorCode = Marshal.GetLastWin32Error();
                 return false;
             }
             errorCode = null;
@@ -544,5 +547,5 @@ namespace Imageflow.Bindings
         }
     }
 
-    
+
 }

@@ -9,7 +9,7 @@ namespace Imageflow.Fluent
         {
             var obj = perf?.AsObject();
             if (obj == null) return;
-            
+
             // foreach (var f in perf.frames)
             // {
             //     frames.Add(new PerformanceDetailsFrame(f));
@@ -31,7 +31,8 @@ namespace Imageflow.Fluent
             if (Frames.Count > 1)
             {
                 sb.Append($"First of {Frames.Count} frames: ");
-            }else if (Frames.Count == 0)
+            }
+            else if (Frames.Count == 0)
             {
                 sb.Append("No frames found");
             }

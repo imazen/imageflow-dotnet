@@ -1,4 +1,4 @@
-﻿namespace Imageflow.Fluent;
+namespace Imageflow.Fluent;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 public sealed class BytesSourceAdapter(IBytesSource source) : IAsyncMemorySource, IMemorySource
@@ -14,9 +14,9 @@ public sealed class BytesSourceAdapter(IBytesSource source) : IAsyncMemorySource
         var bytes = await source.GetBytesAsync(cancellationToken).ConfigureAwait(false);
         return new ReadOnlyMemory<byte>(bytes.Array, bytes.Offset, bytes.Count);
     }
-    
+
     public ReadOnlyMemory<byte> BorrowReadOnlyMemory()
-    {   
+    {
         var bytes = source.GetBytesAsync(default).Result;
         return new ReadOnlyMemory<byte>(bytes.Array, bytes.Offset, bytes.Count);
     }

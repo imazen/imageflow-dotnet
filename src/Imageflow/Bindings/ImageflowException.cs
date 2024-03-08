@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Imageflow.Bindings
@@ -9,7 +9,7 @@ namespace Imageflow.Bindings
 
         internal ImageflowException(string message) : base(message)
         {
-            
+
         }
 
         private enum ErrorFetchResult
@@ -32,14 +32,14 @@ namespace Imageflow.Bindings
             }
             var buffer = new byte[bufferSize];
             var pinned = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-            
+
             try
             {
                 var everythingWritten = NativeMethods.imageflow_context_error_write_to_buffer(c,
-                    pinned.AddrOfPinnedObject(), new UIntPtr((ulong) buffer.LongLength), out var bytesWritten);
+                    pinned.AddrOfPinnedObject(), new UIntPtr((ulong)buffer.LongLength), out var bytesWritten);
 
-                message = bytesWritten.ToUInt64() > 0 
-                    ? Encoding.UTF8.GetString(buffer, 0, (int)Math.Min(bytesWritten.ToUInt64(), bufferSize)) 
+                message = bytesWritten.ToUInt64() > 0
+                    ? Encoding.UTF8.GetString(buffer, 0, (int)Math.Min(bytesWritten.ToUInt64(), bufferSize))
                     : "";
 
                 return everythingWritten ? ErrorFetchResult.Success : ErrorFetchResult.BufferTooSmall;
@@ -49,7 +49,7 @@ namespace Imageflow.Bindings
                 pinned.Free();
             }
         }
-        
+
         internal static ImageflowException FromContext(JobContextHandle c, ulong defaultBufferSize = 2048, string? additionalInfo = null)
         {
             for (var bufferSize = defaultBufferSize; bufferSize < MaxBufferSize; bufferSize *= 2)

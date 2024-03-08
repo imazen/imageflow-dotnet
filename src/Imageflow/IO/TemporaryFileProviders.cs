@@ -1,4 +1,4 @@
-﻿using System.IO.MemoryMappedFiles;
+using System.IO.MemoryMappedFiles;
 
 namespace Imageflow.IO
 {
@@ -54,20 +54,20 @@ namespace Imageflow.IO
         {
             return new TemporaryMemoryFileProvider();
         }
-        
+
         public void Dispose()
         {
             _file?.Dispose();
         }
     }
-    
+
     internal class TemporaryFileProvider : ITemporaryFileProvider
     {
         public ITemporaryFile Create(bool cleanup, long capacity)
         {
             return new TemporaryFile(Path.GetTempFileName(), cleanup);
         }
-        
+
     }
 
     internal class TemporaryFile : ITemporaryFile
@@ -97,7 +97,7 @@ namespace Imageflow.IO
             return fs;
         }
 
-        
+
 
         public static ITemporaryFileProvider CreateProvider()
         {

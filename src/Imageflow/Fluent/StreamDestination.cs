@@ -1,4 +1,4 @@
-﻿using Imageflow.Bindings;
+using Imageflow.Bindings;
 using Imageflow.Internal.Helpers;
 
 namespace Imageflow.Fluent;
@@ -21,12 +21,12 @@ public class StreamDestination(Stream underlying, bool disposeUnderlying) : IOut
         if (bytes.Array == null) throw new ImageflowAssertionFailed("StreamDestination.WriteAsync called with null array");
         return underlying.WriteAsync(bytes.Array, bytes.Offset, bytes.Count, cancellationToken);
     }
-        
+
     public ValueTask WriteAsync(ReadOnlyMemory<byte> bytes, CancellationToken cancellationToken)
     {
         return underlying.WriteMemoryAsync(bytes, cancellationToken);
     }
-        
+
     public void Write(ReadOnlySpan<byte> bytes)
     {
         underlying.WriteSpan(bytes);
@@ -34,7 +34,7 @@ public class StreamDestination(Stream underlying, bool disposeUnderlying) : IOut
 
     public Task FlushAsync(CancellationToken cancellationToken)
     {
-        if (underlying is { CanSeek: true, CanWrite: true } 
+        if (underlying is { CanSeek: true, CanWrite: true }
             && underlying.Position < underlying.Length)
             underlying.SetLength(underlying.Position);
         return underlying.FlushAsync(cancellationToken);

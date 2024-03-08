@@ -1,14 +1,15 @@
-using Xunit;
 using Imageflow.Fluent;
+
+using Xunit;
 namespace Imageflow.Test
 {
     public class TestSrgbColor
     {
-        
+
         [Fact]
         public void TestFromHex()
         {
-            foreach (var color in new [] {"1234", "11223344"})
+            foreach (var color in new[] { "1234", "11223344" })
             {
                 var parsed = SrgbColor.FromHex(color);
                 Assert.Equal("11", $"{parsed.R:x2}");
@@ -17,7 +18,7 @@ namespace Imageflow.Test
                 Assert.Equal("44", $"{parsed.A:x2}");
             }
 
-            foreach (var color in new [] {"123", "112233"})
+            foreach (var color in new[] { "123", "112233" })
             {
                 var parsed = SrgbColor.FromHex(color);
                 Assert.Equal("11", $"{parsed.R:x2}");
@@ -26,7 +27,7 @@ namespace Imageflow.Test
                 Assert.Equal("ff", $"{parsed.A:x2}");
             }
         }
-        
+
         [Fact]
         public void TestRoundTrip()
         {

@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -13,7 +13,7 @@ internal sealed unsafe class SafeHandleMemoryManager : MemoryManager<byte>
     private IntPtr _pointer;
     private readonly SafeHandle _outerHandle;
     private readonly SafeHandle? _innerHandle;
-    
+
     /// <summary>
     /// Use this to create a MemoryManager that keeps a handle forced open until the MemoryManager is disposed.
     /// </summary>
@@ -23,7 +23,7 @@ internal sealed unsafe class SafeHandleMemoryManager : MemoryManager<byte>
     /// <returns></returns>
     internal static MemoryManager<byte> BorrowFromHandle(SafeHandle handle, IntPtr pointer, uint length)
     {
-        return new SafeHandleMemoryManager(handle,null, pointer, length, true);
+        return new SafeHandleMemoryManager(handle, null, pointer, length, true);
     }
     /// <summary>
     /// Use this to create a MemoryManager that keeps two handles forced open until the MemoryManager is disposed.
@@ -37,7 +37,7 @@ internal sealed unsafe class SafeHandleMemoryManager : MemoryManager<byte>
     /// <returns></returns>
     internal static MemoryManager<byte> BorrowFromHandles(SafeHandle outerHandle, SafeHandle innerHandle, IntPtr pointer, uint length)
     {
-        return new SafeHandleMemoryManager(outerHandle,innerHandle, pointer, length, true);
+        return new SafeHandleMemoryManager(outerHandle, innerHandle, pointer, length, true);
     }
     private SafeHandleMemoryManager(SafeHandle outerHandle, SafeHandle? innerHandle, IntPtr pointer, uint length, bool addGcPressure)
     {
@@ -107,12 +107,13 @@ internal sealed unsafe class SafeHandleMemoryManager : MemoryManager<byte>
             // Now release the handle(s)
             _innerHandle?.DangerousRelease();
             _outerHandle.DangerousRelease();
-            
-            if (_length != 0){
+
+            if (_length != 0)
+            {
                 GC.RemoveMemoryPressure(_length);
             }
         }
     }
-    
-    
+
+
 }

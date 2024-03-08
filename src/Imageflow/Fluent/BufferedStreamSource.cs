@@ -1,4 +1,5 @@
-﻿using Imageflow.Internal.Helpers;
+using Imageflow.Internal.Helpers;
+
 using Microsoft.IO;
 
 namespace Imageflow.Fluent;
@@ -13,12 +14,12 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
         }
         var length = stream.CanSeek ? stream.Length : 0;
         if (length >= int.MaxValue) throw new OverflowException("Streams cannot exceed 2GB");
-        
+
         _underlying = stream;
         _disposeUnderlying = disposeUnderlying;
         _seekToStart = seekToStart;
     }
-    
+
     private readonly bool _seekToStart;
     private Stream? _underlying;
     private readonly bool _disposeUnderlying;
@@ -38,9 +39,9 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
 
         _copy?.Dispose();
         _copy = null;
-        
+
     }
-    
+
     private bool TryGetWrittenMemory(
         out ReadOnlyMemory<byte> memory)
     {
@@ -84,10 +85,10 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
         if (!TryGetWrittenMemory(out segment))
         {
             throw new InvalidOperationException("Could not get RecyclableMemoryStream buffer; please report this bug to support@imazen.io");
-        }        
+        }
         return segment;
     }
-    
+
     public ReadOnlyMemory<byte> BorrowReadOnlyMemory()
     {
         ObjectDisposedHelper.ThrowIf(_underlying == null, this);
@@ -99,14 +100,14 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
         {
             _underlying.Seek(0, SeekOrigin.Begin);
         }
-        
+
         _copy = new RecyclableMemoryStream(Mgr, "BufferedStreamSource: IMemorySource", _underlying.CanSeek ? _underlying.Length : 0);
         _underlying.CopyTo(_copy);
         _copy.Seek(0, SeekOrigin.Begin);
         if (!TryGetWrittenMemory(out segment))
         {
             throw new InvalidOperationException("Could not get RecyclableMemoryStream buffer; please report this bug to support@imazen.io");
-        }        
+        }
         return segment;
     }
 
@@ -135,7 +136,7 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
     {
         return new BufferedStreamSource(stream, false, false);
     }
-    
+
     /// <summary>
     /// The stream will be closed and disposed with the BufferedStreamSource. You must not close, dispose, or reuse the stream or its underlying streams/buffers until after the job and the owning objects are disposed.
     /// <remarks>You must not close, dispose, or reuse the stream or its underlying streams/buffers until after the job and the owning objects are disposed. <br/>
@@ -148,7 +149,7 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
     {
         return new BufferedStreamSource(stream, true, true);
     }
-    
+
     /// <summary>
     /// The stream will be closed and disposed with the BufferedStreamSource.
     /// <strong>You must not close, dispose, or reuse the stream or its underlying streams/buffers until after the job and the owning objects are disposed.</strong>

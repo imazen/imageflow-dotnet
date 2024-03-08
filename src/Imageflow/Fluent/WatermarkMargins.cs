@@ -39,7 +39,7 @@ namespace Imageflow.Fluent
             RelativeTo = relativeTo;
             return this;
         }
-        
+
         public WatermarkMargins SetLeft(uint pixels)
         {
             Left = pixels;
@@ -60,7 +60,7 @@ namespace Imageflow.Fluent
             Bottom = pixels;
             return this;
         }
-        
+
         [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic()
         {
@@ -69,7 +69,8 @@ namespace Imageflow.Fluent
                 case WatermarkAlign.Canvas:
                     return new
                     {
-                        canvas_margins = new {
+                        canvas_margins = new
+                        {
                             left = Left,
                             top = Top,
                             right = Right,
@@ -80,7 +81,8 @@ namespace Imageflow.Fluent
                 case WatermarkAlign.Image:
                     return new
                     {
-                        image_margins = new {
+                        image_margins = new
+                        {
                             left = Left,
                             top = Top,
                             right = Right,

@@ -1,4 +1,4 @@
-﻿namespace Imageflow.Fluent
+namespace Imageflow.Fluent
 {
     public interface IPreparedFilesystemJob : IDisposable
     {

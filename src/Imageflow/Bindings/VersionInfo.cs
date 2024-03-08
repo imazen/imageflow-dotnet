@@ -21,7 +21,7 @@ namespace Imageflow.Bindings
             // {
             //     BuildDate = new DateTimeOffset(dt);
             // }
-            
+
             var obj = versionInfo.AsObject();
             const string longVersionMsg = "Imageflow get_version_info responded with null version_info.long_version_string";
             LongVersionString = obj.TryGetPropertyValue("long_version_string", out var longVersionValue)
@@ -46,23 +46,23 @@ namespace Imageflow.Bindings
             GitDescribeAlways = obj.TryGetPropertyValue("git_describe_always", out var gitDescribeAlwaysValue)
                 ? gitDescribeAlwaysValue?.GetValue<string>()
                 : null;
-            
-            
-            
+
+
+
         }
         internal static VersionInfo FromNode(JsonNode versionInfo)
         {
             return new VersionInfo(versionInfo);
         }
-        
+
         public string LongVersionString { get; private set; }
         public string LastGitCommit { get; private set; }
-        
+
         /// <summary>
         /// Usually includes the last version tag, the number of commits since, and a shortened git hash
         /// </summary>
         public string? GitDescribeAlways { get; private set; }
-        
+
         /// <summary>
         /// May be null if the current version was not a tagged release
         /// </summary>

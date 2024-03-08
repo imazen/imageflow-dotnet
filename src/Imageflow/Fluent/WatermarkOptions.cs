@@ -4,17 +4,17 @@ namespace Imageflow.Fluent
 {
     public class WatermarkOptions
     {
-        
+
         public ConstraintGravity? Gravity { get; set; }
         public IWatermarkConstraintBox? FitBox { get; set; }
         public WatermarkConstraintMode? FitMode { get; set; }
-        
+
         /// <summary>
         /// Range 0..1, where 1 is fully opaque and 0 is transparent.
         /// </summary>
         public float? Opacity { get; set; }
         public ResampleHints? Hints { get; set; }
-        
+
         public uint? MinCanvasWidth { get; set; }
         public uint? MinCanvasHeight { get; set; }
 
@@ -22,7 +22,7 @@ namespace Imageflow.Fluent
         public WatermarkOptions WithHints(ResampleHints hints)
         {
             Hints = hints;
-            return this; 
+            return this;
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace Imageflow.Fluent
         /// <param name="minWidth"></param>
         /// <param name="minHeight"></param>
         /// <returns></returns>
-        [Obsolete("Use Set___ methods instead")] 
+        [Obsolete("Use Set___ methods instead")]
         public WatermarkOptions WithMinCanvasSize(uint? minWidth, uint? minHeight)
         {
             MinCanvasWidth = minWidth;
@@ -93,10 +93,10 @@ namespace Imageflow.Fluent
             return this;
         }
 
-         public WatermarkOptions SetHints(ResampleHints hints)
+        public WatermarkOptions SetHints(ResampleHints hints)
         {
             Hints = hints;
-            return this; 
+            return this;
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Imageflow.Fluent
             FitBox = margins;
             return this;
         }
-        
+
         public WatermarkOptions SetFitBox(WatermarkFitBox fitBox)
         {
             FitBox = fitBox;
@@ -142,7 +142,7 @@ namespace Imageflow.Fluent
             Gravity = gravity;
             return this;
         }
-        
+
         public WatermarkOptions SetMarginsLayout(WatermarkMargins margins, WatermarkConstraintMode fitMode,
             ConstraintGravity gravity)
         {

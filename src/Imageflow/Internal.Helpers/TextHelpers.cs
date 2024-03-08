@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 namespace Imageflow.Internal.Helpers;
 
@@ -9,16 +9,16 @@ internal static class TextHelpers
 #if NETSTANDARD2_1_OR_GREATER
         return Encoding.UTF8.GetString(utf8);
 #else
-            unsafe
+        unsafe
+        {
+            fixed (byte* ptr = utf8)
             {
-                fixed (byte* ptr = utf8)
-                {
-                    return Encoding.UTF8.GetString(ptr, utf8.Length);
-                }
+                return Encoding.UTF8.GetString(ptr, utf8.Length);
             }
+        }
 #endif
     }
-    
+
     /// <summary>
     /// Returns false if the text contains non-ASCII characters or nulls, or if the buffer is too small (it should be greater than the number of chars).
     /// </summary>
@@ -51,7 +51,7 @@ internal static class TextHelpers
                 bytesUsed = 0;
                 return false;
             }
-            buffer[i] = (byte) text[i];
+            buffer[i] = (byte)text[i];
         }
         buffer[^1] = 0;
         bytesUsed = text.Length + 1;
@@ -59,5 +59,5 @@ internal static class TextHelpers
     }
 
 
-    
+
 }

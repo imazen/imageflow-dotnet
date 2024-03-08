@@ -14,7 +14,7 @@ namespace Imageflow.Bindings
             /// OutlivesContext -> 1
             OutlivesContext = 1,
         }
-        
+
         // ReSharper disable once InconsistentNaming
         public const int ABI_MAJOR = 3;
         // ReSharper disable once InconsistentNaming
@@ -114,7 +114,7 @@ namespace Imageflow.Bindings
 
         [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
         [return: MarshalAs(UnmanagedType.I1)]
-        public static extern bool  imageflow_context_add_input_buffer(JobContextHandle context, int ioId, IntPtr buffer,
+        public static extern bool imageflow_context_add_input_buffer(JobContextHandle context, int ioId, IntPtr buffer,
             UIntPtr bufferByteCount, Lifetime lifetime);
 
         [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
@@ -130,4 +130,3 @@ namespace Imageflow.Bindings
 
     }
 }
-

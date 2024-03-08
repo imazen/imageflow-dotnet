@@ -10,12 +10,12 @@ namespace Imageflow.Fluent
         private CancellationTokenSource? _tokenSource;
         private SecurityOptions? _security;
 
-        internal FinishJobBuilder(ImageJob imageJob,  CancellationToken cancellationToken)
+        internal FinishJobBuilder(ImageJob imageJob, CancellationToken cancellationToken)
         {
             _builder = imageJob;
             _token = cancellationToken;
         }
-        
+
         public FinishJobBuilder WithSecurityOptions(SecurityOptions securityOptions)
         {
             _security = securityOptions;
@@ -69,10 +69,10 @@ namespace Imageflow.Fluent
             return WithCancellationToken(_tokenSource.Token);
         }
 
-        public Task<BuildJobResult> InProcessAsync() => _builder.FinishAsync(new JobExecutionOptions(),_security, _token);
+        public Task<BuildJobResult> InProcessAsync() => _builder.FinishAsync(new JobExecutionOptions(), _security, _token);
 
         public Task<BuildJobResult> InSubprocessAsync(string? imageflowToolPath = null, long? outputBufferCapacity = null) =>
-            _builder.FinishInSubprocessAsync(_security, imageflowToolPath, outputBufferCapacity,  _token);
+            _builder.FinishInSubprocessAsync(_security, imageflowToolPath, outputBufferCapacity, _token);
 
         /// <summary>
         /// Returns a prepared job that can be executed with `imageflow_tool --json [job.JsonPath]`. Supporting input/output files are also created.
@@ -81,12 +81,12 @@ namespace Imageflow.Fluent
         /// <returns></returns>
         public Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(bool deleteFilesOnDispose) =>
             _builder.WriteJsonJobAndInputs(_token, _security, deleteFilesOnDispose);
-        
+
         internal string ToJsonDebug(SecurityOptions? securityOptions = null) => _builder.ToJsonDebug(securityOptions);
-        
+
         public async Task<BuildJobResult> InProcessAndDisposeAsync()
         {
-            BuildJobResult r; 
+            BuildJobResult r;
             try
             {
                 r = await InProcessAsync();
@@ -98,7 +98,7 @@ namespace Imageflow.Fluent
 
             return r;
         }
-        
+
     }
 
 

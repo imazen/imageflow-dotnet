@@ -1,7 +1,9 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Text;
 using System.Text.Json.Nodes;
+
 using Imageflow.Internal.Helpers;
+
 using Utf8JsonReader = System.Text.Json.Utf8JsonReader;
 
 namespace Imageflow.Bindings
@@ -13,14 +15,14 @@ namespace Imageflow.Bindings
         Stream GetStream();
     }
 
-    public interface IJsonResponse: IDisposable
+    public interface IJsonResponse : IDisposable
     {
         public int ImageflowErrorCode { get; }
         public string CopyString();
         public JsonNode? Parse();
         public byte[] CopyBytes();
     }
-    
+
     internal interface IJsonResponseSpanProvider : IDisposable
     {
         /// <summary>
@@ -37,7 +39,7 @@ namespace Imageflow.Bindings
             ImageflowErrorCode = statusCode;
             _memory = memory;
         }
-        
+
         private readonly ReadOnlyMemory<byte> _memory;
 
         public int ImageflowErrorCode { get; }
@@ -46,28 +48,28 @@ namespace Imageflow.Bindings
         {
             return _memory.Span.Utf8ToString();
         }
-        
+
         public JsonNode? Parse()
         {
             return _memory.Span.ParseJsonNode();
         }
-        
+
         public byte[] CopyBytes()
         {
             return _memory.ToArray();
         }
-        
+
         public ReadOnlySpan<byte> BorrowBytes()
         {
             return _memory.Span;
         }
-        
+
         public void Dispose()
         {
             // no-op
         }
     }
-    
+
     /// <summary>
     /// Readable even if the JobContext is in an error state.
     /// </summary>
@@ -120,7 +122,7 @@ namespace Imageflow.Bindings
             Read(out var _, out var utf8Buffer, out var bufferSize);
             return new ImageflowUnmanagedReadStream(this, _handle, utf8Buffer, bufferSize);
         }
-        
+
         public unsafe ReadOnlySpan<byte> BorrowBytes()
         {
             Read(out var _, out var utf8Buffer, out var bufferSize);
@@ -130,7 +132,7 @@ namespace Imageflow.Bindings
 
             return new ReadOnlySpan<byte>((void*)utf8Buffer, (int)bufferSize);
         }
-        
+
         public MemoryManager<byte> BorrowMemory()
         {
             Read(out var _, out var utf8Buffer, out var bufferSize);
@@ -145,14 +147,14 @@ namespace Imageflow.Bindings
         {
             _handle.Dispose();
         }
-        
-        
+
+
         public int GetStatusCode()
         {
             Read(out var statusCode, out var _, out var _);
             return statusCode;
         }
-        
+
         public int ImageflowErrorCode => _statusCode ??= GetStatusCode();
         public string CopyString()
         {
@@ -175,12 +177,12 @@ namespace Imageflow.Bindings
     {
         internal static JsonNode? ParseJsonNode(this ReadOnlySpan<byte> buffer)
         {
-    
+
             var reader3 = new Utf8JsonReader(buffer);
             return JsonNode.Parse(ref reader3);
         }
 
-        
+
         // [Obsolete("Use DeserializeJsonNode() instead")]
         // public static T? Deserialize<T>(this IJsonResponseProvider p) where T : class
         // {
@@ -202,7 +204,7 @@ namespace Imageflow.Bindings
         //     using var reader = new StreamReader(p.GetStream(), Encoding.UTF8);
         //     //return JsonSerializer.Create().Deserialize(new JsonTextReader(reader));
         // }
-        
+
         [Obsolete("Use IJsonResponse.Parse()? instead")]
         public static JsonNode? DeserializeJsonNode(this IJsonResponseProvider p)
         {
@@ -219,7 +221,7 @@ namespace Imageflow.Bindings
             var reader2 = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
             return JsonNode.Parse(ref reader2);
         }
-        
+
 
         [Obsolete("IJsonResponseProvider is deprecated; use IJsonResponse instead")]
         public static string GetString(this IJsonResponseProvider p)

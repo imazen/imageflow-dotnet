@@ -1,14 +1,15 @@
-﻿using Imageflow.Bindings;
+using Imageflow.Bindings;
 
 namespace Imageflow.Fluent
 {
-// ReSharper disable InconsistentNaming
-    
- 
-    public enum PixelFormat {
+    // ReSharper disable InconsistentNaming
+
+
+    public enum PixelFormat
+    {
         Bgra_32 = 4,
         Bgr_32 = 70,
-//        Bgr_24 = 3,
+        //        Bgr_24 = 3,
         //    Gray_8 = 1,
     }
     internal static class PixelFormatParser
@@ -19,14 +20,15 @@ namespace Imageflow.Fluent
             {
                 "bgra_32" => PixelFormat.Bgra_32,
                 "bgr_32" => PixelFormat.Bgr_32,
-//                "bgr_24" => PixelFormat.Bgr_24,
+                //                "bgr_24" => PixelFormat.Bgr_24,
                 //    "gray_8" => PixelFormat.Gray_8,
                 _ => throw new ImageflowAssertionFailed($"Unknown pixel format {s}")
             };
         }
     }
-        
-    public enum ResampleWhen{
+
+    public enum ResampleWhen
+    {
         Size_Differs,
         Size_Differs_Or_Sharpening_Requested,
         Always
@@ -41,11 +43,13 @@ namespace Imageflow.Fluent
     }
     // ReSharper enable InconsistentNaming
 
-    public enum ScalingFloatspace {
+    public enum ScalingFloatspace
+    {
         Srgb,
         Linear
     }
-    public enum InterpolationFilter {
+    public enum InterpolationFilter
+    {
         Robidoux_Fast = 1,
         Robidoux = 2,
         Robidoux_Sharp = 3,
@@ -59,7 +63,7 @@ namespace Imageflow.Fluent
         Cubic_Sharp = 12,
         Catmull_Rom = 13,
         Mitchell = 14,
-    
+
         Cubic_B_Spline = 15,
         Hermite = 16,
         Jinc = 17,
@@ -68,7 +72,7 @@ namespace Imageflow.Fluent
         Box = 24,
 
         Fastest = 27,
-    
+
         N_Cubic = 29,
         N_Cubic_Sharp = 30,
     }
@@ -81,7 +85,8 @@ namespace Imageflow.Fluent
         Srgb,
     }
 
-    public enum PngBitDepth {
+    public enum PngBitDepth
+    {
         Png_32,
         Png_24,
     }
@@ -128,8 +133,8 @@ namespace Imageflow.Fluent
         /// If only one dimension is specified, behaves like `fit`.
         Fit_Pad,
     }
-    
-    
+
+
     public enum WatermarkConstraintMode
     {
         /// Distort the image to exactly the given dimensions.
@@ -158,7 +163,7 @@ namespace Imageflow.Fluent
         /// </summary>
         Image
     }
-    
+
     /// <summary>
     /// What quality level to use when downscaling the jpeg block-wise
     /// </summary>
@@ -172,7 +177,7 @@ namespace Imageflow.Fluent
         /// Use the fastest method
         /// </summary>
         Fastest = 1,
-        
+
         /// <summary>
         /// A slower (but more accurate) scaling method is employed; the DCT blocks are fully decoded, then a true re-sampling kernel is applied.
         /// </summary>

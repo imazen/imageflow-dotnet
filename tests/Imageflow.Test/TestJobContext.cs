@@ -1,10 +1,14 @@
 using System.Text;
 using System.Text.Json.Nodes;
-using Xunit;
+
 using Imageflow.Bindings;
 using Imageflow.Fluent;
+
 using Newtonsoft.Json;
+
+using Xunit;
 using Xunit.Abstractions;
+
 using JsonNamingPolicy = System.Text.Json.JsonNamingPolicy;
 using JsonSerializerOptions = System.Text.Json.JsonSerializerOptions;
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -15,29 +19,29 @@ namespace Imageflow.Test
     {
 
 
-         [Obsolete("Use DeserializeJsonNode() instead")]
-         public static T? Deserialize<T>(this IJsonResponseProvider p) where T : class
-         {
-             using var readStream = p.GetStream();
-             using var ms = new MemoryStream(readStream.CanSeek ? (int)readStream.Length : 0);
-             readStream.CopyTo(ms);
-             var allBytes = ms.ToArray();
-             var options = new JsonSerializerOptions
-             {
+        [Obsolete("Use DeserializeJsonNode() instead")]
+        public static T? Deserialize<T>(this IJsonResponseProvider p) where T : class
+        {
+            using var readStream = p.GetStream();
+            using var ms = new MemoryStream(readStream.CanSeek ? (int)readStream.Length : 0);
+            readStream.CopyTo(ms);
+            var allBytes = ms.ToArray();
+            var options = new JsonSerializerOptions
+            {
 #if NET8_0_OR_GREATER
-                 PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-#endif 
-             };
-             var v = System.Text.Json.JsonSerializer.Deserialize<T>(allBytes, options);
-             return v;
+                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+#endif
+            };
+            var v = System.Text.Json.JsonSerializer.Deserialize<T>(allBytes, options);
+            return v;
         }
-        
-         [Obsolete("Use Deserialize<T> or DeserializeJsonNode() instead")]
-         public static dynamic? DeserializeDynamic(this IJsonResponseProvider p)
-         {
-             using var reader = new StreamReader(p.GetStream(), Encoding.UTF8);
-             return JsonSerializer.Create().Deserialize(new JsonTextReader(reader));
-         }
+
+        [Obsolete("Use Deserialize<T> or DeserializeJsonNode() instead")]
+        public static dynamic? DeserializeDynamic(this IJsonResponseProvider p)
+        {
+            using var reader = new StreamReader(p.GetStream(), Encoding.UTF8);
+            return JsonSerializer.Create().Deserialize(new JsonTextReader(reader));
+        }
     }
 
     public class TestContext
@@ -57,8 +61,8 @@ namespace Imageflow.Test
                 c.AssertReady();
             }
         }
-        
-         [Fact]
+
+        [Fact]
         public void TestGetImageInfoMessage()
         {
             using (var c = new JobContext())
@@ -66,19 +70,19 @@ namespace Imageflow.Test
                 c.AddInputBytesPinned(0,
                     Convert.FromBase64String(
                         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
-                
+
                 var response = c.SendMessage("v0.1/get_image_info", //new {io_id = 0});
                     new JsonObject()
                     {
                         ["io_id"] = 0
-                    }); 
+                    });
 
                 dynamic data = response.DeserializeDynamic()!;
 
                 _output.WriteLine(response.GetString());
 
 
-                Assert.Equal(200, (int)data.code );
+                Assert.Equal(200, (int)data.code);
                 Assert.True((bool)data.success);
                 Assert.Equal(1, (int)data.data.image_info.image_width);
                 Assert.Equal(1, (int)data.data.image_info.image_height);
@@ -86,7 +90,7 @@ namespace Imageflow.Test
                 Assert.Equal("png", (string)data.data.image_info.preferred_extension);
             }
         }
-        
+
         [Fact]
         public void TestGetImageInfo()
         {
@@ -103,7 +107,7 @@ namespace Imageflow.Test
                 Assert.Equal(PixelFormat.Bgra_32, result.FrameDecodesInto);
             }
         }
-        
+
         [Fact]
         public void TestGetVersionInfo()
         {
@@ -118,10 +122,10 @@ namespace Imageflow.Test
                 var unused2 = info.GitTag;
                 Assert.NotNull(info.GitTag);
                 var unused3 = info.DirtyWorkingTree;
-                
+
             }
         }
-        
+
         [Fact]
         public void TestExecute()
         {
@@ -130,9 +134,9 @@ namespace Imageflow.Test
                 c.AddInputBytesPinned(0,
                     Convert.FromBase64String(
                         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
-                
+
                 c.AddOutputBuffer(1);
-                
+
                 var message = new
                 {
                     framewise = new
@@ -164,7 +168,7 @@ namespace Imageflow.Test
                         }
                     }
                 };
-                
+
                 var response = c.SendMessage("v0.1/execute", message);
 
                 dynamic data = response.DeserializeDynamic()!;
@@ -175,8 +179,8 @@ namespace Imageflow.Test
                 Assert.True((bool)data.success);
             }
         }
-        
-        
+
+
         [Fact]
         public void TestIr4Execute()
         {
@@ -196,7 +200,7 @@ namespace Imageflow.Test
                 Assert.True((bool)data.success);
             }
         }
-        
+
         [Fact]
         public void TestIr4Build()
         {
@@ -247,10 +251,10 @@ namespace Imageflow.Test
 
                 _output.WriteLine(response.GetString());
 
-                Assert.Equal(200, (int) data.code);
-                Assert.True((bool) data.success);
+                Assert.Equal(200, (int)data.code);
+                Assert.True((bool)data.success);
             }
         }
-        
+
     }
 }

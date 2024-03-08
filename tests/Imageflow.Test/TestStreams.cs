@@ -1,7 +1,9 @@
-﻿namespace Imageflow.Test;
+namespace Imageflow.Test;
 using System;
 using System.IO;
+
 using Microsoft.IO;
+
 using Xunit;
 
 public class MemoryStreamTests
@@ -51,4 +53,3 @@ public class MemoryStreamTests
         Assert.Equal(data.Length, buffer.Count); // Ensures no more bytes are reported than actually written
     }
 }
-

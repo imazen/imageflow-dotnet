@@ -1,9 +1,10 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
+
 using Imageflow.Internal.Helpers;
 
 namespace Imageflow.Bindings
 {
-    
+
     /// <summary>
     /// An UnmanagedMemoryStream that checks that the underlying Imageflow context isn't in a disposed or errored state
     /// </summary>
@@ -15,8 +16,8 @@ namespace Imageflow.Bindings
         private readonly IAssertReady _underlying;
         private SafeHandle? _handle;
         private int _handleReferenced;
-        
-        internal unsafe ImageflowUnmanagedReadStream(IAssertReady underlying, SafeHandle handle, IntPtr buffer, UIntPtr length) : base( (byte*)buffer.ToPointer(), (long)length.ToUInt64(), (long)length.ToUInt64(), FileAccess.Read)
+
+        internal unsafe ImageflowUnmanagedReadStream(IAssertReady underlying, SafeHandle handle, IntPtr buffer, UIntPtr length) : base((byte*)buffer.ToPointer(), (long)length.ToUInt64(), (long)length.ToUInt64(), FileAccess.Read)
         {
             _underlying = underlying;
             _handle = handle;
@@ -30,7 +31,7 @@ namespace Imageflow.Bindings
         }
 
         private void CheckSafe()
-        {    
+        {
             _underlying.AssertReady();
         }
         public override int Read(byte[] buffer, int offset, int count)

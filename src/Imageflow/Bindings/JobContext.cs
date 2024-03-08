@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ConstrainedExecution;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+
 using Imageflow.Fluent;
 using Imageflow.Internal.Helpers;
 
@@ -107,7 +108,7 @@ namespace Imageflow.Bindings
             AssertReady();
             return InvokeInternal(method, ObsoleteSerializeToJson(message));
         }
-        
+
         [Obsolete("Use ExecuteJsonNode instead for AOT compatibility")]
         [RequiresUnreferencedCode("Use ExecuteJsonNode instead for AOT compatibility")]
         [RequiresDynamicCode("Use ExecuteJsonNode instead for AOT compatibility")]
@@ -116,24 +117,26 @@ namespace Imageflow.Bindings
             AssertReady();
             return InvokeInternal(ImageflowMethods.Execute, ObsoleteSerializeToJson(message));
         }
-        
+
         [Obsolete("Use Invoke(string method, JsonNode message) instead.")]
-        public IJsonResponseProvider SendMessage(string method, JsonNode message){
+        public IJsonResponseProvider SendMessage(string method, JsonNode message)
+        {
             AssertReady();
             return InvokeInternal(method, message);
         }
 
-        
+
         [Obsolete("Use .InvokeExecute(JsonNode message) instead")]
-        public IJsonResponseProvider ExecuteJsonNode(JsonNode message){
+        public IJsonResponseProvider ExecuteJsonNode(JsonNode message)
+        {
             AssertReady();
             return InvokeInternal(ImageflowMethods.Execute, message);
         }
-        
+
         [Obsolete("Use .Invoke(string method, ReadOnlySpan<byte> utf8Json) instead")]
         public IJsonResponseProvider SendJsonBytes(string method, byte[] utf8Json)
             => InvokeInternal(method, utf8Json.AsSpan());
-        
+
         public ImageInfo GetImageInfo(int ioId)
         {
             var node = InvokeAndParse(ImageflowMethods.GetImageInfo, new JsonObject() { { "io_id", ioId } });
@@ -222,7 +225,7 @@ namespace Imageflow.Bindings
             using var response = InvokeInternal(method);
             return response.Parse();
         }
-        
+
 
         public IJsonResponse InvokeExecute(JsonNode message)
         {
@@ -261,7 +264,7 @@ namespace Imageflow.Bindings
             message.WriteTo(utf8JsonWriter);
             utf8JsonWriter.Flush();
             return ms.TryGetBufferSliceAllWrittenData(out var buffer) ?
-                InvokeInternal(nullTerminatedMethod, buffer) : 
+                InvokeInternal(nullTerminatedMethod, buffer) :
                 InvokeInternal(nullTerminatedMethod, ms.ToArray());
 
 #endif
@@ -277,7 +280,7 @@ namespace Imageflow.Bindings
             }
             return InvokeInternal(nullTerminatedBytes, message);
         }
-            
+
         private ImageflowJsonResponse InvokeInternal(string method, ReadOnlySpan<byte> utf8Json)
         {
             AssertReady();
@@ -288,7 +291,7 @@ namespace Imageflow.Bindings
             }
             return InvokeInternal(nullTerminatedBytes, utf8Json);
         }
-        
+
         private unsafe ImageflowJsonResponse InvokeInternal(ReadOnlySpan<byte> nullTerminatedMethod, ReadOnlySpan<byte> utf8Json)
         {
             if (utf8Json.Length < 0) throw new ArgumentException("utf8Json cannot be empty", nameof(utf8Json));
@@ -300,22 +303,22 @@ namespace Imageflow.Bindings
                 {
                     AssertReady();
                     var ptr = NativeMethods.imageflow_context_send_json(Handle, new IntPtr(methodPtr), new IntPtr(jsonPtr),
-                        new UIntPtr((ulong) utf8Json.Length));
+                        new UIntPtr((ulong)utf8Json.Length));
                     // check HasError, throw exception with our input JSON too
                     if (HasError) throw ImageflowException.FromContext(Handle, 2048, "JSON:\n" + TextHelpers.Utf8ToString(utf8Json));
-                    
+
                     AssertReady();
                     return new ImageflowJsonResponse(new JsonResponseHandle(_handle, ptr));
                 }
             }
         }
 
-  
-        
+
+
 
         public void AssertReady()
         {
-            if (!_handle.IsValid)  throw new ObjectDisposedException("Imageflow JobContext");
+            if (!_handle.IsValid) throw new ObjectDisposedException("Imageflow JobContext");
             if (HasError) throw ImageflowException.FromContext(Handle);
         }
 
@@ -325,10 +328,10 @@ namespace Imageflow.Bindings
             AssertReady();
             return ExecuteImageResizer4CommandStringInternal(inputId, outputId, commands);
         }
-        internal ImageflowJsonResponse ExecuteImageResizer4CommandStringInternal( int inputId, int outputId, string commands)
+        internal ImageflowJsonResponse ExecuteImageResizer4CommandStringInternal(int inputId, int outputId, string commands)
         {
 
-        // var message = new
+            // var message = new
             // {
             //     framewise = new
             //     {
@@ -366,10 +369,10 @@ namespace Imageflow.Bindings
                     }}
                 }}
             };
-                
+
             return InvokeInternal(ImageflowMethods.Execute, message);
         }
-        
+
         /// <summary>
         /// Copies the given data into Imageflow's memory.  Use AddInputBytesPinned to avoid copying.
         /// </summary>
@@ -406,7 +409,7 @@ namespace Imageflow.Bindings
             if (count > int.MaxValue) throw new ArgumentOutOfRangeException(nameof(count), " count must be less than or equal to int.MaxValue");
             if (offset < 0 || offset > buffer.LongLength - 1) throw new ArgumentOutOfRangeException(nameof(offset), offset, "Offset must be within array bounds");
             if (count < 0 || offset + count > buffer.LongLength) throw new ArgumentOutOfRangeException(nameof(count), count, "offset + count must be within array bounds. count cannot be negative");
-            
+
             AddInputBytes(ioId, buffer.AsSpan((int)offset, (int)count));
         }
         /// <summary>
@@ -420,8 +423,8 @@ namespace Imageflow.Bindings
         {
             AssertReady();
             if (ContainsIoId(ioId)) throw new ArgumentException($"ioId {ioId} already in use", nameof(ioId));
-            
-            var length = (ulong) data.Length;
+
+            var length = (ulong)data.Length;
             unsafe
             {
                 fixed (byte* ptr = data)
@@ -474,22 +477,22 @@ namespace Imageflow.Bindings
         public void AddInputBytesPinned(int ioId, byte[] buffer, long offset, long count)
         {
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-            if (offset > int.MaxValue) 
+            if (offset > int.MaxValue)
                 throw new ArgumentOutOfRangeException(nameof(offset), "offset must be less than or equal to int.MaxValue");
             if (count > int.MaxValue)
                 throw new ArgumentOutOfRangeException(nameof(count), " count must be less than or equal to int.MaxValue");
-            
+
             if (offset < 0 || offset > buffer.LongLength - 1)
                 throw new ArgumentOutOfRangeException(nameof(offset), offset, "Offset must be within array bounds");
             if (count < 0 || offset + count > buffer.LongLength)
                 throw new ArgumentOutOfRangeException(nameof(count), count,
                     "offset + count must be within array bounds. count cannot be negative");
-            
-            
+
+
             var rom = new ReadOnlyMemory<byte>(buffer, (int)offset, (int)count);
             AddInputBytesPinned(ioId, rom, MemoryLifetimePromise.MemoryIsOwnedByRuntime);
         }
-        
+
         /// <summary>
         /// Pines the given Memory and gives Imageflow a pointer to it. You must promise that the
         /// memory will remain valid until after the JobContext is disposed.
@@ -505,7 +508,7 @@ namespace Imageflow.Bindings
                 throw new ArgumentException("callerPromise cannot be MemoryLifetimePromise.MemoryOwnerDisposedByMemorySource", nameof(callerPromise));
             AssertReady();
             if (ContainsIoId(ioId)) throw new ArgumentException($"ioId {ioId} already in use", nameof(ioId));
-            
+
             var pinned = data.Pin();
             try
             {
@@ -521,14 +524,15 @@ namespace Imageflow.Bindings
                 }
 
                 _ioSet.Add(ioId, IoKind.InputBuffer);
-            }catch
+            }
+            catch
             {
                 _pinnedMemory?.Remove(pinned);
                 pinned.Dispose();
-                throw; 
+                throw;
             }
         }
-        
+
 
         public void AddOutputBuffer(int ioId)
         {
@@ -543,7 +547,7 @@ namespace Imageflow.Bindings
         }
 
         public bool ContainsIoId(int ioId) => _ioSet.ContainsKey(ioId);
-        
+
         /// <summary>
         /// Will raise an unrecoverable exception if this is not an output buffer.
         /// Stream is not valid after the JobContext is disposed
@@ -565,7 +569,7 @@ namespace Imageflow.Bindings
             }
             return new ImageflowUnmanagedReadStream(this, this._handle, buffer, bufferSize);
         }
-        
+
         /// <summary>
         /// The memory remains valid only until the JobContext is disposed.
         /// </summary>
@@ -573,7 +577,8 @@ namespace Imageflow.Bindings
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ImageflowAssertionFailed"></exception>
-        internal unsafe Span<byte> BorrowOutputBuffer(int ioId){
+        internal unsafe Span<byte> BorrowOutputBuffer(int ioId)
+        {
             if (!_ioSet.ContainsKey(ioId) || _ioSet[ioId] != IoKind.OutputBuffer)
             {
                 throw new ArgumentException($"ioId {ioId} does not correspond to an output buffer", nameof(ioId));
@@ -587,7 +592,7 @@ namespace Imageflow.Bindings
             }
             return new Span<byte>((void*)buffer, (int)bufferSize);
         }
-        
+
         /// <summary>
         /// Returns an IMemoryOwner&lt;byte> that will keep the Imageflow Job in memory until both it and the JobContext are disposed.
         /// The memory should be treated as read-only.
@@ -596,7 +601,8 @@ namespace Imageflow.Bindings
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ImageflowAssertionFailed"></exception>
-        internal IMemoryOwner<byte> BorrowOutputBufferMemoryAndAddReference(int ioId){
+        internal IMemoryOwner<byte> BorrowOutputBufferMemoryAndAddReference(int ioId)
+        {
             if (!_ioSet.ContainsKey(ioId) || _ioSet[ioId] != IoKind.OutputBuffer)
             {
                 throw new ArgumentException($"ioId {ioId} does not correspond to an output buffer", nameof(ioId));
@@ -610,7 +616,7 @@ namespace Imageflow.Bindings
             }
             return SafeHandleMemoryManager.BorrowFromHandle(_handle, buffer, (uint)bufferSize);
         }
-            
+
         private int _refCount;
         internal void AddRef()
         {
@@ -631,7 +637,7 @@ namespace Imageflow.Bindings
             {
                 throw new InvalidOperationException("Cannot dispose a JobContext that is still in use.  ");
             }
-            
+
             // Do not allocate or throw exceptions unless (disposing)
             Exception? e = null;
             try
@@ -641,7 +647,7 @@ namespace Imageflow.Bindings
             finally
             {
                 UnpinAll();
-                
+
                 //Dispose all managed data held for context lifetime
                 if (_toDispose != null)
                 {
@@ -651,9 +657,9 @@ namespace Imageflow.Bindings
                 }
                 GC.SuppressFinalize(this);
                 if (e != null) throw e;
-            } 
+            }
         }
-        
+
         private void UnpinAll()
         {
             //Unpin
@@ -674,6 +680,6 @@ namespace Imageflow.Bindings
             // _handle specifically handles it's own disposal and finalizer
             UnpinAll();
         }
-        
+
     }
 }

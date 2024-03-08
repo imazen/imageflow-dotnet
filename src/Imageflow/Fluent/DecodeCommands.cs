@@ -1,10 +1,10 @@
-﻿using System.Drawing;
+using System.Drawing;
 using System.Text.Json.Nodes;
 
 namespace Imageflow.Fluent
 {
 
-    
+
     public class DecodeCommands
     {
         public Size? JpegDownscaleHint { get; set; }
@@ -13,7 +13,7 @@ namespace Imageflow.Fluent
 
         [Obsolete("Use WebPDownscaleHint instead")]
         public Size? WebpDownscaleHint { get => WebPDownscaleHint; set => WebPDownscaleHint = value; }
-        
+
         public Size? WebPDownscaleHint { get; set; }
 
         public bool DiscardColorProfile { get; set; }
@@ -48,14 +48,16 @@ namespace Imageflow.Fluent
 
         public object[] ToImageflowDynamic()
         {
-            object? downscale = JpegDownscaleHint.HasValue ? new { 
-                jpeg_downscale_hints = new {
+            object? downscale = JpegDownscaleHint.HasValue ? new
+            {
+                jpeg_downscale_hints = new
+                {
                     width = JpegDownscaleHint.Value.Width,
-                    height  = JpegDownscaleHint.Value.Height,
+                    height = JpegDownscaleHint.Value.Height,
                     scale_luma_spatially = JpegDownscalingMode == DecoderDownscalingMode.SpatialLumaScaling || JpegDownscalingMode == DecoderDownscalingMode.GammaCorrectSpatialLumaScaling,
                     gamma_correct_for_srgb_during_spatial_luma_scaling = JpegDownscalingMode == DecoderDownscalingMode.GammaCorrectSpatialLumaScaling
-                } 
-             }: null;
+                }
+            } : null;
             object? downscaleWebP = WebPDownscaleHint.HasValue
                 ? new
                 {
@@ -66,11 +68,11 @@ namespace Imageflow.Fluent
                     }
                 }
                 : null;
-            
-                
-            object? ignore = DiscardColorProfile ? new {discard_color_profile = (string?) null} : null;
-            object? ignoreErrors = IgnoreColorProfileErrors ? new {ignore_color_profile_errors = (string?) null} : null;
-            return new [] {downscale, ignore, ignoreErrors, downscaleWebP}.Where(obj => obj != null).Cast<object>().ToArray();
+
+
+            object? ignore = DiscardColorProfile ? new { discard_color_profile = (string?)null } : null;
+            object? ignoreErrors = IgnoreColorProfileErrors ? new { ignore_color_profile_errors = (string?)null } : null;
+            return new[] { downscale, ignore, ignoreErrors, downscaleWebP }.Where(obj => obj != null).Cast<object>().ToArray();
         }
 
         public JsonArray ToJsonNode()

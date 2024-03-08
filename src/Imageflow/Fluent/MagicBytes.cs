@@ -60,12 +60,12 @@ namespace Imageflow.Fluent
         /// <exception cref="ArgumentException"></exception>
         private static ImageFormat? GetImageFormat(byte[] first12Bytes)
         {
-            
+
             // Useful resources: https://chromium.googlesource.com/chromium/src/+/HEAD/net/base/mime_sniffer.cc
             // https://github.com/velocityzen/FileType/blob/master/Sources/FileType/FileTypeMatch.swift
             // https://en.wikipedia.org/wiki/List_of_file_signatures
             // https://mimetype.io/
-            
+
             // We may want to support these from Chrome's sniffer, at some point, after research
             // MAGIC_MASK("video/mpeg", "\x00\x00\x01\xB0", "\xFF\xFF\xFF\xF0"),
             // MAGIC_MASK("audio/mpeg", "\xFF\xE0", "\xFF\xE0"),
@@ -74,15 +74,15 @@ namespace Imageflow.Fluent
             // MAGIC_NUMBER("application/x-shockwave-flash", "FWS"),
             // MAGIC_NUMBER("video/x-flv", "FLV"),
 
-            
+
             // Choosing not to detect mime types for text, svg, javascript, or executable formats
             // 00 61 73 6D (WebAssembly)
-            
+
             // With just 12 bytes, we also can't tell PNG from APNG, Ogg audio from video, or what's in a matroska or mpeg container
-            
-            
+
+
             var bytes = first12Bytes;
-            if (bytes.Length < 12) throw new ArgumentException("The byte array must contain at least 12 bytes", 
+            if (bytes.Length < 12) throw new ArgumentException("The byte array must contain at least 12 bytes",
                 nameof(first12Bytes));
 
             if (bytes[0] == 0xff && bytes[1] == 0xd8 && bytes[2] == 0xff)
@@ -129,12 +129,13 @@ namespace Imageflow.Fluent
                 return ImageFormat.Tiff;
             }
 
-            if (bytes[0] == 0x00  && bytes[1] == 0x00 && bytes[2] == 0x01 && bytes[3] == 0x00)
+            if (bytes[0] == 0x00 && bytes[1] == 0x00 && bytes[2] == 0x01 && bytes[3] == 0x00)
             {
                 return ImageFormat.Ico;
             }
 
-            if (bytes[0] == 'w' && bytes[1] == 'O' && bytes[2] == 'F'){
+            if (bytes[0] == 'w' && bytes[1] == 'O' && bytes[2] == 'F')
+            {
                 if (bytes[3] == 'F') return ImageFormat.Woff;
                 if (bytes[3] == '2') return ImageFormat.Woff2;
             }
@@ -143,17 +144,17 @@ namespace Imageflow.Fluent
             {
                 return ImageFormat.OpenTypeFont;
             }
-            
+
             if (bytes[0] == 'f' && bytes[1] == 'L' && bytes[2] == 'a' && bytes[3] == 'C')
             {
                 return ImageFormat.Flac;
             }
-            if (bytes[0] == 0x00  && bytes[1] == 0x01 && bytes[2] == 0x00 && bytes[3] == 0x00)
+            if (bytes[0] == 0x00 && bytes[1] == 0x01 && bytes[2] == 0x00 && bytes[3] == 0x00)
             {
                 return ImageFormat.TrueTypeFont;
             }
-            
-    
+
+
             if (bytes[0] == 0x1A && bytes[1] == 0x45 && bytes[2] == 0xDF && bytes[3] == 0xA3)
             {
                 return ImageFormat.MatroskaOrWebM;
@@ -162,21 +163,21 @@ namespace Imageflow.Fluent
             if (bytes[0] == '%' && bytes[1] == 'P' && bytes[2] == 'D' && bytes[3] == 'F' && bytes[4] == '-')
             {
                 return ImageFormat.Pdf;
-            }            
+            }
             if (bytes[0] == '%' && bytes[1] == '!' && bytes[2] == 'P' && bytes[3] == 'S' && bytes[4] == '-' && bytes[5] == 'A'
                 && bytes[6] == 'd' && bytes[7] == 'o' && bytes[8] == 'b' && bytes[9] == 'e' && bytes[10] == '-')
             {
                 return ImageFormat.PostScript;
             }
-            
+
             if (bytes[0] == 'F' && bytes[1] == 'L' && bytes[2] == 'I' && bytes[3] == 'F')
             {
                 return ImageFormat.FLIF;
             }
-            
+
             if (bytes[0] == 0x00 && bytes[1] == 0x00 && bytes[2] == 0x00)
             {
-                if (bytes[3] == 0x0C 
+                if (bytes[3] == 0x0C
                     && bytes[7] == 0x20 && bytes[8] == 0x0D && bytes[9] == 0x0A && bytes[10] == 0x87
                     && bytes[11] == 0x0A)
                 {
@@ -190,21 +191,21 @@ namespace Imageflow.Fluent
                         return ImageFormat.Jpeg2000;
                     }
                 }
-                
-                
+
+
             }
 
             if (bytes[0] == 0xFF && bytes[1] == 0x0A)
             {
                 return ImageFormat.JpegXL;
             }
-            
+
             if (bytes[0] == 'B' && bytes[1] == 'M')
             {
                 return ImageFormat.Bitmap;
             }
 
-            
+
             if (bytes[0] == 'O' && bytes[1] == 'g' && bytes[2] == 'g' && bytes[3] == 'S' && bytes[4] == 0x00)
             {
                 return ImageFormat.OggContainer; // Could be audio or video, no idea, Chrome presumes audio
@@ -223,8 +224,8 @@ namespace Imageflow.Fluent
             {
                 if ((bytes[4] & 0xF1) == 0x21)
                 {
-                   // MPEG-PS, MPEG-1 Part 1
-                   return ImageFormat.Mpeg1;
+                    // MPEG-PS, MPEG-1 Part 1
+                    return ImageFormat.Mpeg1;
                 }
 
                 if ((bytes[4] & 0xC4) == 0x44)
@@ -233,13 +234,13 @@ namespace Imageflow.Fluent
                     return ImageFormat.Mpeg2;
                 }
             }
-            
- 
+
+
             if (bytes[0] == 0xFF && (bytes[1] == 0xF1 || bytes[1] == 0xF9))
             {
                 return ImageFormat.Aac;
             }
-            
+
             if (bytes[0] == 'F' && bytes[1] == 'O' && bytes[2] == 'R' && bytes[3] == 'M')
             {
                 return ImageFormat.AIFF;
@@ -369,9 +370,9 @@ namespace Imageflow.Fluent
                     return ImageFormat.ThreeGPP;
                 }
             }
-    
+
             //TODO: Add 3GP -> https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Containers#3gp
-            
+
             return null;
         }
 
@@ -470,13 +471,13 @@ namespace Imageflow.Fluent
                 case null:
                     break;
 
-                
+
                 default:
                     throw new ArgumentOutOfRangeException();
             }
             return null;
         }
-        
+
         /// <summary>
         /// Returns true if Imageflow can likely decode the image based on the given file header
         /// </summary>

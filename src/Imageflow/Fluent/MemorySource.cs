@@ -1,4 +1,5 @@
-﻿using System.Buffers;
+using System.Buffers;
+
 using Imageflow.Internal.Helpers;
 
 namespace Imageflow.Fluent;
@@ -19,7 +20,7 @@ public sealed class MemorySource : IAsyncMemorySource, IMemorySource
 
         return new MemorySource(null, ownedMemory, promise);
     }
-    
+
 
     private MemorySource(ReadOnlyMemory<byte>? borrowedMemory, IMemoryOwner<byte>? ownedMemory,
         MemoryLifetimePromise promise)
@@ -57,8 +58,8 @@ public sealed class MemorySource : IAsyncMemorySource, IMemorySource
     {
         _borrowedMemory = new ReadOnlyMemory<byte>(bytes.Array, bytes.Offset, bytes.Count);
     }
-        
-    
+
+
     public static IAsyncMemorySource Borrow(ReadOnlyMemory<byte> borrowedMemory, MemoryLifetimePromise promise)
     {
         if (promise == MemoryLifetimePromise.MemoryOwnerDisposedByMemorySource)
@@ -69,16 +70,16 @@ public sealed class MemorySource : IAsyncMemorySource, IMemorySource
 
         return new MemorySource(borrowedMemory, null, promise);
     }
-    
+
     public static IAsyncMemorySource Borrow(byte[] borrowedMemory, MemoryLifetimePromise promise)
         => Borrow(borrowedMemory.AsMemory(), promise);
-    
+
     public static IAsyncMemorySource Borrow(byte[] borrowedMemory)
         => Borrow(borrowedMemory.AsMemory(), MemoryLifetimePromise.MemoryValidUntilAfterJobDisposed);
-    
+
     public static IAsyncMemorySource Borrow(ArraySegment<byte> borrowedMemory, MemoryLifetimePromise promise)
     {
-        return new MemorySource(borrowedMemory, null,  promise);
+        return new MemorySource(borrowedMemory, null, promise);
     }
     public static IAsyncMemorySource Borrow(byte[] borrowedMemory, int offset, int length, MemoryLifetimePromise promise)
     {
@@ -95,7 +96,7 @@ public sealed class MemorySource : IAsyncMemorySource, IMemorySource
     {
         return new ValueTask<ReadOnlyMemory<byte>>(_borrowedMemory ?? _ownedMemory!.Memory);
     }
-    
+
     public ReadOnlyMemory<byte> BorrowReadOnlyMemory()
     {
         return _borrowedMemory ?? _ownedMemory!.Memory;

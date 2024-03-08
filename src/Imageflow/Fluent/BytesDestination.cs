@@ -1,4 +1,4 @@
-﻿using Imageflow.Bindings;
+using Imageflow.Bindings;
 using Imageflow.Internal.Helpers;
 
 namespace Imageflow.Fluent;
@@ -8,7 +8,7 @@ public class BytesDestination : IOutputDestination, IOutputSink, IAsyncOutputSin
     private MemoryStream? _m;
     public void Dispose()
     {
-            
+
     }
 
     public Task RequestCapacityAsync(int bytes)
@@ -29,7 +29,7 @@ public class BytesDestination : IOutputDestination, IOutputSink, IAsyncOutputSin
         if (_m == null) throw new ImageflowAssertionFailed("BytesDestination.FlushAsync called before RequestCapacityAsync");
         return _m.FlushAsync(cancellationToken);
     }
-        
+
     public ArraySegment<byte> GetBytes()
     {
         if (_m == null) throw new ImageflowAssertionFailed("BytesDestination.GetBytes called before RequestCapacityAsync");

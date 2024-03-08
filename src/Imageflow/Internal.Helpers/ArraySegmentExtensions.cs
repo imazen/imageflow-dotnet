@@ -1,4 +1,4 @@
-﻿namespace Imageflow.Internal.Helpers;
+namespace Imageflow.Internal.Helpers;
 
 internal static class ArraySegmentExtensions
 {
@@ -30,7 +30,7 @@ internal static class ArraySegmentExtensions
         segment = default;
         return false;
     }
-    
+
     internal static ReadOnlyMemory<byte> GetWrittenMemory(this MemoryStream stream)
     {
         return stream.TryGetBufferSliceAllWrittenData(out var segment) ? new ReadOnlyMemory<byte>(segment.Array, segment.Offset, segment.Count) : stream.ToArray();

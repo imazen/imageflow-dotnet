@@ -5,9 +5,9 @@ namespace Imageflow.Fluent
     /// <summary>
     /// Defines 
     /// </summary>
-    public class WatermarkFitBox: IWatermarkConstraintBox
+    public class WatermarkFitBox : IWatermarkConstraintBox
     {
-        public WatermarkFitBox(){}
+        public WatermarkFitBox() { }
 
         public WatermarkFitBox(WatermarkAlign relativeTo, float x1, float y1, float x2, float y2)
         {
@@ -18,9 +18,9 @@ namespace Imageflow.Fluent
             Y2 = y2;
         }
         public WatermarkAlign RelativeTo { get; set; } = WatermarkAlign.Image;
-        
+
         public float X1 { get; set; }
-        public float Y1 { get; set; } 
+        public float Y1 { get; set; }
         public float X2 { get; set; } = 100;
         public float Y2 { get; set; } = 100;
 
@@ -50,7 +50,8 @@ namespace Imageflow.Fluent
                 case WatermarkAlign.Canvas:
                     return new
                     {
-                        canvas_percentage = new {
+                        canvas_percentage = new
+                        {
                             x1 = X1,
                             y1 = Y1,
                             x2 = X2,
@@ -61,7 +62,8 @@ namespace Imageflow.Fluent
                 case WatermarkAlign.Image:
                     return new
                     {
-                        image_percentage = new {
+                        image_percentage = new
+                        {
                             x1 = X1,
                             y1 = Y1,
                             x2 = X2,

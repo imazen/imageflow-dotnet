@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Nodes;
+using System.Text.Json.Nodes;
+
 using Imageflow.Bindings;
 
 namespace Imageflow.Fluent
@@ -32,20 +33,20 @@ namespace Imageflow.Fluent
         {
             switch (_kind)
             {
-                case ColorKind.Black: return new {black = (string?)null};
-                case ColorKind.Transparent: return new {transparent = (string?)null };
-                case ColorKind.Srgb: return new {srgb = new { hex = _srgb.ToHexUnprefixed()}};
+                case ColorKind.Black: return new { black = (string?)null };
+                case ColorKind.Transparent: return new { transparent = (string?)null };
+                case ColorKind.Srgb: return new { srgb = new { hex = _srgb.ToHexUnprefixed() } };
                 default: throw new ImageflowAssertionFailed("default");
             }
         }
-        
+
         public JsonNode ToJsonNode()
         {
             switch (_kind)
             {
-                case ColorKind.Black: return new JsonObject(){{"black", (string?)null}};
-                case ColorKind.Transparent: return new JsonObject(){{"transparent", (string?)null}};
-                case ColorKind.Srgb: return new JsonObject(){{"srgb", new JsonObject(){{"hex", _srgb.ToHexUnprefixed()}}}};
+                case ColorKind.Black: return new JsonObject() { { "black", (string?)null } };
+                case ColorKind.Transparent: return new JsonObject() { { "transparent", (string?)null } };
+                case ColorKind.Srgb: return new JsonObject() { { "srgb", new JsonObject() { { "hex", _srgb.ToHexUnprefixed() } } } };
                 default: throw new ImageflowAssertionFailed("default");
             }
         }

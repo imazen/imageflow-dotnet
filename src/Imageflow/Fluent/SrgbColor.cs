@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+using System.Globalization;
+
 using Imageflow.Bindings;
 
 namespace Imageflow.Fluent
@@ -15,22 +16,22 @@ namespace Imageflow.Fluent
 
         private static byte Mask8(uint v, int index)
         {
-            var shift = index * 8; 
+            var shift = index * 8;
             var mask = 0xff << shift;
             var result = (v & mask) >> shift;
             if (result > 255) throw new ImageflowAssertionFailed("Integer overflow in color parsing");
-            return (byte) result;
+            return (byte)result;
         }
         private static byte Expand4(uint v, int index)
         {
-            var shift = index * 4; 
+            var shift = index * 4;
             var mask = 0xf << shift;
             var result = (v & mask) >> shift;
             result = result | result << 4; // Duplicate lower 4 bits into upper
             if (result > 255) throw new ImageflowAssertionFailed("Integer overflow in color parsing");
-            return (byte) result;
+            return (byte)result;
         }
-        
+
         /// <summary>
         /// Parses a hexadecimal color in the form RGB, RGBA, RRGGBB, or RRGGBBAA
         /// </summary>
@@ -41,7 +42,8 @@ namespace Imageflow.Fluent
         {
             s = s.TrimStart('#');
             var v = uint.Parse(s, NumberStyles.HexNumber);
-            switch (s.Length){
+            switch (s.Length)
+            {
                 case 3: return RGBA(Expand4(v, 2), Expand4(v, 1), Expand4(v, 0), 0xff);
                 case 6: return RGBA(Mask8(v, 2), Mask8(v, 1), Mask8(v, 0), 0xff);
                 case 4: return RGBA(Expand4(v, 3), Expand4(v, 2), Expand4(v, 1), Expand4(v, 0));
@@ -53,12 +55,12 @@ namespace Imageflow.Fluent
         public string ToHexUnprefixed() => A == 0xff ? $"{R:x2}{G:x2}{B:x2}" : $"{R:x2}{G:x2}{B:x2}{A:x2}";
 
         public static SrgbColor BGRA(byte b, byte g, byte r, byte a) =>
-            new SrgbColor(){ A = a, R = r, G = g,  B = b};
+            new SrgbColor() { A = a, R = r, G = g, B = b };
         public static SrgbColor RGBA(byte r, byte g, byte b, byte a) =>
-            new SrgbColor(){ A = a, R = r, G = g,  B = b};
+            new SrgbColor() { A = a, R = r, G = g, B = b };
         public static SrgbColor RGB(byte r, byte g, byte b) =>
-            new SrgbColor(){ A = 255, R = r, G = g,  B = b};
-        
+            new SrgbColor() { A = 255, R = r, G = g, B = b };
+
 
     }
 }

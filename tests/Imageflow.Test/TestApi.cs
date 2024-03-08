@@ -1,8 +1,10 @@
-﻿using System.Drawing;
-using Xunit;
+using System.Drawing;
+
 using Imageflow.Bindings;
 using Imageflow.Fluent;
- using Xunit.Abstractions;
+
+using Xunit;
+using Xunit.Abstractions;
 
 namespace Imageflow.Test
 {
@@ -23,14 +25,14 @@ namespace Imageflow.Test
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
 
             var info = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
-            
+
             Assert.Equal(1, info.ImageWidth);
             Assert.Equal(1, info.ImageHeight);
             Assert.Equal("png", info.PreferredExtension);
             Assert.Equal("image/png", info.PreferredMimeType);
             Assert.Equal(PixelFormat.Bgra_32, info.FrameDecodesInto);
         }
-        
+
         // test the new GetImageInfoAsync
         [Fact]
         public async void TestGetImageInfoAsync()
@@ -38,8 +40,8 @@ namespace Imageflow.Test
             var imageBytes = Convert.FromBase64String(
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
 
-            var info = await ImageJob.GetImageInfoAsync(new MemorySource(imageBytes),SourceLifetime.NowOwnedAndDisposedByTask);
-            
+            var info = await ImageJob.GetImageInfoAsync(new MemorySource(imageBytes), SourceLifetime.NowOwnedAndDisposedByTask);
+
             Assert.Equal(1, info.ImageWidth);
             Assert.Equal(1, info.ImageHeight);
             Assert.Equal("png", info.PreferredExtension);
@@ -54,8 +56,8 @@ namespace Imageflow.Test
             var imageBytes = Convert.FromBase64String(
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
 
-            var info = ImageJob.GetImageInfo(new MemorySource(imageBytes),SourceLifetime.NowOwnedAndDisposedByTask);
-            
+            var info = ImageJob.GetImageInfo(new MemorySource(imageBytes), SourceLifetime.NowOwnedAndDisposedByTask);
+
             Assert.Equal(1, info.ImageWidth);
             Assert.Equal(1, info.ImageHeight);
             Assert.Equal("png", info.PreferredExtension);
@@ -81,7 +83,7 @@ namespace Imageflow.Test
                 Assert.True(r.First.TryGetBytes().HasValue);
             }
         }
-        
+
         [Fact]
         public async Task TestAllJob()
         {
@@ -98,9 +100,9 @@ namespace Imageflow.Test
                     .Transpose()
                     .CropWhitespace(80, 0.5f)
                     .Distort(30, 20)
-                    .Crop(0,0,10,10)
-                    .Region(-5,-5,10,10, AnyColor.Black)
-                    .RegionPercent(-10f, -10f, 110f, 110f, AnyColor.Transparent)    
+                    .Crop(0, 0, 10, 10)
+                    .Region(-5, -5, 10, 10, AnyColor.Black)
+                    .RegionPercent(-10f, -10f, 110f, 110f, AnyColor.Transparent)
                     .BrightnessSrgb(-1f)
                     .ContrastSrgb(1f)
                     .SaturationSrgb(1f)
@@ -111,22 +113,22 @@ namespace Imageflow.Test
                     .ColorFilterSrgb(ColorFilterSrgb.Grayscale_Flat)
                     .ColorFilterSrgb(ColorFilterSrgb.Grayscale_Ntsc)
                     .ColorFilterSrgb(ColorFilterSrgb.Grayscale_Ry)
-                    .ExpandCanvas(5,5,5,5,AnyColor.FromHexSrgb("FFEECCFF"))
-                    .FillRectangle(2,2,8,8, AnyColor.Black)
+                    .ExpandCanvas(5, 5, 5, 5, AnyColor.FromHexSrgb("FFEECCFF"))
+                    .FillRectangle(2, 2, 8, 8, AnyColor.Black)
                     .ResizerCommands("width=10&height=10&mode=crop")
                     .RoundAllImageCornersPercent(100, AnyColor.Black)
                     .RoundAllImageCorners(1, AnyColor.Transparent)
                     .ConstrainWithin(5, 5)
-                    .Watermark(new MemorySource(imageBytes), 
+                    .Watermark(new MemorySource(imageBytes),
                         new WatermarkOptions()
                             .SetMarginsLayout(
-                                new WatermarkMargins(WatermarkAlign.Image, 1,1,1,1), 
-                                WatermarkConstraintMode.Within, 
-                                new ConstraintGravity(90,90))
+                                new WatermarkMargins(WatermarkAlign.Image, 1, 1, 1, 1),
+                                WatermarkConstraintMode.Within,
+                                new ConstraintGravity(90, 90))
                             .SetOpacity(0.5f)
                             .SetHints(new ResampleHints().SetSharpen(15f, SharpenWhen.Always))
-                            .SetMinCanvasSize(1,1))
-                    .EncodeToBytes(new MozJpegEncoder(80,true))
+                            .SetMinCanvasSize(1, 1))
+                    .EncodeToBytes(new MozJpegEncoder(80, true))
                     .Finish().InProcessAsync();
 
                 Assert.Equal(5, r.First!.Width);
@@ -140,7 +142,7 @@ namespace Imageflow.Test
             using (var b = new ImageJob())
             {
                 var r = await b.Decode(imageBytes).
-                    Constrain(new Constraint(ConstraintMode.Fit_Crop,10,20)
+                    Constrain(new Constraint(ConstraintMode.Fit_Crop, 10, 20)
                     {
                         CanvasColor = null,
                         H = 20,
@@ -150,7 +152,7 @@ namespace Imageflow.Test
                             InterpolationColorspace = ScalingFloatspace.Linear,
                             DownFilter = InterpolationFilter.Mitchell,
                             ResampleWhen = ResampleWhen.Size_Differs_Or_Sharpening_Requested,
-                            SharpenWhen = SharpenWhen.Always, 
+                            SharpenWhen = SharpenWhen.Always,
                             SharpenPercent = 15,
                             UpFilter = InterpolationFilter.Ginseng
                         },
@@ -176,8 +178,8 @@ namespace Imageflow.Test
                     .Branch(f => f.ConstrainWithin(40, 30).EncodeToBytes(new WebPLossyEncoder(50)))
                     .EncodeToBytes(new LodePngEncoder())
                     .Finish().InProcessAsync();
-                
-                
+
+
                 Assert.Equal(60, r.TryGet(1)!.Width);
                 Assert.Equal(30, r.TryGet(2)!.Width);
                 Assert.Equal(120, r.TryGet(3)!.Width);
@@ -194,13 +196,13 @@ namespace Imageflow.Test
 
                 var canvas = b.Decode(imageBytes)
                     .Distort(30, 30);
-                    
+
                 var r = await b.Decode(imageBytes)
                     .Distort(20, 20)
                     .FillRectangle(5, 5, 15, 15, AnyColor.FromHexSrgb("FFEECC"))
                     .TransparencySrgb(0.5f)
-                    .DrawImageExactTo(canvas, 
-                        new Rectangle(5,5,25,25),
+                    .DrawImageExactTo(canvas,
+                        new Rectangle(5, 5, 25, 25),
                         new ResampleHints(),
                         CompositingMode.Compose)
                     .EncodeToBytes(new LodePngEncoder())
@@ -212,7 +214,7 @@ namespace Imageflow.Test
 
         }
 
-        
+
 
 
 
@@ -230,7 +232,7 @@ namespace Imageflow.Test
             }
 
         }
-        
+
         [Fact]
         public async Task TestEncodeSizeLimit()
         {
@@ -245,13 +247,13 @@ namespace Imageflow.Test
                         .Finish()
                         .SetSecurityOptions(new SecurityOptions().SetMaxEncodeSize(new FrameSizeLimit(1, 1, 1)))
                         .InProcessAsync();
-                    
+
                 });
-                Assert.StartsWith("ArgumentInvalid: SizeLimitExceeded: Frame width 3 exceeds max_encode_size.w",e.Message);
+                Assert.StartsWith("ArgumentInvalid: SizeLimitExceeded: Frame width 3 exceeds max_encode_size.w", e.Message);
             }
 
         }
-        
+
 
         [Fact]
         public async Task TestBuildCommandString()
@@ -260,7 +262,7 @@ namespace Imageflow.Test
             // We wrap the job in a using() statement to free memory faster
             using (var b = new ImageJob())
             {
-                
+
                 var r = await b.BuildCommandString(
                     new MemorySource(imageBytes), // or new StreamSource(Stream stream, bool disposeStream)
                     new BytesDestination(), // or new StreamDestination
@@ -273,7 +275,7 @@ namespace Imageflow.Test
                 Assert.True(r.First.TryGetBytes().HasValue);
             }
         }
-        
+
         [Fact]
         [Obsolete("Obsolete")]
         public async Task TestBuildCommandStringWithWatermarksLegacy()
@@ -283,12 +285,12 @@ namespace Imageflow.Test
             {
                 var watermarks = new List<InputWatermark>();
                 watermarks.Add(new InputWatermark(new BytesSource(imageBytes), new WatermarkOptions()));
-                watermarks.Add(new InputWatermark(new BytesSource(imageBytes), new WatermarkOptions().SetGravity(new ConstraintGravity(100,100))));
-                
+                watermarks.Add(new InputWatermark(new BytesSource(imageBytes), new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
+
                 var r = await b.BuildCommandString(
-                    new BytesSource(imageBytes), 
-                    new BytesDestination(), 
-                    "width=3&height=2&mode=stretch&scale=both&format=webp",watermarks).Finish().InProcessAsync();
+                    new BytesSource(imageBytes),
+                    new BytesDestination(),
+                    "width=3&height=2&mode=stretch&scale=both&format=webp", watermarks).Finish().InProcessAsync();
 
                 Assert.Equal(3, r.First!.Width);
                 Assert.Equal("webp", r.First.PreferredExtension);
@@ -296,7 +298,7 @@ namespace Imageflow.Test
             }
 
         }
-        
+
         [Fact]
         public async Task TestBuildCommandStringWithWatermarks()
         {
@@ -305,12 +307,12 @@ namespace Imageflow.Test
             {
                 var watermarks = new List<InputWatermark>();
                 watermarks.Add(new InputWatermark(new MemorySource(imageBytes), new WatermarkOptions()));
-                watermarks.Add(new InputWatermark(new MemorySource(imageBytes), new WatermarkOptions().SetGravity(new ConstraintGravity(100,100))));
-                
+                watermarks.Add(new InputWatermark(new MemorySource(imageBytes), new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
+
                 var r = await b.BuildCommandString(
-                    new MemorySource(imageBytes), 
-                    new BytesDestination(), 
-                    "width=3&height=2&mode=stretch&scale=both&format=webp",watermarks).Finish().InProcessAsync();
+                    new MemorySource(imageBytes),
+                    new BytesDestination(),
+                    "width=3&height=2&mode=stretch&scale=both&format=webp", watermarks).Finish().InProcessAsync();
 
                 Assert.Equal(3, r.First!.Width);
                 Assert.Equal("webp", r.First.PreferredExtension);
@@ -333,13 +335,13 @@ namespace Imageflow.Test
             using (var b = new ImageJob())
             {
                 var watermarks = new List<InputWatermark>();
-                watermarks.Add(new InputWatermark(new StreamSource(stream1,true), new WatermarkOptions()));
-                watermarks.Add(new InputWatermark(new StreamSource(stream2,true), new WatermarkOptions().SetGravity(new ConstraintGravity(100,100))));
-                
+                watermarks.Add(new InputWatermark(new StreamSource(stream1, true), new WatermarkOptions()));
+                watermarks.Add(new InputWatermark(new StreamSource(stream2, true), new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
+
                 var r = await b.BuildCommandString(
-                    new StreamSource(stream3,true), 
-                    new BytesDestination(), 
-                    "width=3&height=2&mode=stretch&scale=both&format=webp",watermarks).Finish().InProcessAsync();
+                    new StreamSource(stream3, true),
+                    new BytesDestination(),
+                    "width=3&height=2&mode=stretch&scale=both&format=webp", watermarks).Finish().InProcessAsync();
 
                 Assert.Equal(3, r.First!.Width);
                 Assert.Equal("webp", r.First.PreferredExtension);
@@ -347,7 +349,7 @@ namespace Imageflow.Test
             }
 
         }
-        
+
         [Fact]
         public async Task TestBuildCommandStringWithStreamsAndWatermarks()
         {
@@ -362,12 +364,12 @@ namespace Imageflow.Test
             using var b = new ImageJob();
             var watermarks = new List<InputWatermark>();
             watermarks.Add(new InputWatermark(BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream1), new WatermarkOptions()));
-            watermarks.Add(new InputWatermark(BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream2), new WatermarkOptions().SetGravity(new ConstraintGravity(100,100))));
-                
+            watermarks.Add(new InputWatermark(BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream2), new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
+
             var r = await b.BuildCommandString(
-                BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream3), 
-                new BytesDestination(), 
-                "width=3&height=2&mode=stretch&scale=both&format=webp",watermarks).Finish().InProcessAsync();
+                BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream3),
+                new BytesDestination(),
+                "width=3&height=2&mode=stretch&scale=both&format=webp", watermarks).Finish().InProcessAsync();
 
             Assert.Equal(3, r.First!.Width);
             Assert.Equal("webp", r.First.PreferredExtension);
@@ -441,7 +443,7 @@ namespace Imageflow.Test
                         .Finish()
                         .WithCancellationTimeout(2000)
                         .InSubprocessAsync(imageflowTool);
-                           
+
                     // ExecutableLocator.FindExecutable("imageflow_tool", new [] {"/home/n/Documents/imazen/imageflow/target/release/"})
 
                     Assert.Equal(5, r.First!.Width);
@@ -449,7 +451,7 @@ namespace Imageflow.Test
                 }
             }
         }
-        
+
         [Fact]
         public async Task TestCustomDownscalingAndDecodeEncodeResults()
         {
@@ -473,7 +475,7 @@ namespace Imageflow.Test
                 Assert.Equal(1, r.DecodeResults.First().Height);
                 Assert.Equal("png", r.DecodeResults.First().PreferredExtension);
                 Assert.Equal("image/png", r.DecodeResults.First().PreferredMimeType);
-                
+
                 Assert.Equal(5, r.EncodeResults.First().Width);
                 Assert.Equal(3, r.EncodeResults.First().Height);
                 Assert.Equal("png", r.EncodeResults.First().PreferredExtension);
@@ -481,8 +483,8 @@ namespace Imageflow.Test
             }
 
         }
-        
-        
+
+
         [Fact]
         public void TestContentTypeDetection()
         {
@@ -491,20 +493,20 @@ namespace Imageflow.Test
             Assert.Equal("image/png", ImageJob.GetContentTypeForBytes(pngBytes));
 
             Assert.True(ImageJob.CanDecodeBytes(pngBytes));
-            
-            var jpegBytes = new byte[] {0xFF,0xD8,0xFF,0,0,0,0,0,0,0,0,0};
+
+            var jpegBytes = new byte[] { 0xFF, 0xD8, 0xFF, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             Assert.Equal("image/jpeg", ImageJob.GetContentTypeForBytes(jpegBytes));
             Assert.True(ImageJob.CanDecodeBytes(jpegBytes));
 
-            var gifBytes = new byte[] {(byte)'G', (byte)'I', (byte)'F',(byte)'8', (byte)'9', (byte)'a',0,0,0,0,0,0,0};
+            var gifBytes = new byte[] { (byte)'G', (byte)'I', (byte)'F', (byte)'8', (byte)'9', (byte)'a', 0, 0, 0, 0, 0, 0, 0 };
             Assert.Equal("image/gif", ImageJob.GetContentTypeForBytes(gifBytes));
             Assert.True(ImageJob.CanDecodeBytes(gifBytes));
-            
-            var webpBytes = new byte[] {(byte)'R',(byte)'I',(byte)'F',(byte)'F',0,0,0,0,(byte)'W',(byte)'E',(byte)'B',(byte)'P'};
+
+            var webpBytes = new byte[] { (byte)'R', (byte)'I', (byte)'F', (byte)'F', 0, 0, 0, 0, (byte)'W', (byte)'E', (byte)'B', (byte)'P' };
             Assert.Equal("image/webp", ImageJob.GetContentTypeForBytes(webpBytes));
             Assert.True(ImageJob.CanDecodeBytes(webpBytes));
-            
-            var nonsenseBytes = new byte[] {(byte)'A', (byte)'B', (byte)'C',(byte)'D', (byte)'E', (byte)'F',0,0,0,0,0,0,0};
+
+            var nonsenseBytes = new byte[] { (byte)'A', (byte)'B', (byte)'C', (byte)'D', (byte)'E', (byte)'F', 0, 0, 0, 0, 0, 0, 0 };
             Assert.Null(ImageJob.GetContentTypeForBytes(nonsenseBytes));
             Assert.False(ImageJob.CanDecodeBytes(nonsenseBytes));
 #pragma warning restore CS0618 // Type or member is obsolete

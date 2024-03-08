@@ -6,7 +6,7 @@ namespace Imageflow.Fluent
     {
 
         public FrameSizeLimit? MaxDecodeSize { get; set; }
-        
+
         public FrameSizeLimit? MaxFrameSize { get; set; }
 
         public FrameSizeLimit? MaxEncodeSize { get; set; }
@@ -14,17 +14,17 @@ namespace Imageflow.Fluent
         public SecurityOptions SetMaxDecodeSize(FrameSizeLimit? limit)
         {
             MaxDecodeSize = limit;
-            return this; 
+            return this;
         }
         public SecurityOptions SetMaxFrameSize(FrameSizeLimit? limit)
         {
             MaxFrameSize = limit;
-            return this; 
+            return this;
         }
         public SecurityOptions SetMaxEncodeSize(FrameSizeLimit? limit)
         {
             MaxEncodeSize = limit;
-            return this; 
+            return this;
         }
 
         [Obsolete("Use ToJsonNode() instead")]

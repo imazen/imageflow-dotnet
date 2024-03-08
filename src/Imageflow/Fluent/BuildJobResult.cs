@@ -1,4 +1,4 @@
-﻿using Imageflow.Bindings;
+using Imageflow.Bindings;
 
 // ReSharper disable CheckNamespace
 namespace Imageflow.Fluent
@@ -7,20 +7,21 @@ namespace Imageflow.Fluent
 
     public class BuildJobResult
     {
-        
+
         [Obsolete("Use ImageJob.FinishAsync() to get a result; you should never create a BuildJobResult directly.")]
-        internal BuildJobResult(){
+        internal BuildJobResult()
+        {
             _encodeResults = new Dictionary<int, BuildEncodeResult>();
             DecodeResults = new List<BuildDecodeResult>();
             EncodeResults = new List<BuildEncodeResult>();
             PerformanceDetails = new PerformanceDetails(null);
         }
 
-        private BuildJobResult(IReadOnlyCollection<BuildDecodeResult> decodeResults, 
-            IReadOnlyCollection<BuildEncodeResult> encodeResults, 
+        private BuildJobResult(IReadOnlyCollection<BuildDecodeResult> decodeResults,
+            IReadOnlyCollection<BuildEncodeResult> encodeResults,
             PerformanceDetails performanceDetails)
         {
-            _encodeResults =  encodeResults.ToDictionary(r => r.IoId);
+            _encodeResults = encodeResults.ToDictionary(r => r.IoId);
             DecodeResults = decodeResults;
             EncodeResults = encodeResults;
             PerformanceDetails = performanceDetails;
@@ -32,12 +33,12 @@ namespace Imageflow.Fluent
         /// A collection of the decoded image details produced by the job
         /// </summary>
         public IReadOnlyCollection<BuildDecodeResult> DecodeResults { get; private set; }
-        
+
         /// <summary>
         /// A collection of the encoded images produced by the job
         /// </summary>
         public IReadOnlyCollection<BuildEncodeResult> EncodeResults { get; private set; }
-        
+
         /// <summary>
         /// Details about the runtime performance of the job
         /// </summary>
@@ -47,9 +48,9 @@ namespace Imageflow.Fluent
         /// The first encoded image produced by the job (with the lowest io_id)
         /// </summary>
         public BuildEncodeResult? First => EncodeResults.FirstOrDefault();
-        
+
         public BuildEncodeResult this[int ioId] => _encodeResults[ioId];
-        
+
         /// <summary>
         /// Returns null if the encode result by the given io_id doesn't exist. 
         /// </summary>
@@ -61,8 +62,8 @@ namespace Imageflow.Fluent
         {
             var v = response.Parse();
             if (v == null) throw new ImageflowAssertionFailed("BuildJobResult.From cannot parse response " + response.CopyString());
-            bool? success = v.AsObject().TryGetPropertyValue("success", out var successValue) 
-                ? successValue?.GetValue<bool>() 
+            bool? success = v.AsObject().TryGetPropertyValue("success", out var successValue)
+                ? successValue?.GetValue<bool>()
                 : null;
             switch (success)
             {
@@ -71,8 +72,8 @@ namespace Imageflow.Fluent
                 case null:
                     throw new ImageflowAssertionFailed("BuildJobResult.From cannot parse response " + response.CopyString());
             }
-            
-            var data = v.AsObject().TryGetPropertyValue("data", out var dataValue) 
+
+            var data = v.AsObject().TryGetPropertyValue("data", out var dataValue)
                 ? dataValue
                 : null;
             if (data == null) throw new ImageflowAssertionFailed("BuildJobResult.From cannot parse response ('data' missing) " + response.CopyString());
@@ -100,14 +101,14 @@ namespace Imageflow.Fluent
             //     PreferredExtension = er.preferred_extension,
             //     PreferredMimeType = er.preferred_mime_type,
             // }).OrderBy(er => er.IoId).ToList();
-            
-            var jobResult = data.AsObject().TryGetPropertyValue("job_result", out var jobResultValue) 
+
+            var jobResult = data.AsObject().TryGetPropertyValue("job_result", out var jobResultValue)
                 ? jobResultValue
                 : null;
-            
+
             if (jobResult == null) data.AsObject().TryGetPropertyValue("build_result", out jobResultValue);
             if (jobResult == null) throw new ImageflowAssertionFailed("BuildJobResult.From cannot parse response (missing job_result or build_result) " + response.CopyString());
-            
+
             var encodeResults = new List<BuildEncodeResult>();
             if (!jobResult.AsObject().TryGetPropertyValue("encodes", out var encodeArray))
             {
@@ -119,7 +120,7 @@ namespace Imageflow.Fluent
             {
                 throw new ImageflowAssertionFailed("decodes = null");
             }
-            var requiredMessage = "BuildJobResult.From cannot parse response (missing required properties io_id, w, h, preferred_extension, or preferred_mime_type) " + response.CopyString();    
+            var requiredMessage = "BuildJobResult.From cannot parse response (missing required properties io_id, w, h, preferred_extension, or preferred_mime_type) " + response.CopyString();
 
             // Parse from JsonNode
             foreach (var encode in encodeArray?.AsArray() ?? [])
@@ -145,7 +146,7 @@ namespace Imageflow.Fluent
                     Destination = outputs[ioId]
                 });
             }
-            
+
             // Parse from JsonNode
             var decodeResults = new List<BuildDecodeResult>();
             foreach (var decode in (decodeArray?.AsArray() ?? []))
@@ -160,7 +161,7 @@ namespace Imageflow.Fluent
                 {
                     throw new ImageflowAssertionFailed(requiredMessage);
                 }
-                
+
                 decodeResults.Add(new BuildDecodeResult
                 {
                     IoId = ioIdValue?.GetValue<int>() ?? throw new ImageflowAssertionFailed(requiredMessage),
@@ -171,18 +172,17 @@ namespace Imageflow.Fluent
                 });
             }
 
-            
-            
+
+
             var perfDetails = new PerformanceDetails(jobResult.AsObject().TryGetPropertyValue("performance", out var perfValue) ? perfValue : null);
 
             // There may be fewer reported outputs than registered ones - encoding is conditional on input, I think
-            return new BuildJobResult(decodeResults.OrderBy(er => er.IoId).ToList(), 
+            return new BuildJobResult(decodeResults.OrderBy(er => er.IoId).ToList(),
                 encodeResults.OrderBy(er => er.IoId).ToList(), perfDetails);
         }
-        
-        
+
+
     }
 
-   
-}
 
+}

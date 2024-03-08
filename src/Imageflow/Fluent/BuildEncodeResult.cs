@@ -13,23 +13,23 @@ namespace Imageflow.Fluent
         //     Height = height;
         //     Destination = destination;
         // }
-        
+
         internal BuildEncodeResult()
         {
         }
         // maps to "preferred_mime_type" in json
         public required string PreferredMimeType { get; init; }
-        
+
         // maps to "preferred_extension" in json
         public required string PreferredExtension { get; init; }
-        public required int IoId { get; init;}
+        public required int IoId { get; init; }
         // maps to "w" in json
-        public required int Width { get; init;}
+        public required int Width { get; init; }
         // maps to "h" in json
-        public required int Height { get; init;}
-        
-        public required IOutputDestination Destination { get; init;}
-        
+        public required int Height { get; init; }
+
+        public required IOutputDestination Destination { get; init; }
+
         /// <summary>
         /// If this Destination is a BytesDestination, returns the ArraySegment - otherwise null
         /// Returns the byte segment for the given output ID (if that output is a BytesDestination)

@@ -39,7 +39,7 @@ internal static partial class ArgumentNullThrowHelper
 
 internal static class ObjectDisposedHelper
 {
-    public static void ThrowIf([DoesNotReturnIf(true)]bool condition, object instance)
+    public static void ThrowIf([DoesNotReturnIf(true)] bool condition, object instance)
     {
 #if NET8_0_OR_GREATER
 

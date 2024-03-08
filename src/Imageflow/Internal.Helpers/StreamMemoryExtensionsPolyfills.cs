@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Runtime.InteropServices;
 
 namespace Imageflow.Internal.Helpers;
@@ -67,7 +67,7 @@ internal static class StreamMemoryExtensionsPolyfills
         }
 #endif
     }
-    
+
     internal static void WriteSpan(this Stream stream, ReadOnlySpan<byte> buffer)
     {
 #if NETSTANDARD2_1_OR_GREATER

@@ -1,7 +1,7 @@
-﻿namespace Imageflow.Fluent
+namespace Imageflow.Fluent
 {
     [Obsolete("Use IMemorySource instead")]
-    public interface IBytesSource: IDisposable
+    public interface IBytesSource : IDisposable
     {
         /// <summary>
         /// Return a reference to a byte array that (until the implementor is disposed) will (a) remain immutable, and (b) can be GC pinned.
@@ -28,7 +28,7 @@
         {
             _bytes = bytes;
         }
-        
+
         private readonly ArraySegment<byte> _bytes;
 
         public void Dispose()
@@ -39,7 +39,7 @@
         {
             return Task.FromResult(_bytes);
         }
-        
+
         public static implicit operator MemorySource(BytesSource source)
         {
             return new MemorySource(source._bytes);
@@ -52,9 +52,8 @@
         public static IAsyncMemorySource ToMemorySource(this IBytesSource source)
 #pragma warning restore CS0618 // Type or member is obsolete
         {
-           return new BytesSourceAdapter(source);
+            return new BytesSourceAdapter(source);
         }
     }
 
 }
-

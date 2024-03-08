@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Nodes;
+using System.Text.Json.Nodes;
 
 namespace Imageflow.Fluent
 {
@@ -31,7 +31,8 @@ namespace Imageflow.Fluent
         {
             return new
             {
-                percentage = new {
+                percentage = new
+                {
                     x = XPercent,
                     y = YPercent
                 }

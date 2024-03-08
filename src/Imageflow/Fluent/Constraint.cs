@@ -1,10 +1,10 @@
-﻿using System.Text.Json.Nodes;
+using System.Text.Json.Nodes;
 
 namespace Imageflow.Fluent
 {
     public class Constraint
     {
-        public Constraint(uint? w, uint? h) : this(ConstraintMode.Within, w, h){}
+        public Constraint(uint? w, uint? h) : this(ConstraintMode.Within, w, h) { }
         public Constraint(ConstraintMode mode, uint? w, uint? h, ResampleHints hints, AnyColor? canvasColor)
         {
             Mode = mode;
@@ -30,14 +30,14 @@ namespace Imageflow.Fluent
         public ResampleHints? Hints { get; set; }
         public AnyColor? CanvasColor { get; set; }
 
-		public ConstraintGravity? Gravity { get; set; }
+        public ConstraintGravity? Gravity { get; set; }
 
-		public Constraint SetConstraintMode(ConstraintMode mode)
+        public Constraint SetConstraintMode(ConstraintMode mode)
         {
             Mode = mode;
             return this;
         }
-        
+
         public Constraint SetHints(ResampleHints hints)
         {
             Hints = hints;
@@ -51,11 +51,11 @@ namespace Imageflow.Fluent
         }
 
         public Constraint SetGravity(ConstraintGravity gravity)
-		{
+        {
             Gravity = gravity;
 
             return this;
-		}
+        }
 
         [Obsolete("Use ToJsonNode() instead")]
         public object ToImageflowDynamic()
@@ -80,6 +80,6 @@ namespace Imageflow.Fluent
             if (CanvasColor != null) node.Add("canvas_color", CanvasColor?.ToJsonNode());
             if (Gravity != null) node.Add("gravity", Gravity.ToJsonNode());
             return node;
-        }     
+        }
     }
 }

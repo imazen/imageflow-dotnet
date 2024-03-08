@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Nodes;
+using System.Text.Json.Nodes;
 
 namespace Imageflow.Fluent
 {
@@ -10,15 +10,15 @@ namespace Imageflow.Fluent
         internal ImageJob Builder { get; }
         internal BuildNode? Input { get; }
         internal BuildNode? Canvas { get; }
-        internal JsonNode? NodeData { get;  }
-        internal long Uid { get;  }
+        internal JsonNode? NodeData { get; }
+        internal long Uid { get; }
         public override bool Equals(object? obj) => Uid == (obj as BuildItemBase)?.Uid;
-        public override int GetHashCode() => (int) Uid; //We probably don't need to worry about more than 2 billion instances? 
-        
+        public override int GetHashCode() => (int)Uid; //We probably don't need to worry about more than 2 billion instances? 
+
         private static long _next;
         private static long NextUid() => Interlocked.Increment(ref _next);
         internal bool IsEmpty => NodeData == null;
-        
+
         protected BuildItemBase(ImageJob builder, JsonNode nodeData, BuildNode? inputNode, BuildNode? canvasNode)
         {
             Builder = builder;

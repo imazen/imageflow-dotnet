@@ -1,6 +1,6 @@
-﻿namespace Imageflow.Fluent;
+namespace Imageflow.Fluent;
 
-public enum MemoryLifetimePromise:byte
+public enum MemoryLifetimePromise : byte
 {
     /// <summary>
     /// The caller guarantees that the provided ReadOnlyMemory&lt;byte> will remain valid until after the job is disposed, across

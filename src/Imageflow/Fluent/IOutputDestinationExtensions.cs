@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Runtime.InteropServices;
 
 namespace Imageflow.Fluent;
@@ -20,7 +20,7 @@ public static class IOutputDestinationExtensions
             dest.FlushAsync(default).Wait();
         }
     }
-        
+
     internal static async ValueTask AdaptiveWriteAllAsync(this IOutputDestination dest, ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
     {
         if (dest is IAsyncOutputSink sink)
@@ -34,8 +34,8 @@ public static class IOutputDestinationExtensions
         await dest.AdaptedWriteAsync(data, cancellationToken);
         await dest.FlushAsync(cancellationToken);
     }
-        
-        
+
+
     internal static async ValueTask AdaptedWriteAsync(this IOutputDestination dest, ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
     {
         if (MemoryMarshal.TryGetArray(data, out ArraySegment<byte> segment))
@@ -43,8 +43,8 @@ public static class IOutputDestinationExtensions
             await dest.WriteAsync(segment, cancellationToken).ConfigureAwait(false);
             return;
         }
-        
-        var rent = ArrayPool<byte>.Shared.Rent(Math.Min(81920,data.Length));
+
+        var rent = ArrayPool<byte>.Shared.Rent(Math.Min(81920, data.Length));
         try
         {
             for (int i = 0; i < data.Length; i += rent.Length)
@@ -58,12 +58,12 @@ public static class IOutputDestinationExtensions
         {
             ArrayPool<byte>.Shared.Return(rent);
         }
-            
+
     }
     internal static void AdaptedWrite(this IOutputDestination dest, ReadOnlySpan<byte> data)
     {
 
-        var rent = ArrayPool<byte>.Shared.Rent(Math.Min(81920,data.Length));
+        var rent = ArrayPool<byte>.Shared.Rent(Math.Min(81920, data.Length));
         try
         {
             for (int i = 0; i < data.Length; i += rent.Length)
@@ -78,8 +78,8 @@ public static class IOutputDestinationExtensions
             ArrayPool<byte>.Shared.Return(rent);
         }
     }
-        
-        
+
+
     // internal static IAsyncOutputSink ToAsyncOutputSink(this IOutputDestination dest, bool disposeUnderlying = true)
     // {
     //     if (dest is IAsyncOutputSink sink) return sink;
@@ -89,13 +89,13 @@ public static class IOutputDestinationExtensions
     public static async Task CopyFromStreamAsync(this IOutputDestination dest, Stream stream,
         CancellationToken cancellationToken)
     => await dest.CopyFromStreamAsyncInternal(stream, cancellationToken);
-    
+
     internal static async Task CopyFromStreamAsyncInternal(this IOutputDestination dest, Stream stream,
         CancellationToken cancellationToken)
     {
         if (stream is { CanRead: true, CanSeek: true })
         {
-            await dest.RequestCapacityAsync((int) stream.Length);
+            await dest.RequestCapacityAsync((int)stream.Length);
         }
 
         const int bufferSize = 81920;

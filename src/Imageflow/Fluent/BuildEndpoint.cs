@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Nodes;
+using System.Text.Json.Nodes;
 
 namespace Imageflow.Fluent
 {
@@ -9,11 +9,12 @@ namespace Imageflow.Fluent
     /// </summary>
     public class BuildEndpoint : BuildItemBase
     {
-        internal BuildEndpoint(ImageJob builder,JsonNode nodeData, BuildNode? inputNode, BuildNode? canvasNode) : base(builder, nodeData, inputNode,
-            canvasNode){}
-        
+        internal BuildEndpoint(ImageJob builder, JsonNode nodeData, BuildNode? inputNode, BuildNode? canvasNode) : base(builder, nodeData, inputNode,
+            canvasNode)
+        { }
+
         public FinishJobBuilder Finish() => new FinishJobBuilder(Builder, default);
-        
+
         [Obsolete("Use Finish().WithCancellationToken")]
         public FinishJobBuilder FinishWithToken(CancellationToken token) => new FinishJobBuilder(Builder, token);
 
@@ -23,9 +24,9 @@ namespace Imageflow.Fluent
             using var tokenSource = new CancellationTokenSource(milliseconds);
             return FinishWithToken(tokenSource.Token);
         }
-        
+
     }
-    
-    
-    
+
+
+
 }

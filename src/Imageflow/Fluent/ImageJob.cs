@@ -1,8 +1,9 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+
 using Imageflow.Bindings;
 using Imageflow.Internal.Helpers;
 using Imageflow.IO;
@@ -11,8 +12,8 @@ namespace Imageflow.Fluent
 {
     [Obsolete("Use ImageJob instead")]
     public class FluentBuildJob : ImageJob;
-        
-    public class ImageJob: IDisposable
+
+    public class ImageJob : IDisposable
     {
         private bool _disposed;
         private readonly Dictionary<int, IAsyncMemorySource> _inputs = new Dictionary<int, IAsyncMemorySource>(2);
@@ -35,43 +36,43 @@ namespace Imageflow.Fluent
         [Obsolete("IBytesSource is obsolete; use a class that implements IMemorySource instead")]
         public BuildNode Decode(IBytesSource source, DecodeCommands commands) =>
             Decode(source.ToMemorySource(), GenerateIoId(), commands);
-        
+
         [Obsolete("IBytesSource is obsolete; use a class that implements IMemorySource instead")]
         public BuildNode Decode(IBytesSource source, int ioId) => Decode(source.ToMemorySource(), ioId, null);
-        
-        [Obsolete("IBytesSource is obsolete; use a class that implements IMemorySource instead")]
-        public BuildNode Decode(IBytesSource source) => Decode( source, GenerateIoId());
 
-                
+        [Obsolete("IBytesSource is obsolete; use a class that implements IMemorySource instead")]
+        public BuildNode Decode(IBytesSource source) => Decode(source, GenerateIoId());
+
+
         [Obsolete("IBytesSource is obsolete; use a class that implements IMemorySource instead")]
         public BuildNode Decode(IBytesSource source, int ioId, DecodeCommands? commands)
         {
             return Decode(source.ToMemorySource(), ioId, commands);
         }
-        
-        public BuildNode Decode(Stream source, bool disposeStream) => Decode( source, disposeStream, GenerateIoId());
-        
-        public BuildNode Decode(Stream source, bool disposeStream, int ioId) => 
-            Decode( disposeStream ? BufferedStreamSource.UseEntireStreamAndDisposeWithSource(source) 
+
+        public BuildNode Decode(Stream source, bool disposeStream) => Decode(source, disposeStream, GenerateIoId());
+
+        public BuildNode Decode(Stream source, bool disposeStream, int ioId) =>
+            Decode(disposeStream ? BufferedStreamSource.UseEntireStreamAndDisposeWithSource(source)
                 : BufferedStreamSource.BorrowEntireStream(source), ioId);
-        
+
 
         [Obsolete("Use Decode(MemorySource.Borrow(arraySegment, MemoryLifetimePromise.MemoryValidUntilAfterJobDisposed)) instead")]
-        public BuildNode Decode(ArraySegment<byte> source) => Decode( MemorySource.Borrow(source, MemoryLifetimePromise.MemoryValidUntilAfterJobDisposed), GenerateIoId());
-        
+        public BuildNode Decode(ArraySegment<byte> source) => Decode(MemorySource.Borrow(source, MemoryLifetimePromise.MemoryValidUntilAfterJobDisposed), GenerateIoId());
+
         [Obsolete("Use Decode(MemorySource.Borrow(arraySegment, MemoryLifetimePromise.MemoryValidUntilAfterJobDisposed), ioId) instead")]
-        public BuildNode Decode(ArraySegment<byte> source, int ioId) => Decode( MemorySource.Borrow(source, MemoryLifetimePromise.MemoryValidUntilAfterJobDisposed), ioId);
-        
-        public BuildNode Decode(byte[] source) => Decode( new MemorySource(source), GenerateIoId());
-        public BuildNode Decode(byte[] source, int ioId) => Decode( new MemorySource(source), ioId);
+        public BuildNode Decode(ArraySegment<byte> source, int ioId) => Decode(MemorySource.Borrow(source, MemoryLifetimePromise.MemoryValidUntilAfterJobDisposed), ioId);
+
+        public BuildNode Decode(byte[] source) => Decode(new MemorySource(source), GenerateIoId());
+        public BuildNode Decode(byte[] source, int ioId) => Decode(new MemorySource(source), ioId);
 
         public BuildNode Decode<T>(T source) where T : IAsyncMemorySource
         {
             return Decode(source, GenerateIoId(), null);
         }
-        public BuildNode Decode<T>(T source, DecodeCommands commands) where T:IAsyncMemorySource =>
+        public BuildNode Decode<T>(T source, DecodeCommands commands) where T : IAsyncMemorySource =>
             Decode(source, GenerateIoId(), commands);
-        
+
         public BuildNode Decode<T>(T source, int ioId) where T : IAsyncMemorySource
         {
             return Decode(source, ioId, null);
@@ -81,7 +82,7 @@ namespace Imageflow.Fluent
         /// <param name="commands">Commands to the decoder, such as JPEG or WebP block-wise downscaling for performance, or to discard the color profile or ignore color profile errors</param>
         /// <param name="source"></param>
         /// <returns></returns>
-        public BuildNode Decode<T>(T source, int ioId, DecodeCommands? commands) where T:IAsyncMemorySource 
+        public BuildNode Decode<T>(T source, int ioId, DecodeCommands? commands) where T : IAsyncMemorySource
         {
             AddInput(ioId, source);
             if (commands == null)
@@ -94,7 +95,7 @@ namespace Imageflow.Fluent
                     //         io_id = ioId
                     //     }
                     // });
-                    new JsonObject() {{"decode", new JsonObject() {{"io_id", ioId}}}});
+                    new JsonObject() { { "decode", new JsonObject() { { "io_id", ioId } } } });
             }
             return BuildNode.StartNode(this,
                 // new
@@ -105,48 +106,48 @@ namespace Imageflow.Fluent
                 //         commands = commands.ToImageflowDynamic()
                 //     }
                 // });
-                new JsonObject() {{"decode", new JsonObject() {{"io_id", ioId}, {"commands", commands.ToJsonNode()}}}});
+                new JsonObject() { { "decode", new JsonObject() { { "io_id", ioId }, { "commands", commands.ToJsonNode() } } } });
         }
-        
+
 
         public BuildNode CreateCanvasBgra32(uint w, uint h, AnyColor color) =>
             CreateCanvas(w, h, color, PixelFormat.Bgra_32);
-        
+
         public BuildNode CreateCanvasBgr32(uint w, uint h, AnyColor color) =>
             CreateCanvas(w, h, color, PixelFormat.Bgr_32);
-        
-        private BuildNode CreateCanvas(uint w, uint h, AnyColor color, PixelFormat format) => 
-            BuildNode.StartNode(this, 
-                //new {create_canvas = new {w, h, color = color.ToImageflowDynamic()
-                  new JsonObject() {{"create_canvas", new JsonObject() 
-                      {{"w", w}, {"h", h}, 
-                          {"color", color.ToJsonNode()}}}, 
-                      {"format", format.ToString().ToLowerInvariant()}});  
+
+        private BuildNode CreateCanvas(uint w, uint h, AnyColor color, PixelFormat format) =>
+            BuildNode.StartNode(this,
+                  //new {create_canvas = new {w, h, color = color.ToImageflowDynamic()
+                  new JsonObject() {{"create_canvas", new JsonObject()
+                      {{"w", w}, {"h", h},
+                          {"color", color.ToJsonNode()}}},
+                      {"format", format.ToString().ToLowerInvariant()}});
 
 
 
-        
+
         [Obsolete("Use a BufferedStreamSource or MemorySource for the source parameter instead")]
         public BuildEndpoint BuildCommandString(IBytesSource source, IOutputDestination dest, string commandString) => BuildCommandString(source, null, dest, null, commandString);
         [Obsolete("Use a BufferedStreamSource or MemorySource for the source parameter instead")]
         public BuildEndpoint BuildCommandString(IBytesSource source, int? sourceIoId, IOutputDestination dest,
             int? destIoId, string commandString)
             => BuildCommandString(source, sourceIoId, dest, destIoId, commandString, null);
-        
+
 
 
         [Obsolete("Use a BufferedStreamSource or MemorySource for the source parameter instead")]
         public BuildEndpoint BuildCommandString(IBytesSource source, IOutputDestination dest, string commandString,
             ICollection<InputWatermark>? watermarks)
             => BuildCommandString(source, null, dest, null, commandString, watermarks);
-        
+
         [Obsolete("Use a BufferedStreamSource or MemorySource for the source parameter instead")]
         public BuildEndpoint BuildCommandString(IBytesSource source, int? sourceIoId, IOutputDestination dest,
             int? destIoId, string commandString, ICollection<InputWatermark>? watermarks)
         {
             return BuildCommandString(source.ToMemorySource(), sourceIoId, dest, destIoId, commandString, watermarks);
         }
-        
+
         public BuildEndpoint BuildCommandString(byte[] source, IOutputDestination dest, string commandString) => BuildCommandString(new MemorySource(source), dest, commandString);
 
         /// <summary>
@@ -167,7 +168,7 @@ namespace Imageflow.Fluent
             ICollection<InputWatermark>? watermarks)
             => BuildCommandString(source, null, dest, null, commandString, watermarks);
 
- 
+
 
         public BuildEndpoint BuildCommandString(IAsyncMemorySource source, int? sourceIoId, IOutputDestination dest, int? destIoId, string commandString, ICollection<InputWatermark>? watermarks)
         {
@@ -175,7 +176,7 @@ namespace Imageflow.Fluent
             AddInput(sourceIoId.Value, source);
             destIoId = destIoId ?? GenerateIoId();
             AddOutput(destIoId.Value, dest);
-            
+
             if (watermarks != null)
             {
                 foreach (var w in watermarks)
@@ -185,7 +186,7 @@ namespace Imageflow.Fluent
                     if (w.Source != null) AddInput(w.IoId.Value, w.Source);
                 }
             }
-            
+
             // dynamic nodeData = new
             // {
             //     command_string = new
@@ -210,9 +211,9 @@ namespace Imageflow.Fluent
                 }}
             };
             return new BuildEndpoint(this, nodeData, null, null);
-            
+
         }
-        
+
         /// <summary>
         /// Complete the job and set execution options
         /// </summary>
@@ -225,17 +226,17 @@ namespace Imageflow.Fluent
         [Obsolete("Use .Finish().SetCancellationToken(t).InProcessAsync()")]
         public Task<BuildJobResult> FinishAsync(CancellationToken cancellationToken)
             => Finish().SetCancellationToken(cancellationToken).InProcessAsync();
-        
+
         [Obsolete("Use .Finish().SetCancellationToken(cancellationToken).InSubprocessAsync(imageflowToolPath, outputBufferCapacity)")]
         public Task<BuildJobResult> FinishInSubprocessAsync(CancellationToken cancellationToken,
             string imageflowToolPath, long? outputBufferCapacity = null) =>
             Finish().SetCancellationToken(cancellationToken)
                 .InSubprocessAsync(imageflowToolPath, outputBufferCapacity);
-        
+
         [Obsolete("Use .Finish().SetCancellationToken(cancellationToken).WriteJsonJobAndInputs(deleteFilesOnDispose)")]
         public Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(CancellationToken cancellationToken, bool deleteFilesOnDispose)
             => Finish().SetCancellationToken(cancellationToken).WriteJsonJobAndInputs(deleteFilesOnDispose);
-        
+
         [Obsolete("Use .Finish().SetCancellationToken(cancellationToken).InProcessAndDisposeAsync()")]
         public Task<BuildJobResult> FinishAndDisposeAsync(CancellationToken cancellationToken)
             => Finish().SetCancellationToken(cancellationToken).InProcessAndDisposeAsync();
@@ -254,16 +255,16 @@ namespace Imageflow.Fluent
                 ["security"] = securityOptions?.ToJsonNode()
             };
         }
-        
+
         internal string ToJsonDebug(SecurityOptions? securityOptions = default)
         {
-           return CreateJsonNodeForFramewiseWithSecurityOptions(securityOptions).ToJsonString();
+            return CreateJsonNodeForFramewiseWithSecurityOptions(securityOptions).ToJsonString();
         }
 
         internal async Task<BuildJobResult> FinishAsync(JobExecutionOptions executionOptions, SecurityOptions? securityOptions, CancellationToken cancellationToken)
         {
             var inputByteArrays = await Task.WhenAll(
-                _inputs.Select( async pair => new KeyValuePair<int, ReadOnlyMemory<byte>>(pair.Key, await pair.Value.BorrowReadOnlyMemoryAsync(cancellationToken))));
+                _inputs.Select(async pair => new KeyValuePair<int, ReadOnlyMemory<byte>>(pair.Key, await pair.Value.BorrowReadOnlyMemoryAsync(cancellationToken))));
             using (var ctx = new JobContext())
             {
                 foreach (var pair in inputByteArrays)
@@ -273,18 +274,18 @@ namespace Imageflow.Fluent
                 {
                     ctx.AddOutputBuffer(outId);
                 }
-                
+
                 //TODO: Use a Semaphore to limit concurrency
                 var message = CreateJsonNodeForFramewiseWithSecurityOptions(securityOptions);
-                
+
                 var response = executionOptions.OffloadCpuToThreadPool
                     ? await Task.Run(() => ctx.InvokeExecute(message), cancellationToken)
                     : ctx.InvokeExecute(message);
-                
+
                 // TODO: Should we handle failure before copying out the buffers??
                 using (response)
                 {
-                    
+
                     foreach (var pair in _outputs)
                     {
                         using var memOwner = ctx.BorrowOutputBufferMemoryAndAddReference(pair.Key);
@@ -305,7 +306,7 @@ namespace Imageflow.Fluent
             {
                 ImageflowErrorCode = statusCode;
                 _ms = ms;
-            } 
+            }
             public void Dispose() => _ms.Dispose();
             public Stream GetStream() => _ms;
             public ReadOnlySpan<byte> BorrowBytes()
@@ -348,9 +349,9 @@ namespace Imageflow.Fluent
         {
             return RuntimeFileLocator.IsUnix ? TemporaryFile.CreateProvider() : TemporaryMemoryFile.CreateProvider();
         }
-        
-    
-        class SubprocessFilesystemJob: IPreparedFilesystemJob
+
+
+        class SubprocessFilesystemJob : IPreparedFilesystemJob
         {
             public SubprocessFilesystemJob(ITemporaryFileProvider provider)
             {
@@ -359,7 +360,7 @@ namespace Imageflow.Fluent
             internal ITemporaryFileProvider Provider { get; }
             public string JsonPath { get; set; } = "";
             public IReadOnlyDictionary<int, string> OutputFiles { get; internal set; } = new ReadOnlyDictionary<int, string>(new Dictionary<int, string>());
-            
+
             internal JsonNode? JobMessage { get; set; }
             internal List<IDisposable> Cleanup { get; } = new List<IDisposable>();
             internal List<KeyValuePair<ITemporaryFile, IOutputDestination>>? Outputs { get; set; }
@@ -383,7 +384,7 @@ namespace Imageflow.Fluent
                     d.Dispose();
                 }
                 Cleanup.Clear();
-                
+
             }
             ~SubprocessFilesystemJob()
             {
@@ -403,22 +404,22 @@ namespace Imageflow.Fluent
                     var file = job.Provider.Create(cleanupFiles, bytes.Length);
                     job.Cleanup.Add(file);
                     return (io_id: pair.Key, direction: "in",
-                        io: new JsonObject {{"file", file.Path}},
+                        io: new JsonObject { { "file", file.Path } },
                         bytes, bytes.Length, File: file);
-  
+
                 }))).ToArray();
-                
+
                 var outputCapacity = outputBufferCapacity ?? inputFiles.Max(v => v.Length) * 2;
                 var outputFiles = _outputs.Select(pair =>
                 {
                     var file = job.Provider.Create(cleanupFiles, outputCapacity);
                     job.Cleanup.Add(file);
-                    return (io_id: pair.Key, direction: "out", 
-                        io: new JsonObject {{"file", file.Path}},
+                    return (io_id: pair.Key, direction: "out",
+                        io: new JsonObject { { "file", file.Path } },
                         Length: outputCapacity, File: file, Dest: pair.Value);
                 }).ToArray();
-                
-                
+
+
                 foreach (var f in inputFiles)
                 {
                     using var accessor = f.File.WriteFromBeginning();
@@ -455,7 +456,7 @@ namespace Imageflow.Fluent
                     },
                     ["framewise"] = ToFramewise()
                 };
-                
+
                 var outputFilenames = new Dictionary<int, string>();
                 foreach (var f in outputFiles)
                 {
@@ -463,7 +464,7 @@ namespace Imageflow.Fluent
                 }
 
                 job.OutputFiles = new ReadOnlyDictionary<int, string>(outputFilenames);
-                
+
                 job.Outputs = outputFiles
                     .Select(f => new KeyValuePair<ITemporaryFile, IOutputDestination>(f.File, f.Dest)).ToList();
 
@@ -477,16 +478,16 @@ namespace Imageflow.Fluent
                 writer.Flush();
                 stream.Flush();
                 stream.Dispose();
-                
+
 
                 job.JsonPath = jsonFile.Path;
-                    
+
                 return job;
             }
             catch
             {
                 job.Dispose();
-                throw; 
+                throw;
             }
         }
 
@@ -495,7 +496,7 @@ namespace Imageflow.Fluent
 
 
 
-        internal async Task<BuildJobResult> FinishInSubprocessAsync(SecurityOptions? securityOptions, 
+        internal async Task<BuildJobResult> FinishInSubprocessAsync(SecurityOptions? securityOptions,
             string? imageflowToolPath, long? outputBufferCapacity = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (imageflowToolPath == null)
@@ -509,7 +510,7 @@ namespace Imageflow.Fluent
 
             using (var job = await PrepareForSubprocessAsync(cancellationToken, securityOptions, true, outputBufferCapacity))
             {
-                
+
                 var startInfo = new ProcessStartInfo
                 {
                     StandardErrorEncoding = Encoding.UTF8,
@@ -544,22 +545,22 @@ namespace Imageflow.Fluent
                 return BuildJobResult.From(new MemoryJsonResponse(results.ExitCode, outputMemory), _outputs);
             }
         }
-        
-        internal async Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(CancellationToken cancellationToken, SecurityOptions? securityOptions,  bool deleteFilesOnDispose)
+
+        internal async Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(CancellationToken cancellationToken, SecurityOptions? securityOptions, bool deleteFilesOnDispose)
         {
             return await PrepareForSubprocessAsync(cancellationToken, securityOptions, deleteFilesOnDispose);
         }
 
-     
-        
-        private readonly List<BuildItemBase> _nodesCreated = new List<BuildItemBase>(10);
-       
 
-        
+
+        private readonly List<BuildItemBase> _nodesCreated = new List<BuildItemBase>(10);
+
+
+
         internal void AddNode(BuildItemBase n)
         {
             AssertReady();
-            
+
             if (_nodesCreated.Contains(n))
             {
                 throw new ImageflowAssertionFailed("Cannot add duplicate node");
@@ -569,7 +570,7 @@ namespace Imageflow.Fluent
             {
                 throw new ImageflowAssertionFailed("You cannot use a canvas node from a different ImageJob");
             }
-            if (n.Input != null &&  !_nodesCreated.Contains(n.Input))
+            if (n.Input != null && !_nodesCreated.Contains(n.Input))
             {
                 throw new ImageflowAssertionFailed("You cannot use an input node from a different ImageJob");
             }
@@ -584,7 +585,8 @@ namespace Imageflow.Fluent
 
         private ICollection<BuildItemBase> CollectUnique() => _nodesCreated;
 
-        private static IEnumerable<Tuple<long, long, EdgeKind>> CollectEdges(ICollection<BuildItemBase> forUniqueNodes){
+        private static IEnumerable<Tuple<long, long, EdgeKind>> CollectEdges(ICollection<BuildItemBase> forUniqueNodes)
+        {
             var edges = new List<Tuple<long, long, EdgeKind>>(forUniqueNodes.Count);
             foreach (var n in forUniqueNodes)
             {
@@ -626,12 +628,12 @@ namespace Imageflow.Fluent
                 ["to"] = t.Item2 - lowestUid,
                 ["kind"] = t.Item3.ToString().ToLowerInvariant()
             }).ToArray();
-            
-            
+
+
             var nodes = new JsonObject();
             foreach (var n in uniqueNodes)
             {
-                nodes.Add((n.Uid - lowestUid).ToString(), n.NodeData );
+                nodes.Add((n.Uid - lowestUid).ToString(), n.NodeData);
             }
             // return new
             // {
@@ -681,7 +683,7 @@ namespace Imageflow.Fluent
             _disposed = true;
         }
 
-        public int GenerateIoId() =>_inputs.Keys.Concat(_outputs.Keys).DefaultIfEmpty(-1).Max() + 1;
+        public int GenerateIoId() => _inputs.Keys.Concat(_outputs.Keys).DefaultIfEmpty(-1).Max() + 1;
 
         /// <summary>
         /// Returns dimensions and format of the provided image stream or byte array
@@ -691,8 +693,8 @@ namespace Imageflow.Fluent
         [Obsolete("Use GetImageInfoAsync(IMemorySource, DataLifetime) instead; this method is less efficient and lacks clarity on disposing the source.")]
         public static Task<ImageInfo> GetImageInfo(IBytesSource image)
             => GetImageInfo(image, CancellationToken.None);
-        
-        
+
+
         /// <summary>
         /// Returns dimensions and format of the provided image stream or byte array
         /// </summary>
@@ -732,7 +734,8 @@ namespace Imageflow.Fluent
                 using var ctx = new JobContext();
                 ctx.AddInputBytesPinned(0, inputMemory, MemoryLifetimePromise.MemoryValidUntilAfterJobDisposed);
                 return ctx.GetImageInfo(0);
-            }finally
+            }
+            finally
             {
                 if (disposeSource != SourceLifetime.Borrowed)
                 {
@@ -760,7 +763,8 @@ namespace Imageflow.Fluent
                 using var ctx = new JobContext();
                 ctx.AddInputBytesPinned(0, inputMemory, MemoryLifetimePromise.MemoryValidUntilAfterJobDisposed);
                 return ctx.GetImageInfo(0);
-            }finally
+            }
+            finally
             {
                 if (disposeSource != SourceLifetime.Borrowed)
                 {

@@ -1,5 +1,7 @@
-﻿using System.Runtime.ConstrainedExecution;
+using System.Runtime.ConstrainedExecution;
+
 using Imageflow.Internal.Helpers;
+
 using Microsoft.Win32.SafeHandles;
 
 namespace Imageflow.Bindings
@@ -15,7 +17,7 @@ namespace Imageflow.Bindings
         {
             ParentContext = parent ?? throw new ArgumentNullException(nameof(parent));
             SetHandle(ptr);
-            
+
             var addRefSucceeded = false;
             parent.DangerousAddRef(ref addRefSucceeded);
             if (!addRefSucceeded)
@@ -34,8 +36,8 @@ namespace Imageflow.Bindings
             if (!ParentContext.IsValid) throw new ObjectDisposedException("Imageflow JobContextHandle");
             if (!IsValid) throw new ObjectDisposedException("Imageflow JsonResponseHandle");
         }
-        
-        
+
+
 
 #pragma warning disable SYSLIB0004
         [ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]

@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
+
 using Imageflow.Bindings;
 using Imageflow.Fluent;
 
@@ -21,8 +22,8 @@ imageflowApi.MapGet("/version", () =>
     var vi = c.GetVersionInfo();
     return Results.Ok(vi);
 });
-imageflowApi.MapGet("/resize/width/{width}", async(int width) =>
-{  
+imageflowApi.MapGet("/resize/width/{width}", async (int width) =>
+{
     var resultMemory = await Helpers.SizeIcon(width);
     return Results.Bytes(resultMemory, "image/jpeg");
 });

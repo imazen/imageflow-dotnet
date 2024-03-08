@@ -1,4 +1,5 @@
-﻿using Imageflow.Internal.Helpers;
+using Imageflow.Internal.Helpers;
+
 using Microsoft.IO;
 
 namespace Imageflow.Fluent;
@@ -33,11 +34,11 @@ public class StreamSource(Stream underlying, bool disposeUnderlying) : IBytesSou
         if (_copy != null)
         {
             return new ArraySegment<byte>(_copy.GetBuffer(), 0,
-                (int) _copy.Length);
+                (int)_copy.Length);
         }
         var length = underlying.CanSeek ? underlying.Length : 0;
         if (length >= int.MaxValue) throw new OverflowException("Streams cannot exceed 2GB");
-            
+
         if (underlying is MemoryStream underlyingMemoryStream &&
             underlyingMemoryStream.TryGetBufferSliceAllWrittenData(out var underlyingBuffer))
         {
@@ -46,12 +47,12 @@ public class StreamSource(Stream underlying, bool disposeUnderlying) : IBytesSou
 
         if (_copy == null)
         {
-            _copy = new RecyclableMemoryStream(Mgr,"StreamSource: IBytesSource", length);
-            await underlying.CopyToAsync(_copy,81920, cancellationToken);
+            _copy = new RecyclableMemoryStream(Mgr, "StreamSource: IBytesSource", length);
+            await underlying.CopyToAsync(_copy, 81920, cancellationToken);
         }
-            
+
         return new ArraySegment<byte>(_copy.GetBuffer(), 0,
-            (int) _copy.Length);
+            (int)_copy.Length);
     }
 
     internal bool AsyncPreferred => _copy != null && underlying is not MemoryStream && underlying is not UnmanagedMemoryStream;
