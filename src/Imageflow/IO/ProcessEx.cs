@@ -100,9 +100,9 @@ internal static class ProcessEx
             }
         };
 
-        process.Exited += (sender, args) =>
+        process.Exited += (_, args) =>
         {
-            // Since the Exited event can happen asynchronously to the output and error events, 
+            // Since the Exited event can happen asynchronously to the output and error events,
             // we use the task results for stdout/stderr to ensure they both closed
             tcs.TrySetResult(new ProcessResults(process, standardOutputResults.Task.Result, standardErrorResults.Task.Result));
         };

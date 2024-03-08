@@ -402,7 +402,7 @@ namespace Imageflow.Test
                     else
                     {
 #pragma warning disable CA1416
-                        using (var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
+                        using (var _ = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
 #pragma warning restore CA1416
                         {
                         } // Will throw filenotfoundexception if missing
@@ -416,11 +416,11 @@ namespace Imageflow.Test
                 else
                 {
 
-                    Assert.Throws<FileNotFoundException>(delegate ()
+                    Assert.Throws<FileNotFoundException>(delegate
                     {
 
 #pragma warning disable CA1416
-                        using (var file = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
+                        using (var _ = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
 #pragma warning restore CA1416
                         {
                         }
@@ -473,7 +473,7 @@ namespace Imageflow.Test
 
                 Assert.Equal(5, r.First!.Width);
                 Assert.True(r.First.TryGetBytes().HasValue);
-                Assert.Equal(1, r.DecodeResults.First()!.Width);
+                Assert.Equal(1, r.DecodeResults.First().Width);
                 Assert.Equal(1, r.DecodeResults.First().Height);
                 Assert.Equal("png", r.DecodeResults.First().PreferredExtension);
                 Assert.Equal("image/png", r.DecodeResults.First().PreferredMimeType);

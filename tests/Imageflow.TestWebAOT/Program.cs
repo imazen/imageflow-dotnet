@@ -32,7 +32,7 @@ imageflowApi.MapGet("/resize/width/{width}", async (int width) =>
 using var c = new JobContext();
 var _ = c.GetVersionInfo();
 var t = Helpers.SizeIcon(10);
-var _2 = t.Result;
+var unused = t.Result;
 
 app.Run();
 

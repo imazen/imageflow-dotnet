@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
+using Imageflow.Internal.Helpers;
 #if !NET8_0_OR_GREATER
 using System.Reflection;
 #endif
@@ -31,6 +32,7 @@ internal class LoadLogger : ILibraryLoadLogger
     public void NotifyAttempt(string basename, string? fullPath, bool fileExists, bool previouslyLoaded,
         int? loadErrorCode)
     {
+        Argument.ThrowIfNull(basename);
         _log.Add(new LogEntry
         {
             Basename = basename,
@@ -43,7 +45,7 @@ internal class LoadLogger : ILibraryLoadLogger
 
     internal void RaiseException()
     {
-        var sb = new StringBuilder(_log.Select((e) => e.Basename?.Length ?? 0 + e.FullPath?.Length ?? 0 + 20)
+        var sb = new StringBuilder(_log.Select((e) => e.Basename.Length + (e.FullPath?.Length ?? 0) + 20)
             .Sum());
         sb.AppendFormat(CultureInfo.InvariantCulture, "Looking for \"{0}\" RID=\"{1}-{2}\", IsUnix={3}, IsDotNetCore={4} RelativeSearchPath=\"{5}\"\n",
             Filename,
@@ -368,10 +370,7 @@ public static class ExecutableLocator
     internal static bool TryLoadByBasename(string basename, ILibraryLoadLogger log, out string? exePath,
         IEnumerable<string>? customSearchDirectories = null)
     {
-        if (string.IsNullOrEmpty(basename))
-        {
-            throw new ArgumentNullException(nameof(basename));
-        }
+        Argument.ThrowIfNull(basename);
 
         if (ExecutablePathsByName.Value.TryGetValue(basename, out exePath))
         {
