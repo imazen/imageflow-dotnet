@@ -12,8 +12,6 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
-**/.idea/copilot
-
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
@@ -28,10 +26,8 @@ bld/
 test-publish/
 NuGetPackages/
 
-
-
 # DocFX build results
-_site/
+_site/ 
 
 # Visual Studio 2015 cache/options directory
 .vs/

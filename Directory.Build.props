@@ -13,6 +13,7 @@
         <Owners>imazen,lilith</Owners>
         <Company>Imazen</Company>
         <CompanyName>Imazen</CompanyName>
+
         <Product>Imageflow Server</Product>
         <RepositoryType>git</RepositoryType>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
@@ -20,11 +21,17 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PackageLicenseExpression>(AGPL-3.0-or-later OR Apache-2.0+)</PackageLicenseExpression>
+  
         <Version Condition="'$(Version)' == ''">$(TAGGED_VERSION)</Version>
         <VersionPrefix>0.1.0</VersionPrefix>
         <VersionSuffix>-notset</VersionSuffix>
         <PackageTags>Image;Resize;Optimize;Crop;Gif;Jpg;Jpeg;Bitmap;Png;Core;WebP;ImageResizer;Imageflow;Rotate;Imaging;Crunch</PackageTags>
+
         <RestoreLockedMode>false</RestoreLockedMode>
+        
+        
+    
+        
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
@@ -38,7 +45,7 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(CI)' == 'true'">
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-        <!--        This causes pain-->
+        <!--        This causes pain-->        
         <!--        <RestoreLockedMode>true</RestoreLockedMode>-->
     </PropertyGroup>
 
