@@ -332,7 +332,7 @@ namespace Imageflow.Test
             var stream1 = new BufferedStream(new MemoryStream(imageBytes));
             Assert.Equal(137, stream1.ReadByte());
             stream1.Seek(0, SeekOrigin.Begin);
-            var stream2 = new BufferedStream(new MemoryStream(imageBytes));
+            var stream2 = new NonSeekableReadStream(imageBytes);
             var stream3 = new BufferedStream(new MemoryStream(imageBytes));
             using (var b = new ImageJob())
             {
@@ -361,12 +361,12 @@ namespace Imageflow.Test
             var stream1 = new BufferedStream(new MemoryStream(imageBytes));
             Assert.Equal(137, stream1.ReadByte());
             stream1.Seek(0, SeekOrigin.Begin);
-            var stream2 = new BufferedStream(new MemoryStream(imageBytes));
+            var stream2 = new NonSeekableReadStream(imageBytes);
             var stream3 = new BufferedStream(new MemoryStream(imageBytes));
             using var b = new ImageJob();
             var watermarks = new List<InputWatermark>();
             watermarks.Add(new InputWatermark(BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream1), new WatermarkOptions()));
-            watermarks.Add(new InputWatermark(BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream2), new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
+            watermarks.Add(new InputWatermark(BufferedStreamSource.UseStreamRemainderAndDisposeWithSource(stream2), new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
 
             var r = await b.BuildCommandString(
                 BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream3),

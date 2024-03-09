@@ -8,7 +8,7 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
 {
     private BufferedStreamSource(Stream stream, bool disposeUnderlying, bool seekToStart)
     {
-        if (stream.Position != 0 && !stream.CanSeek && seekToStart)
+        if (!stream.CanSeek && seekToStart)
         {
             throw new ArgumentException("Stream must be seekable if seekToStart is true");
         }
