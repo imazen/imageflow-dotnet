@@ -123,9 +123,13 @@ public class ImageJob : IDisposable
         BuildNode.StartNode(this,
               //new {create_canvas = new {w, h, color = color.ToImageflowDynamic()
               new JsonObject() {{"create_canvas", new JsonObject()
-                  {{"w", w}, {"h", h},
-                      {"color", color.ToJsonNode()}}},
-                  {"format", format.ToString().ToLowerInvariant()}});
+                  {
+                      {"w", w},
+                      {"h", h},
+                      {"color", color.ToJsonNode()},
+                      {"format", format.ToString().ToLowerInvariant()}
+                  }
+              }});
 
     [Obsolete("Use a BufferedStreamSource or MemorySource for the source parameter instead")]
     public BuildEndpoint BuildCommandString(IBytesSource source, IOutputDestination dest, string commandString) => BuildCommandString(source, null, dest, null, commandString);
