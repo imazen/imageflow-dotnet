@@ -49,7 +49,7 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
         out ReadOnlyMemory<byte> memory)
     {
         ObjectDisposedHelper.ThrowIf(_underlying == null, this);
-        var memStream = _underlying as MemoryStream ?? _copy;
+        var memStream = _copy ?? _underlying as MemoryStream;
         if (memStream != null)
         {
             // If it's a recyclable memory stream, it will cache the buffer no matter how many times we call it.
@@ -59,7 +59,6 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
                 memory = segment;
                 return true;
             }
-            throw new OverflowException("Streams cannot exceed 2GB");
         }
         memory = default;
         return false;

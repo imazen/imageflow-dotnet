@@ -400,6 +400,33 @@ namespace Imageflow.Test
             Assert.True(r.First.TryGetBytes().HasValue);
         }
 
+
+        [Fact]
+        public async Task TestBuildCommandStringWithStreamWithoutTryGetBuffer()
+        {
+            var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+            var stream1 = new StreamWithoutTryGetBuffer(imageBytes);
+            Assert.Equal(137, stream1.ReadByte());
+            stream1.Seek(0, SeekOrigin.Begin);
+            var stream2 = new NonSeekableReadStream(imageBytes);
+            var stream3 = new StreamWithoutTryGetBuffer(imageBytes);
+            using var b = new ImageJob();
+            var watermarks = new List<InputWatermark>
+            {
+                new(BufferedStreamSource.UseStreamRemainderAndDisposeWithSource(stream1), new WatermarkOptions()),
+                new(BufferedStreamSource.UseStreamRemainderAndDisposeWithSource(stream2), new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100)))
+            };
+
+            var r = await b.BuildCommandString(
+                BufferedStreamSource.UseStreamRemainderAndDisposeWithSource(stream3),
+                new BytesDestination(),
+                "width=3&height=2&mode=stretch&scale=both&format=webp", watermarks).Finish().InProcessAsync();
+
+            Assert.Equal(3, r.First!.Width);
+            Assert.Equal("webp", r.First.PreferredExtension);
+            Assert.True(r.First.TryGetBytes().HasValue);
+        }
+
         [Fact]
         public async Task TestFilesystemJobPrep()
         {
