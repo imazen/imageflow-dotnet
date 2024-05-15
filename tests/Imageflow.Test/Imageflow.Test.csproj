@@ -12,6 +12,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);CA1510</NoWarn>
+</PropertyGroup>
   <ItemGroup>
 <!--    <PackageReference Include="PolySharp" Version="1.*">-->
 <!--      <PrivateAssets>all</PrivateAssets>-->

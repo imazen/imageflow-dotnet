@@ -137,6 +137,28 @@ namespace Imageflow.Test
                 Assert.True(r.First.TryGetBytes().HasValue);
             }
         }
+
+        [Fact]
+        public async Task TestCreateCanvasBgra32()
+        {
+            using var b = new ImageJob();
+            var r = await b.CreateCanvasBgra32(10, 20, AnyColor.Black).Encode(new BytesDestination(), new WebPLosslessEncoder()).Finish().InProcessAsync();
+
+            Assert.Equal(10, r.First!.Width);
+            Assert.Equal(20, r.First.Height);
+            Assert.True(r.First.TryGetBytes().HasValue);
+        }
+        [Fact]
+        public async Task TestCreateCanvasBgr32()
+        {
+            using var b = new ImageJob();
+            var r = await b.CreateCanvasBgr32(10, 20, AnyColor.Black).Encode(new BytesDestination(), new WebPLosslessEncoder()).Finish().InProcessAsync();
+
+            Assert.Equal(10, r.First!.Width);
+            Assert.Equal(20, r.First.Height);
+            Assert.True(r.First.TryGetBytes().HasValue);
+        }
+
         [Fact]
         public async Task TestConstraints()
         {
