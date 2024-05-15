@@ -547,24 +547,7 @@ public class ImageJob : IDisposable
 
     private ICollection<BuildItemBase> CollectUnique() => _nodesCreated;
 
-    private static IEnumerable<Tuple<long, long, EdgeKind>> CollectEdges(ICollection<BuildItemBase> forUniqueNodes)
-    {
-        var edges = new List<Tuple<long, long, EdgeKind>>(forUniqueNodes.Count);
-        foreach (var n in forUniqueNodes)
-        {
-            if (n.Canvas != null)
-            {
-                edges.Add(new Tuple<long, long, EdgeKind>(n.Canvas.Uid, n.Uid, EdgeKind.Canvas));
-            }
-            if (n.Input != null)
-            {
-                edges.Add(new Tuple<long, long, EdgeKind>(n.Input.Uid, n.Uid, EdgeKind.Input));
-            }
-        }
-        return edges;
-    }
 
-    private static long? LowestUid(IEnumerable<BuildItemBase> forNodes) => forNodes.Select(n => n.Uid as long?).Min();
 
     internal JsonNode ToFramewise()
     {
@@ -574,41 +557,52 @@ public class ImageJob : IDisposable
 
     private static JsonNode ToFramewiseGraph(ICollection<BuildItemBase> uniqueNodes)
     {
-        var lowestUid = LowestUid(uniqueNodes) ?? 0;
-        var edges = CollectEdges(uniqueNodes)
-            .OrderBy(t => t.Item1)
-            .ThenBy(t => t.Item2).ToList();
-        //var framewiseEdges = edges.Select(t => new
-        // {
-        //     from = t.Item1 - lowestUid,
-        //     to = t.Item2 - lowestUid,
-        //     kind = t.Item3.ToString().ToLowerInvariant()
-        // }).ToList();
-        JsonNode[] framewiseEdges = edges.Select(t => (JsonNode)new JsonObject
-        {
-            ["from"] = t.Item1 - lowestUid,
-            ["to"] = t.Item2 - lowestUid,
-            ["kind"] = t.Item3.ToString().ToLowerInvariant()
-        }).ToArray();
+        //First, create a map from all the Uids in use to sequential numbers,
+        //so that we can use them as indices in the framewise graph.
+
+        var sortedNodes = uniqueNodes.OrderBy(n => n.Uid).ToList();
+
+        var uidToIndex = sortedNodes.Select((n, i) => new { n.Uid, Index = i })
+            .ToDictionary(k => k.Uid, v => v.Index);
 
         var nodes = new JsonObject();
-        foreach (var n in uniqueNodes)
+        var edges = new JsonArray();
+        for (var i = 0; i < sortedNodes.Count; i++)
         {
-            nodes.Add((n.Uid - lowestUid).ToString(CultureInfo.InvariantCulture), n.NodeData);
+            var n = sortedNodes[i];
+            nodes.Add(i.ToString(CultureInfo.InvariantCulture), n.NodeData);
+            if (n.Canvas != null)
+            {
+                if (!uidToIndex.ContainsKey(n.Canvas.Uid))
+                {
+                    throw new ImageflowException("You cannot use a canvas node from a different ImageJob");
+                }
+                edges.Add((JsonNode)new JsonObject
+                {
+                    ["from"] = uidToIndex[n.Canvas.Uid],
+                    ["to"] = i,
+                    ["kind"] = "canvas"
+                });
+            }
+            if (n.Input != null)
+            {
+                if (!uidToIndex.ContainsKey(n.Input.Uid))
+                {
+                    throw new ImageflowException("You cannot use an input node from a different ImageJob");
+                }
+                edges.Add((JsonNode)new JsonObject
+                {
+                    ["from"] = uidToIndex[n.Input.Uid],
+                    ["to"] = i,
+                    ["kind"] = "input"
+                });
+            }
         }
-        // return new
-        // {
-        //     graph = new
-        //     {
-        //         edges = framewiseEdges,
-        //         nodes = framewiseNodes
-        //     }
-        // };
         return new JsonObject
         {
             ["graph"] = new JsonObject
             {
-                ["edges"] = new JsonArray(framewiseEdges),
+                ["edges"] = edges,
                 ["nodes"] = nodes
             }
         };
