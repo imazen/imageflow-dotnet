@@ -6,7 +6,7 @@ using System.IO;
 public class NonSeekableReadStream : Stream
 {
     private byte[] data;
-    private long position = 0; // Current position within the data
+    private long position; // =0 Current position within the data
 
     public NonSeekableReadStream(byte[] dataSource)
     {
@@ -33,7 +33,8 @@ public class NonSeekableReadStream : Stream
     public override int Read(byte[] buffer, int offset, int count)
     {
         if (buffer == null) throw new ArgumentNullException(nameof(buffer));
-        if (offset < 0 || count < 0) throw new ArgumentOutOfRangeException("offset or count is negative.");
+        if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset), "offset or count is negative.");
+        if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "count is negative.");
         if (buffer.Length - offset < count) throw new ArgumentException("The sum of offset and count is greater than the buffer length.");
 
         int available = data.Length - (int)position;

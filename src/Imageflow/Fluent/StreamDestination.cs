@@ -52,6 +52,7 @@ public class StreamDestination(Stream underlying, bool disposeUnderlying) : IOut
     public Task FlushAsync(CancellationToken cancellationToken)
     {
         ObjectDisposedHelper.ThrowIf(_underlying == null, this);
+        // Truncate the stream if it's seekable and we haven't written to the end
         if (_underlying is { CanSeek: true, CanWrite: true }
             && _underlying.Position < _underlying.Length)
         {

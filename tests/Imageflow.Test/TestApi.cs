@@ -21,7 +21,7 @@ namespace Imageflow.Test
 
         [Fact]
         [Obsolete("Obsolete")]
-        public async void TestGetImageInfoLegacy()
+        public async Task TestGetImageInfoLegacy()
         {
             var imageBytes = Convert.FromBase64String(
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
@@ -37,7 +37,7 @@ namespace Imageflow.Test
 
         // test the new GetImageInfoAsync
         [Fact]
-        public async void TestGetImageInfoAsync()
+        public async Task TestGetImageInfoAsync()
         {
             var imageBytes = Convert.FromBase64String(
                 "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");

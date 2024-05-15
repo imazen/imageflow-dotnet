@@ -22,9 +22,9 @@
     <PackageReference Include="Imageflow.NativeTool.win-x86" Version="2.0.0-preview8" />
     <PackageReference Include="Imageflow.NativeTool.win-x86_64" Version="2.0.0-preview8" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-    <PackageReference Include="xunit" Version="2.7.0" />
+    <PackageReference Include="xunit" Version="2.*" />
     <PackageReference Include="xunit.extensibility.execution" Version="2.*" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
