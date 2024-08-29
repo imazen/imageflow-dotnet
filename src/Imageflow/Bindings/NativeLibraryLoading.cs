@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Globalization;
+using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
@@ -8,6 +9,7 @@ using Imageflow.Internal.Helpers;
 #if !NET8_0_OR_GREATER
 using System.Reflection;
 #endif
+
 namespace Imageflow.Bindings;
 
 internal class LoadLogger : ILibraryLoadLogger
@@ -47,7 +49,8 @@ internal class LoadLogger : ILibraryLoadLogger
     {
         var sb = new StringBuilder(_log.Select((e) => e.Basename.Length + (e.FullPath?.Length ?? 0) + 20)
             .Sum());
-        sb.AppendFormat(CultureInfo.InvariantCulture, "Looking for \"{0}\" RID=\"{1}-{2}\", IsUnix={3}, IsDotNetCore={4} RelativeSearchPath=\"{5}\"\n",
+        sb.AppendFormat(CultureInfo.InvariantCulture,
+            "Looking for \"{0}\" RID=\"{1}-{2}\", IsUnix={3}, IsDotNetCore={4} RelativeSearchPath=\"{5}\"\n",
             Filename,
             RuntimeFileLocator.PlatformRuntimePrefix.Value,
             RuntimeFileLocator.ArchitectureSubdir.Value, RuntimeFileLocator.IsUnix,
@@ -85,7 +88,8 @@ internal class LoadLogger : ILibraryLoadLogger
                     var installed = Environment.Is64BitProcess ? "32-bit (x86)" : "64-bit (x86_64)";
                     var needed = Environment.Is64BitProcess ? "64-bit (x86_64)" : "32-bit (x86)";
 
-                    sb.AppendFormat(CultureInfo.InvariantCulture, "\n> You have installed a {0} copy of imageflow.dll but need the {1} version",
+                    sb.AppendFormat(CultureInfo.InvariantCulture,
+                        "\n> You have installed a {0} copy of imageflow.dll but need the {1} version",
                         installed, needed);
                 }
 
@@ -95,15 +99,18 @@ internal class LoadLogger : ILibraryLoadLogger
                     var crtLink = "https://aka.ms/vs/16/release/vc_redist."
                                   + (Environment.Is64BitProcess ? "x64.exe" : "x86.exe");
 
-                    sb.AppendFormat(CultureInfo.InvariantCulture, "\n> You may need to install the C Runtime from {0}", crtLink);
+                    sb.AppendFormat(CultureInfo.InvariantCulture, "\n> You may need to install the C Runtime from {0}",
+                        crtLink);
                 }
             }
             else
             {
                 sb.AppendFormat(CultureInfo.InvariantCulture, "{0} {1} in {2}", Verb, e.Basename, e.FullPath);
             }
+
             sb.Append('\n');
         }
+
         if (LastException != null)
         {
             sb.AppendLine(LastException.Message);
@@ -121,16 +128,18 @@ internal class LoadLogger : ILibraryLoadLogger
 
 internal static class RuntimeFileLocator
 {
-    internal static bool IsUnix => Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX;
+    internal static bool IsUnix => Environment.OSVersion.Platform == PlatformID.Unix ||
+                                   Environment.OSVersion.Platform == PlatformID.MacOSX;
 
-    internal static readonly Lazy<string> SharedLibraryPrefix = new Lazy<string>(() => IsUnix ? "lib" : "", LazyThreadSafetyMode.PublicationOnly);
+    internal static readonly Lazy<string> SharedLibraryPrefix =
+        new Lazy<string>(() => IsUnix ? "lib" : "", LazyThreadSafetyMode.PublicationOnly);
 #if NET8_0_OR_GREATER
     internal static readonly Lazy<bool> IsDotNetCore = new Lazy<bool>(() =>
             true
         , LazyThreadSafetyMode.PublicationOnly);
 #else
     internal static readonly Lazy<bool> IsDotNetCore = new Lazy<bool>(() =>
-            typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.CodeBase.Contains("Microsoft.NETCore.App")
+            typeof(GCSettings).GetTypeInfo().Assembly.CodeBase.Contains("Microsoft.NETCore.App")
         , LazyThreadSafetyMode.PublicationOnly);
 #endif
     internal static readonly Lazy<string> PlatformRuntimePrefix = new Lazy<string>(() =>
@@ -154,20 +163,28 @@ internal static class RuntimeFileLocator
 
     internal static readonly Lazy<string> SharedLibraryExtension = new Lazy<string>(() =>
     {
-        switch (Environment.OSVersion.Platform)
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            case PlatformID.MacOSX:
-                return "dylib";
-            case PlatformID.Unix:
-                return "so";
-            case PlatformID.Win32NT:
-            case PlatformID.Win32S:
-            case PlatformID.Win32Windows:
-            case PlatformID.WinCE:
-            case PlatformID.Xbox:
-                return "dll";
-            default:
-                return "dll";
+            return "dylib";
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return "so";
+        }
+#if NETCOREAPP3_1
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
+        {
+            return "so";
+        }
+#endif
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return "dll";
+        }
+        else
+        {
+            // Default to dll for unknown platforms
+            return "dll";
         }
     }, LazyThreadSafetyMode.PublicationOnly);
 
@@ -196,22 +213,39 @@ internal static class RuntimeFileLocator
     /// </summary>
     internal static readonly Lazy<string> ArchitectureSubdir = new Lazy<string>(() =>
     {
-        // ReSharper disable once InvertIf
-        if (!IsUnix)
+        var processArchitecture = RuntimeInformation.ProcessArchitecture;
+        var archString = processArchitecture switch
         {
-            var architecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
-            if (string.Equals(architecture, "ia64", StringComparison.OrdinalIgnoreCase))
-            {
-                return "ia64";
-            }
-            if (string.Equals(architecture, "arm", StringComparison.OrdinalIgnoreCase))
-            {
-                return Environment.Is64BitProcess ? "arm64" : "arm";
-            }
-            // We don't currently support unlisted/unknown architectures. We default to x86/x64 as backup
+            Architecture.X86 => "x86",
+            Architecture.X64 => "x64",
+            Architecture.Arm => "arm",
+            Architecture.Arm64 => "arm64",
+#if NETCOREAPP3_1
+            Architecture.Armv6 => "armv6",
+            Architecture.LoongArch64 => "loongarch64",
+            Architecture.Ppc64le => "ppc64le",
+            Architecture.S390x => "s390x",
+            Architecture.Wasm => "wasm",
+#endif
+            _ => null
+        };
+
+        if (archString != null)
+        {
+            return archString;
         }
-        //TODO: Add support for arm/arm64 on linux
-        return Environment.Is64BitProcess ? "x64" : "x86";
+
+        // Fallback to environment variable if RuntimeInformation.ProcessArchitecture is not conclusive
+        var envArchitecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
+        return envArchitecture?.ToUpperInvariant() switch
+        {
+            "AMD64" => "x64",
+            "IA64" => "ia64",
+            "ARM64" => "arm64",
+            "EM64T" => "x64", // Treating EM64T as x64
+            "X86" => "x86",
+            _ => Environment.Is64BitProcess ? "x64" : "x86" // Default fallback
+        };
     }, LazyThreadSafetyMode.PublicationOnly);
 
     /// <summary>
@@ -237,6 +271,7 @@ internal static class RuntimeFileLocator
         {
             yield return Tuple.Create(true, AppDomain.CurrentDomain.RelativeSearchPath);
         }
+
         // look in System.AppContext.BaseDirectory
         if (!string.IsNullOrEmpty(AppContext.BaseDirectory))
         {
@@ -248,7 +283,8 @@ internal static class RuntimeFileLocator
 
         //Issue #17 - Azure Functions 2.0 - https://github.com/imazen/imageflow-dotnet/issues/17
         // If the BaseDirectory is /bin/, look one step outside of it.
-        if (AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).EndsWith("bin"))
+        if (AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            .EndsWith("bin"))
         {
             //Look in the parent directory if we're in /bin/, but only look in ../runtimes/:rid:/native
             var dir = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory);
@@ -261,11 +297,13 @@ internal static class RuntimeFileLocator
 
         string? assemblyLocation = null;
 #if !NETCOREAPP && !NET5_0_OR_GREATER && !NET8_0_OR_GREATER
-        try{
+        try
+        {
             // Look in the folder that *this* assembly is located.
             assemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-        } catch (NotImplementedException){
+        }
+        catch (NotImplementedException)
+        {
             // ignored
         }
 #endif
@@ -275,7 +313,8 @@ internal static class RuntimeFileLocator
         }
     }
 
-    internal static IEnumerable<string> SearchPossibilitiesForFile(string filename, IEnumerable<string>? customSearchDirectories = null)
+    internal static IEnumerable<string> SearchPossibilitiesForFile(string filename,
+        IEnumerable<string>? customSearchDirectories = null)
     {
         var attemptedPaths = new HashSet<string>();
         foreach (var t in BaseFolders(customSearchDirectories))
@@ -318,7 +357,6 @@ internal static class RuntimeFileLocator
                     yield return path;
                 }
             }
-
         }
     }
 }
@@ -330,10 +368,10 @@ internal interface ILibraryLoadLogger
 
 public static class ExecutableLocator
 {
-
-    private static string GetFilenameWithoutDirectory(string basename) => RuntimeFileLocator.ExecutableExtension.Value.Length > 0
-        ? $"{basename}.{RuntimeFileLocator.ExecutableExtension.Value}"
-        : basename;
+    private static string GetFilenameWithoutDirectory(string basename) =>
+        RuntimeFileLocator.ExecutableExtension.Value.Length > 0
+            ? $"{basename}.{RuntimeFileLocator.ExecutableExtension.Value}"
+            : basename;
 
     /// <summary>
     /// Raises an exception if the file couldn't be found
@@ -348,11 +386,15 @@ public static class ExecutableLocator
         {
             return exePath;
         }
+
         logger.RaiseException();
         return null;
     }
 
-    private static readonly Lazy<ConcurrentDictionary<string, string>> ExecutablePathsByName = new Lazy<ConcurrentDictionary<string, string>>(() => new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);
+    private static readonly Lazy<ConcurrentDictionary<string, string>> ExecutablePathsByName =
+        new Lazy<ConcurrentDictionary<string, string>>(
+            () => new ConcurrentDictionary<string, string>(StringComparer.OrdinalIgnoreCase),
+            LazyThreadSafetyMode.PublicationOnly);
 
     // Not yet implemented.
     // static readonly Lazy<ConcurrentDictionary<string, IntPtr>> LibraryHandlesByFullPath = new Lazy<ConcurrentDictionary<string, IntPtr>>(() => new ConcurrentDictionary<string, IntPtr>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);
@@ -393,13 +435,15 @@ public static class ExecutableLocator
                 return true;
             }
         }
+
         return false;
     }
 }
 
 internal static class NativeLibraryLoader
 {
-    private static string GetFilenameWithoutDirectory(string basename) => $"{RuntimeFileLocator.SharedLibraryPrefix.Value}{basename}.{RuntimeFileLocator.SharedLibraryExtension.Value}";
+    private static string GetFilenameWithoutDirectory(string basename) =>
+        $"{RuntimeFileLocator.SharedLibraryPrefix.Value}{basename}.{RuntimeFileLocator.SharedLibraryExtension.Value}";
 
     /// <summary>
     /// Attempts to resolve DllNotFoundException and BadImageFormatExceptions
@@ -430,7 +474,9 @@ internal static class NativeLibraryLoader
 
         //Try loading
         var logger = new LoadLogger
-        { FirstException = caughtException, Filename = GetFilenameWithoutDirectory(basename) };
+        {
+            FirstException = caughtException, Filename = GetFilenameWithoutDirectory(basename)
+        };
         if (TryLoadByBasename(basename, logger, out _, customSearchDirectories))
         {
             try
@@ -442,11 +488,15 @@ internal static class NativeLibraryLoader
                 logger.LastException = last;
             }
         }
+
         logger.RaiseException();
         return default;
     }
 
-    private static readonly Lazy<ConcurrentDictionary<string, IntPtr>> LibraryHandlesByBasename = new Lazy<ConcurrentDictionary<string, IntPtr>>(() => new ConcurrentDictionary<string, IntPtr>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);
+    private static readonly Lazy<ConcurrentDictionary<string, IntPtr>> LibraryHandlesByBasename =
+        new Lazy<ConcurrentDictionary<string, IntPtr>>(
+            () => new ConcurrentDictionary<string, IntPtr>(StringComparer.OrdinalIgnoreCase),
+            LazyThreadSafetyMode.PublicationOnly);
 
     // Not yet implemented.
     // static readonly Lazy<ConcurrentDictionary<string, IntPtr>> LibraryHandlesByFullPath = new Lazy<ConcurrentDictionary<string, IntPtr>>(() => new ConcurrentDictionary<string, IntPtr>(StringComparer.OrdinalIgnoreCase), LazyThreadSafetyMode.PublicationOnly);
@@ -461,7 +511,8 @@ internal static class NativeLibraryLoader
     /// <param name="handle">Where to store the loaded library handle</param>
     /// <param name="customSearchDirectories">Provide this if you want a custom search folder</param>
     /// <returns>True if previously or successfully loaded</returns>
-    public static bool TryLoadByBasename(string basename, ILibraryLoadLogger log, out IntPtr handle, IEnumerable<string>? customSearchDirectories = null)
+    public static bool TryLoadByBasename(string basename, ILibraryLoadLogger log, out IntPtr handle,
+        IEnumerable<string>? customSearchDirectories = null)
     {
         if (string.IsNullOrEmpty(basename))
         {
@@ -473,6 +524,7 @@ internal static class NativeLibraryLoader
             log.NotifyAttempt(basename, null, true, true, 0);
             return true;
         }
+
         lock (LibraryHandlesByBasename)
         {
             if (LibraryHandlesByBasename.Value.TryGetValue(basename, out handle))
@@ -480,6 +532,7 @@ internal static class NativeLibraryLoader
                 log.NotifyAttempt(basename, null, true, true, 0);
                 return true;
             }
+
             var success = TryLoadByBasenameInternal(basename, log, out handle, customSearchDirectories);
             if (success)
             {
@@ -490,7 +543,8 @@ internal static class NativeLibraryLoader
         }
     }
 
-    private static bool TryLoadByBasenameInternal(string basename, ILibraryLoadLogger log, out IntPtr handle, IEnumerable<string>? customSearchDirectories = null)
+    private static bool TryLoadByBasenameInternal(string basename, ILibraryLoadLogger log, out IntPtr handle,
+        IEnumerable<string>? customSearchDirectories = null)
     {
         var filename = GetFilenameWithoutDirectory(basename);
         foreach (var path in RuntimeFileLocator.SearchPossibilitiesForFile(filename, customSearchDirectories))
@@ -509,6 +563,7 @@ internal static class NativeLibraryLoader
                 }
             }
         }
+
         handle = IntPtr.Zero;
         return false;
     }
@@ -521,6 +576,7 @@ internal static class NativeLibraryLoader
             errorCode = Marshal.GetLastWin32Error();
             return false;
         }
+
         errorCode = null;
         return true;
     }
@@ -530,7 +586,8 @@ internal static class NativeLibraryLoader
 [SecurityCritical]
 internal static class WindowsLoadLibrary
 {
-    [DllImport("kernel32", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode, SetLastError = true)]
+    [DllImport("kernel32", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode,
+        SetLastError = true)]
     private static extern IntPtr LoadLibraryEx(string fileName, IntPtr reservedNull, uint flags);
 
     public static IntPtr Execute(string fileName)
