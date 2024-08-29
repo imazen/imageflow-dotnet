@@ -154,20 +154,23 @@ internal static class RuntimeFileLocator
 
     internal static readonly Lazy<string> SharedLibraryExtension = new Lazy<string>(() =>
     {
-        switch (Environment.OSVersion.Platform)
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            case PlatformID.MacOSX:
-                return "dylib";
-            case PlatformID.Unix:
-                return "so";
-            case PlatformID.Win32NT:
-            case PlatformID.Win32S:
-            case PlatformID.Win32Windows:
-            case PlatformID.WinCE:
-            case PlatformID.Xbox:
-                return "dll";
-            default:
-                return "dll";
+            return "dylib";
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+                 RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
+        {
+            return "so";
+        }
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            return "dll";
+        }
+        else
+        {
+            // Default to dll for unknown platforms
+            return "dll";
         }
     }, LazyThreadSafetyMode.PublicationOnly);
 
@@ -196,22 +199,37 @@ internal static class RuntimeFileLocator
     /// </summary>
     internal static readonly Lazy<string> ArchitectureSubdir = new Lazy<string>(() =>
     {
-        // ReSharper disable once InvertIf
-        if (!IsUnix)
+        var processArchitecture = RuntimeInformation.ProcessArchitecture;
+        var archString = processArchitecture switch
         {
-            var architecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
-            if (string.Equals(architecture, "ia64", StringComparison.OrdinalIgnoreCase))
-            {
-                return "ia64";
-            }
-            if (string.Equals(architecture, "arm", StringComparison.OrdinalIgnoreCase))
-            {
-                return Environment.Is64BitProcess ? "arm64" : "arm";
-            }
-            // We don't currently support unlisted/unknown architectures. We default to x86/x64 as backup
+            Architecture.X86 => "x86",
+            Architecture.X64 => "x64",
+            Architecture.Arm => "arm",
+            Architecture.Arm64 => "arm64",
+            Architecture.Armv6 => "armv6",
+            Architecture.LoongArch64 => "loongarch64",
+            Architecture.Ppc64le => "ppc64le",
+            Architecture.S390x => "s390x",
+            Architecture.Wasm => "wasm",
+            _ => null
+        };
+
+        if (archString != null)
+        {
+            return archString;
         }
-        //TODO: Add support for arm/arm64 on linux
-        return Environment.Is64BitProcess ? "x64" : "x86";
+
+        // Fallback to environment variable if RuntimeInformation.ProcessArchitecture is not conclusive
+        var envArchitecture = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
+        return envArchitecture?.ToUpperInvariant() switch
+        {
+            "AMD64" => "x64",
+            "IA64" => "ia64",
+            "ARM64" => "arm64",
+            "EM64T" => "x64", // Treating EM64T as x64
+            "X86" => "x86",
+            _ => Environment.Is64BitProcess ? "x64" : "x86" // Default fallback
+        };
     }, LazyThreadSafetyMode.PublicationOnly);
 
     /// <summary>
