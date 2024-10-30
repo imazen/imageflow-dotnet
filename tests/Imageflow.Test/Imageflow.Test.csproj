@@ -24,21 +24,20 @@
   <ItemGroup>
     <PackageReference Include="Imageflow.NativeTool.win-x86" Version="2.0.0-preview8" />
     <PackageReference Include="Imageflow.NativeTool.win-x86_64" Version="2.0.0-preview8" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
-    <PackageReference Include="xunit" Version="2.*" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="[2.9.2,)" />
     <PackageReference Include="xunit.extensibility.execution" Version="2.*" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.*">
+    <PackageReference Include="xunit.runner.visualstudio" Version="[2.8.2,)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="[13.0.3,14)" />
-    <PackageReference Include="coverlet.collector" Version="6.0.1">
+    <PackageReference Include="coverlet.collector" Version="6.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.0" Condition="'$(RecyclableMemoryStreamVersion)' != ''" />
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.0" Condition="'$(RecyclableMemoryStreamVersion)' == ''" />
-    <PackageReference Include="System.Text.Json" Version="[6.*,)" Condition="'$(SystemTextJsonVersion)' == ''" />
+     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1"  />
+    <PackageReference Include="System.Text.Json" Version="[6.0.10,)" Condition="'$(SystemTextJsonVersion)' == ''" />
     <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" Condition="'$(SystemTextJsonVersion)' != ''" />
   </ItemGroup>
   <ItemGroup>
