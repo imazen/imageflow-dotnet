@@ -573,26 +573,26 @@ public class ImageJob : IDisposable
             nodes.Add(i.ToString(CultureInfo.InvariantCulture), n.NodeData);
             if (n.Canvas != null)
             {
-                if (!uidToIndex.ContainsKey(n.Canvas.Uid))
+                if (!uidToIndex.TryGetValue(n.Canvas.Uid, out var value))
                 {
                     throw new ImageflowException("You cannot use a canvas node from a different ImageJob");
                 }
                 edges.Add((JsonNode)new JsonObject
                 {
-                    ["from"] = uidToIndex[n.Canvas.Uid],
+                    ["from"] = value,
                     ["to"] = i,
                     ["kind"] = "canvas"
                 });
             }
             if (n.Input != null)
             {
-                if (!uidToIndex.ContainsKey(n.Input.Uid))
+                if (!uidToIndex.TryGetValue(n.Input.Uid, out var value))
                 {
                     throw new ImageflowException("You cannot use an input node from a different ImageJob");
                 }
                 edges.Add((JsonNode)new JsonObject
                 {
-                    ["from"] = uidToIndex[n.Input.Uid],
+                    ["from"] = value,
                     ["to"] = i,
                     ["kind"] = "input"
                 });
