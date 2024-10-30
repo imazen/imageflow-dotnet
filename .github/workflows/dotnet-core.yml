@@ -10,7 +10,7 @@ on:
   pull_request:
     branches:
       - main
-    
+
 env:
   CORE_SLN: ./src/Imageflow.dncore.sln
   FULL_SLN: ./src/Imageflow.dnfull.sln
@@ -30,31 +30,32 @@ jobs:
             docs: true
             coverage: true
             test_legacy: true
-            
+
     runs-on: ${{matrix.os}}
-    
+
     steps:
     - uses: actions/checkout@v4
-      
+
     - uses: actions/cache@v4
       with:
         path: ~/.nuget/packages
         key: ${{ runner.os    }}-nuget-${{ hashFiles('**/packages.lock.json') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
-        
+
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: |
           6
           7
           8
-        
+          9
+
     - uses: nowsprinting/check-version-format-action@v3.2.10
       id: version
       with:
         prefix: 'v'
-        
+
     - name: For releases only - set TAGGED_VERSION and ARTIFACT_VERSION
       run: |
         echo "TAGGED_VERSION=${{ steps.version.outputs.full_without_prefix }}" >> $GITHUB_ENV
@@ -73,7 +74,7 @@ jobs:
         dotnet clean ${{ env.CORE_SLN }} --configuration Release
         dotnet nuget locals all --clear
       if: github.event_name == 'release'
-    
+
     - name: Test with ${{ matrix.SystemTextJsonVersion }} and ${{ matrix.RecyclableMemoryStreamVersion }}
       if: matrix.SystemTextJsonVersion != null && matrix.RecyclableMemoryStreamVersion != null
       run: |
@@ -89,7 +90,7 @@ jobs:
       if: matrix.coverage == false
       run: |
         dotnet test ${{ env.CORE_SLN }} -c Release
-        
+
     - name: Test with coverage
       if: matrix.coverage
       run: |
@@ -105,7 +106,7 @@ jobs:
       uses: codecov/codecov-action@v3
       if: matrix.coverage
       with:
-        files: 
+        files:
         token: ${{ secrets.CODECOV_TOKEN }} # replace with your Codecov token
         fail_ci_if_error: false
 
@@ -134,7 +135,7 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.3.2
       if: matrix.os == 'windows-latest' && matrix.test_legacy
-      
+
     - name: Build legacy projects on Windows
       if: matrix.test_legacy
       run: |
@@ -151,23 +152,23 @@ jobs:
         dotnet test tests/Imageflow.TestDotNetFullPackageReference/bin/Release/Imageflow.TestDotNetFullPackageReference.dll --platform:x86
         dotnet test tests/Imageflow.TestDotNetFull/bin/Release/Imageflow.TestDotNetFull.dll --platform:x64
         dotnet test tests/Imageflow.TestDotNetFullPackageReference/bin/Release/Imageflow.TestDotNetFullPackageReference.dll --platform:x64
-        
+
     - name: Test use in an AOT web app
       if: matrix.test_aot
       shell: pwsh
       run: ./tests/Imageflow.TestWebAOT/test.ps1
-      
+
   publish:
     needs: build
     if: github.event_name == 'release'
-    
+
     runs-on: ubuntu-latest
     steps:
       - uses: nowsprinting/check-version-format-action@v3
         id: version
         with:
           prefix: 'v'
-      
+
       # Download nuget artifacts from the test job into a folder called NuGetPackages
       - name: Download artifacts
         uses: actions/download-artifact@v4
