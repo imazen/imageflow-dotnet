@@ -30,6 +30,8 @@ jobs:
             docs: true
             coverage: true
             test_legacy: true
+          - os: macos-14
+          - os: ubuntu-22-arm-32gb
 
     runs-on: ${{matrix.os}}
 
