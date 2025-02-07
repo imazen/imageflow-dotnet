@@ -23,10 +23,22 @@ Remove-Item -Recurse -Force ./obj -ErrorAction SilentlyContinue
 Set-Location ../../src/
 
 # First, let's restore the solution
-#dotnet restore ./Imageflow.TestWebAOT.sln -r $targetArchitecture
+dotnet restore -v diag ../tests/Imageflow.TestWebAOT/Imageflow.TestWebAOT.csproj -r $targetArchitecture
+
+# List, recursively, all files in the .nuget/packages/imageflow.nativeruntime.* directories, flattened to just files ending in .dll, .so, .dylib, .a, .lib
+$nativeRuntimeFiles = Get-ChildItem -Path ~/.nuget/packages/imageflow.nativeruntime.* -Recurse | Where-Object { $_.Extension -in '.dll', '.so', '.dylib', '.a', '.lib' }
+
+# Map them to simple full paths
+$nativeRuntimeFiles = $nativeRuntimeFiles | ForEach-Object { $_.FullName }
+
+# print the files
+Write-Output "Native runtime files in .nuget/packages/imageflow.nativeruntime.*:"
+Write-Output $nativeRuntimeFiles
+
+
 
 # Then publish the project
-dotnet publish --force -c Release ../tests/Imageflow.TestWebAOT/Imageflow.TestWebAOT.csproj -o $scriptPath/test-publish -r $targetArchitecture
+dotnet publish --force  -v diag -c Release ../tests/Imageflow.TestWebAOT/Imageflow.TestWebAOT.csproj -o $scriptPath/test-publish -r $targetArchitecture
 # if the above fails, exit with a non-zero exit code.
 
 
