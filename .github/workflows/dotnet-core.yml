@@ -20,9 +20,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-11.0
+          - os: macos-13
           - os: ubuntu-latest
             test_aot: true
+            rid: linux-x64
           - os: ubuntu-latest
             SystemTextJsonVersion: 8.0.1
           - os: windows-latest
@@ -158,7 +159,7 @@ jobs:
     - name: Test use in an AOT web app
       if: matrix.test_aot
       shell: pwsh
-      run: ./tests/Imageflow.TestWebAOT/test.ps1
+      run: ./tests/Imageflow.TestWebAOT/test.ps1 ${{ matrix.rid }}
 
   publish:
     needs: build
