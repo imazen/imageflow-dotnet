@@ -2,8 +2,8 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <Platforms>AnyCPU;x64;x86</Platforms>
-    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">net8.0;net7.0;net6.0;net481</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0;net6.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">net8.0;net9.0;net6.0;net481</TargetFrameworks>
 
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

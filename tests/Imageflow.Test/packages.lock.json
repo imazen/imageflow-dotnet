@@ -449,7 +449,7 @@
         }
       }
     },
-    "net7.0": {
+    "net8.0": {
       "coverlet.collector": {
         "type": "Direct",
         "requested": "[6.0.4, )",
@@ -637,7 +637,7 @@
         }
       }
     },
-    "net8.0": {
+    "net9.0": {
       "coverlet.collector": {
         "type": "Direct",
         "requested": "[6.0.4, )",
