@@ -7,12 +7,26 @@ $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 Set-Location $scriptPath
 
 # Get the first argument, which is the target architecture.
-
 $targetArchitecture = $args[0]
 if ($null -eq $targetArchitecture) {
     Write-Error "Target architecture not provided. Exiting."
     exit 1
 }
+
+
+## Make a function for listing native runtime files
+function List-NativeRuntimeFiles {
+    try{
+        $nativeRuntimeFiles = Get-ChildItem -Path ~/.nuget/packages/imageflow.nativeruntime.* -Recurse  -ErrorAction SilentlyContinue | Where-Object { $_.Extension -in '.dll', '.so', '.dylib', '.a', '.lib' }
+        $nativeRuntimeFiles = $nativeRuntimeFiles | ForEach-Object { $_.FullName }
+
+        Write-Output "Native runtime files in .nuget/packages/imageflow.nativeruntime.*:"
+        Write-Output $nativeRuntimeFiles
+    } catch {
+        Write-Error "Failed to list native runtime files. Skipping."
+    }
+}
+
 # Delete/clear the publish folder, ignore errors
 Remove-Item -Recurse -Force ./test-publish -ErrorAction SilentlyContinue
 # bin/obj too, since issues?
@@ -22,28 +36,18 @@ Remove-Item -Recurse -Force ./obj -ErrorAction SilentlyContinue
 # First, change to the ../../src directory
 Set-Location ../../src/
 
+List-NativeRuntimeFiles
+
 # First, let's restore the solution
-dotnet restore -v d ../tests/Imageflow.TestWebAOT/Imageflow.TestWebAOT.csproj -r $targetArchitecture
+dotnet restore -v normal ../tests/Imageflow.TestWebAOT/Imageflow.TestWebAOT.csproj -r $targetArchitecture
 
-try{
-    # List, recursively, all files in the .nuget/packages/imageflow.nativeruntime.* directories, flattened to just files ending in .dll, .so, .dylib, .a, .lib
-    $nativeRuntimeFiles = Get-ChildItem -Path ~/.nuget/packages/imageflow.nativeruntime.* -Recurse  -ErrorAction SilentlyContinue | Where-Object { $_.Extension -in '.dll', '.so', '.dylib', '.a', '.lib' }
-
-    # Map them to simple full paths
-    $nativeRuntimeFiles = $nativeRuntimeFiles | ForEach-Object { $_.FullName }
-
-    # print the files
-    Write-Output "Native runtime files in .nuget/packages/imageflow.nativeruntime.*:"
-    Write-Output $nativeRuntimeFiles
-} catch {
-    Write-Error "Failed to list native runtime files. Skipping."
-}
-
-
+# List the native runtime files
+List-NativeRuntimeFiles
 
 
 # Then publish the project
-dotnet publish --force  -v d -c Release ../tests/Imageflow.TestWebAOT/Imageflow.TestWebAOT.csproj -o $scriptPath/test-publish -r $targetArchitecture
+
+dotnet publish --force  -v normal -c Release ../tests/Imageflow.TestWebAOT/Imageflow.TestWebAOT.csproj -o $scriptPath/test-publish -r $targetArchitecture
 # if the above fails, exit with a non-zero exit code.
 
 
