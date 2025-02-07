@@ -4,8 +4,8 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <Copyright>Copyright © 2024 Imazen LLC</Copyright>
-        <PackageProjectUrl>https://github.com/imazen/imageflow-dotnet</PackageProjectUrl>
+      <Copyright>Copyright © 2025 Imazen LLC</Copyright>
+      <PackageProjectUrl>https://www.imageflow.io</PackageProjectUrl>
         <RepositoryUrl Condition="'$(GITHUB_REPOSITORY)' != ''">$(GITHUB_SERVER_URL)/$(GITHUB_REPOSITORY)</RepositoryUrl>
         <SourceRevisionId Condition="'$(SourceRevisionId)' == ''">$(GITHUB_SHA)</SourceRevisionId>
         <RepositoryBranch>main</RepositoryBranch>
@@ -21,18 +21,16 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <PackageLicenseExpression>(AGPL-3.0-or-later OR Apache-2.0+)</PackageLicenseExpression>
-  
+
         <Version Condition="'$(Version)' == ''">$(TAGGED_VERSION)</Version>
         <VersionPrefix>0.1.0</VersionPrefix>
         <VersionSuffix>-notset</VersionSuffix>
         <PackageTags>Image;Resize;Optimize;Crop;Gif;Jpg;Jpeg;Bitmap;Png;Core;WebP;ImageResizer;Imageflow;Rotate;Imaging;Crunch</PackageTags>
 
         <RestoreLockedMode>false</RestoreLockedMode>
-        
-        
-    
-        
-        <ImplicitUsings>enable</ImplicitUsings>
+
+
+      <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
     </PropertyGroup>
@@ -45,7 +43,7 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(CI)' == 'true'">
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-        <!--        This causes pain-->        
+      <!--        This causes pain-->
         <!--        <RestoreLockedMode>true</RestoreLockedMode>-->
     </PropertyGroup>
 

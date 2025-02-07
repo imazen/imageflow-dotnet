@@ -1,5 +1,18 @@
 ﻿## Changelog
 
+##v0.14 (draft)
+
+Support ARM on Windows, Mac, & Linux!
+Also, bump the minimum System.Text.Json to 6.0.11
+
+##v0.13.2
+
+Fixes CreateCanvasBgra bug and supports HttpContent.ReadAsStreamAsync streams Latest
+
+## v0.13.1
+
+BufferedStreamSource now works with seekable streams that throw an exception when you access their Position property.
+
 ## v0.13
 
 This release makes user-facing changes with deprecation warnings. Please review your build warnings to avoid breakage in the future.
@@ -11,16 +24,18 @@ This release makes user-facing changes with deprecation warnings. Please review 
 
 It also makes lots of internal changes to increase performance, eliminate unnecessary allocations/copies, and improve compatibility with AOT and trimming.
 
-It is now possible to provide ReadOnlyMemory<byte> data and IOwnedMemory<byte> data, without copying to a byte[] array. The new IAsyncMemorySource interface allows for asynchronous data sources, and the new IMemorySource interface allows for synchronous data sources. 
+It is now possible to provide ReadOnlyMemory<byte> data and IOwnedMemory<byte> data, without copying to a byte[] array.
+The new IAsyncMemorySource interface allows for asynchronous data sources, and the new IMemorySource interface allows
+for synchronous data sources.
 
 ## v0.12 (2024-02-06)
 
 * Fix compatibility with RecyclableMemoryStream 3.x, drop compatibility with 1.x
-* Remove default constructor on BuildJobResult and BuildEncodeResult; these are not user-created types.  
+* Remove default constructor on BuildJobResult and BuildEncodeResult; these are not user-created types.
 
 ## v0.11 (2024-01-29)
 
-New features: 
+New features:
 * Now multi-targets both .NET 8 and .NET Standard 2.0
 * Trimming and AOT are now supported on .NET 8
 * Switched to using System.Text.Json instead of Newtonsoft.Json
@@ -29,7 +44,7 @@ New features:
 
 Breaking changes:
 
-Check your code for usage of deprecated methods and fix them. 
+Check your code for usage of deprecated methods and fix them.
 The next release will involve cleanup of all deprecated methods (both the ones deprecated for years and the ones deprecated in this release).
 
 Removed the following APIs (not frequently used)
@@ -47,6 +62,6 @@ Deprecated lots of APIs, including the following:
 ```
 * All ToImageflowDynamic() methods on objects. Use ToJsonNode() instead.
 * JobContext.Execute<T>
-* JobContext.SendMessage<T> 
+* JobContext.SendMessage<T>
 
 ```
