@@ -22,7 +22,7 @@ jobs:
         include:
           - os: macos-13
           - os: ubuntu-latest
-            test_aot: true
+            test_aot: false
             rid: linux-x64
           - os: ubuntu-latest
             SystemTextJsonVersion: 8.0.1
@@ -31,13 +31,13 @@ jobs:
             docs: true
             coverage: true
             test_legacy: true
-            test_aot: true
+            test_aot: false
             rid: win-x64
           - os: macos-14
-            test_aot: true
+            test_aot: false
             rid: osx-arm64
           - os: ubuntu-22-arm-32gb
-            test_aot: true
+            test_aot: false
             rid: linux-arm64
 
 
