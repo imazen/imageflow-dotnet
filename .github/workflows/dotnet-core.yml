@@ -32,7 +32,12 @@ jobs:
             coverage: true
             test_legacy: true
           - os: macos-14
+            test_aot: true
+            rid: osx-arm64
           - os: ubuntu-22-arm-32gb
+            test_aot: true
+            rid: linux-arm64
+
 
     runs-on: ${{matrix.os}}
 
