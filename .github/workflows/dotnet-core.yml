@@ -51,20 +51,13 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-nuget-
 
-
-    - name: Check .NET versions available to see if we can skip installs
-      shell: bash
-      run: |
-        echo "DOTNET_VERSION_LIST<<EOF" >> $GITHUB_ENV
-        dotnet --list-sdks >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-        echo "VERSIONS: $GITHUB_ENV
-
     - name: Setup .NET 6,8,9
       uses: actions/setup-dotnet@v4
-      if: contains(env.DOTNET_VERSION_LIST, '9.0.') == false || contains(env.DOTNET_VERSION_LIST, '8.0.') == false || contains(env.DOTNET_VERSION_LIST, '6.0.') == false
       with:
-        dotnet-version: "6\n8\n9\n"
+        dotnet-version:  |
+          6
+          8
+          9
 
     - uses: nowsprinting/check-version-format-action@v3.2.10
       id: version
