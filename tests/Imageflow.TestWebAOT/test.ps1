@@ -1,24 +1,32 @@
 ﻿
+# Get the current directory
+$currentDir = Get-Location
+
 # Get the directory this file is in, and change to it.
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 Set-Location $scriptPath
 
 # Get the first argument, which is the target architecture.
+
 $targetArchitecture = $args[0]
 if ($null -eq $targetArchitecture) {
     Write-Error "Target architecture not provided. Exiting."
     exit 1
 }
-
-# First, let's restore the project
-dotnet restore ./Imageflow.TestWebAOT.csproj -r $targetArchitecture
-
 # Delete/clear the publish folder, ignore errors
 Remove-Item -Recurse -Force ./test-publish -ErrorAction SilentlyContinue
+# bin/obj too, since issues?
+Remove-Item -Recurse -Force ./bin -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force ./obj -ErrorAction SilentlyContinue
 
+# First, change to the ../../src directory
+Set-Location ../../src/
 
-# Publish the project
-dotnet publish -c Release ./Imageflow.TestWebAOT.csproj -o ./test-publish -r $targetArchitecture
+# First, let's restore the solution
+#dotnet restore ./Imageflow.TestWebAOT.sln -r $targetArchitecture
+
+# Then publish the project
+dotnet publish --force -c Release ../tests/Imageflow.TestWebAOT/Imageflow.TestWebAOT.csproj -o $scriptPath/test-publish -r $targetArchitecture
 # if the above fails, exit with a non-zero exit code.
 
 
@@ -26,17 +34,25 @@ if ($LASTEXITCODE -ne 0) {
     Write-Output "Failed to publish the AOT test project. Exiting."
     Write-Warning "Failed to publish the AOT test project. Exiting."
 
+    Set-Location $currentDir
     exit 1
 }
+
+Set-Location $scriptPath
+
+# Change back to the tests directory
+
 
 # run the executable in the background in ./publish/native/Imageflow.TestWebAOT.exe or ./publish/native/Imageflow.TestWebAOT
 $process = $null
 $server_pid = $null
-if (Test-Path -Path ./publish/native/Imageflow.TestWebAOT.exe) {
-    $process = Start-Process -FilePath ./test-publish/Imageflow.TestWebAOT.exe -NoNewWindow -PassThru -RedirectStandardOutput "./output.log"
+
+if (Test-Path -Path $scriptPath/test-publish/Imageflow.TestWebAOT.exe) {
+    $process = Start-Process -FilePath $scriptPath/test-publish/Imageflow.TestWebAOT.exe -NoNewWindow -PassThru -RedirectStandardOutput "./output.log"
 } else {
-    $process = Start-Process -FilePath ./test-publish/Imageflow.TestWebAOT -NoNewWindow -PassThru -RedirectStandardOutput "./output.log"
+    $process = Start-Process -FilePath $scriptPath/test-publish/Imageflow.TestWebAOT -NoNewWindow -PassThru -RedirectStandardOutput "./output.log"
 }
+
 # wait for the process to start
 Start-Sleep -Seconds 1
 # report on the process, if it started
@@ -160,7 +176,11 @@ try{
     # print the process output
     Get-Content "./output.log"
 
+    # restore the current directory
+    Set-Location $currentDir
+
     # exit with a non-zero exit code if any tests failed
+
     if ($testsFailed -ne 0) {
         Write-Warning "$testsFailed tests failed. Exiting."
         exit 1

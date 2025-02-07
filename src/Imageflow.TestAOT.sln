@@ -1,10 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.Net", "..\..\src\Imageflow\Imageflow.Net.csproj", "{39E49DC7-9AA0-4277-823E-647EC2A06AFF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.Net", "Imageflow\Imageflow.Net.csproj", "{39E49DC7-9AA0-4277-823E-647EC2A06AFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.AllPlatforms", "..\..\src\Imageflow.AllPlatforms\Imageflow.AllPlatforms.csproj", "{D0DCD548-D5EF-42E2-928D-314C2842FCA8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.AllPlatforms", "Imageflow.AllPlatforms\Imageflow.AllPlatforms.csproj", "{D0DCD548-D5EF-42E2-928D-314C2842FCA8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.TestWebAOT", "Imageflow.TestWebAOT.csproj", "{10EFCF39-A972-497A-8B74-243E261C9C62}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imageflow.TestWebAOT", "..\tests\Imageflow.TestWebAOT\Imageflow.TestWebAOT.csproj", "{10EFCF39-A972-497A-8B74-243E261C9C62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
