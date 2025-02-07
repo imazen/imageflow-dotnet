@@ -31,6 +31,8 @@ jobs:
             docs: true
             coverage: true
             test_legacy: true
+            test_aot: true
+            rid: win-x64
           - os: macos-14
             test_aot: true
             rid: osx-arm64
@@ -48,8 +50,7 @@ jobs:
       with:
         path: ~/.nuget/packages
         key: ${{ runner.os    }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
+
 
     - name: Setup .NET 6,8,9
       uses: actions/setup-dotnet@v4
