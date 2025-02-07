@@ -3,7 +3,7 @@
     <PropertyGroup>
         <AssemblyName>Imageflow.AllPlatforms</AssemblyName>
         <Description>Imageflow processes and optimizes images at incredible speeds. Works well with with .NET 8,7,6.. anything with .NET Standard 2.0. NOTE: For .NET 4.x projects, use the Imageflow.Net and Imageflow.NativeRuntime.[your platform] packages separately.</Description>
-        
+
         <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
         <IsTrimmable Condition="'$(TargetFramework)' == 'net8.0'">true</IsTrimmable>
         <EnableTrimAnalyzer Condition="'$(TargetFramework)' == 'net8.0'">true</EnableTrimAnalyzer>
@@ -13,17 +13,20 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
-    
+
     <ItemGroup>
       <ProjectReference Include="..\Imageflow\Imageflow.Net.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="Imageflow.NativeRuntime.osx-x86_64" Version="2.0.0-preview8" />
-      <PackageReference Include="Imageflow.NativeRuntime.ubuntu-x86_64" Version="2.0.0-preview8" />
-      <PackageReference Include="Imageflow.NativeRuntime.win-x86" Version="2.0.0-preview8" />
-      <PackageReference Include="Imageflow.NativeRuntime.win-x86_64" Version="2.0.0-preview8" />
+      <PackageReference Include="Imageflow.NativeRuntime.osx-x86_64" Version="2.1.0-rc01"/>
+      <PackageReference Include="Imageflow.NativeRuntime.ubuntu-x86_64" Version="2.1.0-rc01"/>
+      <PackageReference Include="Imageflow.NativeRuntime.ubuntu-arm64" Version="2.1.0-rc01"/>
+      <PackageReference Include="Imageflow.NativeRuntime.win-x86" Version="2.1.0-rc01"/>
+      <PackageReference Include="Imageflow.NativeRuntime.win-x86_64" Version="2.1.0-rc01"/>
+      <PackageReference Include="Imageflow.NativeRuntime.win-arm64" Version="2.1.0-rc01"/>
+      <PackageReference Include="Imageflow.NativeRuntime.osx-arm64" Version="2.1.0-rc01"/>
     </ItemGroup>
-    <ItemGroup>  
+  <ItemGroup>
         <None Include="images\icon.png" Pack="true" PackagePath="" />
         <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
     </ItemGroup>
