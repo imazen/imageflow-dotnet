@@ -13,8 +13,9 @@ if ($null -eq $targetArchitecture) {
 # First, let's restore the project
 dotnet restore ./Imageflow.TestWebAOT.csproj -r $targetArchitecture
 
-# Delete/clear the publish folder
-Remove-Item -Recurse -Force ./test-publish
+# Delete/clear the publish folder, ignore errors
+Remove-Item -Recurse -Force ./test-publish -ErrorAction SilentlyContinue
+
 
 # Publish the project
 dotnet publish -c Release ./Imageflow.TestWebAOT.csproj -o ./test-publish -r $targetArchitecture
