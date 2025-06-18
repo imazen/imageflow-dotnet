@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Globalization;
-using System.Runtime;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
@@ -139,7 +138,7 @@ internal static class RuntimeFileLocator
         , LazyThreadSafetyMode.PublicationOnly);
 #else
     internal static readonly Lazy<bool> IsDotNetCore = new Lazy<bool>(() =>
-            typeof(GCSettings).GetTypeInfo().Assembly.CodeBase.Contains("Microsoft.NETCore.App")
+            typeof(System.Runtime.GCSettings).GetTypeInfo().Assembly.CodeBase.Contains("Microsoft.NETCore.App")
         , LazyThreadSafetyMode.PublicationOnly);
 #endif
     internal static readonly Lazy<string> PlatformRuntimePrefix = new Lazy<string>(() =>
@@ -331,7 +330,18 @@ internal static class RuntimeFileLocator
 
             if (searchSubDirs)
             {
-                // First try the simple arch subdir since that is where the nuget native packages unpack
+                // Try the runtimes/[RID]/native directory, it's the universal content location as well as where stuff goes for .NET Core builds
+                path = Path.Combine(directory, "runtimes",
+                    PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native", filename);
+                if (attemptedPaths.Add(path))
+                {
+                    yield return path;
+                }
+            }
+
+            if (searchSubDirs)
+            {
+                // Next, try the simple arch subdir for legacy NativeRuntime versions
                 path = Path.Combine(directory, ArchitectureSubdir.Value, filename);
                 if (attemptedPaths.Add(path))
                 {
@@ -339,23 +349,12 @@ internal static class RuntimeFileLocator
                 }
             }
 
-            // Try the folder itself
+            // Try the folder itself last
             path = Path.Combine(directory, filename);
 
             if (attemptedPaths.Add(path))
             {
                 yield return path;
-            }
-
-            if (searchSubDirs)
-            {
-                // Last try native runtimes directory in case this is happening in .NET Core
-                path = Path.Combine(directory, "runtimes",
-                    PlatformRuntimePrefix.Value + "-" + ArchitectureSubdir.Value, "native", filename);
-                if (attemptedPaths.Add(path))
-                {
-                    yield return path;
-                }
             }
         }
     }
