@@ -22,40 +22,54 @@
           "MSTest.Analyzers": "3.7.3"
         }
       },
+      "Imageflow.NativeRuntime.All": {
+        "type": "Transitive",
+        "resolved": "2.1.1-rc10",
+        "contentHash": "+3UFUmIKpilFFwY7btcOKGpTOGQ24c6rCae4KgDoxonr87M0x56Ag3uH+YMssdGvF1LAgCe+8DSJd+C4A3ghAA==",
+        "dependencies": {
+          "Imageflow.NativeRuntime.linux-arm64": "2.1.1-rc10",
+          "Imageflow.NativeRuntime.linux-x64": "2.1.1-rc10",
+          "Imageflow.NativeRuntime.osx-arm64": "2.1.1-rc10",
+          "Imageflow.NativeRuntime.osx-x86_64": "2.1.1-rc10",
+          "Imageflow.NativeRuntime.win-arm64": "2.1.1-rc10",
+          "Imageflow.NativeRuntime.win-x86": "2.1.1-rc10",
+          "Imageflow.NativeRuntime.win-x86_64": "2.1.1-rc10"
+        }
+      },
+      "Imageflow.NativeRuntime.linux-arm64": {
+        "type": "Transitive",
+        "resolved": "2.1.1-rc10",
+        "contentHash": "FAbFjhzHoot0WZIbpNeEm4qyCvPM8lmWZx8PpL08YVJPmsUysrbwQh2UTeGK6MZnyHAqXDGwarOLLRIu9nzA0g=="
+      },
+      "Imageflow.NativeRuntime.linux-x64": {
+        "type": "Transitive",
+        "resolved": "2.1.1-rc10",
+        "contentHash": "BzH663uZoOFZV2488AEK0zDXdr3JW3ZtVFR47asBi6n6B4FTZxQBzqK7ey/oFEmAlMRAd0yk1R+FdyOROSVAbg=="
+      },
       "Imageflow.NativeRuntime.osx-arm64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "EnAd0B4BWUweFPaNBxwzfZ5OiXT71uhQXlB5H5t/w1hMxJqQzzyVq6ifiS6KdGMWaYwmAg9fPYQcrh7FC9puTA=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "3VkfMGLllX5uOv8vBfQMsKxTcOodhLWRCQ5QTXrzO76RNH4oazHhhOqYZ+V5vpmwlREWdj0struCUGuH2xQN/A=="
       },
       "Imageflow.NativeRuntime.osx-x86_64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "rJeBPlQQfo2uqV43KN2WiYxU54yPdBr5IWz1t/HVZlUzK0V2fbXJtAptV3uTaOVQYYczkCpm2OpYlSkSIsrb3w=="
-      },
-      "Imageflow.NativeRuntime.ubuntu-arm64": {
-        "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "mv2SE2tsTLNBSHa+pmeilqRMSYdP9kRP4wOXVXPRl3R30li5h0/aExLR1fa+35nvkAZCCscKuoG6Xp2IM2k2SQ=="
-      },
-      "Imageflow.NativeRuntime.ubuntu-x86_64": {
-        "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "XwepQpYW68IOH4m7dmoOl4xDn1LNaU+Srdz2gzAmSjXuVgmHBdCF+CiqBhAIQGKyUxx6a/44Ch2H2/3as5sDXg=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "Gq6p8WRpelsDic7odmNismD5NsVreGcmFB6g3rmMl4pFENJ73egd3vpxPhm47qTvKVrhNKuEeBZKEEB0r+Ha6Q=="
       },
       "Imageflow.NativeRuntime.win-arm64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "AJzoa4jsxA0MFg+seRmWz+O/5EBeBCl0ZX33MqLX0je/HpAfSju/kG5VoAX5q5VO6JsKiCbapJMX7wGnhrNTEw=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "lfO+464graQefp4j/Rmak3AU+4Qv5OaN+hvkbdet41r6AhGSZkn73W6Dx9gvOYcr1x7QzNpDHjoPTGXJR9cXyQ=="
       },
       "Imageflow.NativeRuntime.win-x86": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "/zz9NLFWMRyY6v4rPxyt2tlzPMCBYMeBxsLMBaaS2I7YLXa3I+GbcZRkvtgiM8bTzf8fIKyy6Z90I+KGmdl4Lg=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "3GndGoWvhDGxpYrT3t1SlSzFYIs35CyRU0NdgiZeg4NMrjMjXJHTUnLBdOIjQ8gYHLP42tW1FS4DNFnu8/idMg=="
       },
       "Imageflow.NativeRuntime.win-x86_64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "4G6/DaRS9or54iGeLTwE+b7N8zwFa1XvMMwVYgOzYUzYKCrwPbUTqcLWvdrQYOLLzzF+ioFNAz8pQfNDlqritA=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "cikOC8JCISfy+ycrBNKBxNVFLuZc+EED12lbIwJw0VthBECJrOnXLUtNFYEsLWLXrEn5OtCULZTPBIRM5o0UnA=="
       },
       "Microsoft.ApplicationInsights": {
         "type": "Transitive",
@@ -138,8 +152,8 @@
       },
       "System.Buffers": {
         "type": "Transitive",
-        "resolved": "4.6.0",
-        "contentHash": "lN6tZi7Q46zFzAbRYXTIvfXcyvQQgxnY7Xm6C6xQ9784dEL1amjM6S6Iw4ZpsvesAKnRVsM4scrDQaDqSClkjA=="
+        "resolved": "4.6.1",
+        "contentHash": "N8GXpmiLMtljq7gwvyS+1QvKT/W2J8sNAvx+HVg4NGmsG/H+2k/y9QI23auLJRterrzCiDH+IWAw4V/GPwsMlw=="
       },
       "System.Collections.Immutable": {
         "type": "Transitive",
@@ -224,13 +238,7 @@
       "imageflow.allplatforms": {
         "type": "Project",
         "dependencies": {
-          "Imageflow.NativeRuntime.osx-arm64": "[2.1.0-rc01, )",
-          "Imageflow.NativeRuntime.osx-x86_64": "[2.1.0-rc01, )",
-          "Imageflow.NativeRuntime.ubuntu-arm64": "[2.1.0-rc01, )",
-          "Imageflow.NativeRuntime.ubuntu-x86_64": "[2.1.0-rc01, )",
-          "Imageflow.NativeRuntime.win-arm64": "[2.1.0-rc01, )",
-          "Imageflow.NativeRuntime.win-x86": "[2.1.0-rc01, )",
-          "Imageflow.NativeRuntime.win-x86_64": "[2.1.0-rc01, )",
+          "Imageflow.NativeRuntime.All": "[2.1.1-rc10, )",
           "Imageflow.Net": "[0.1.0--notset, )"
         }
       },
@@ -245,151 +253,151 @@
       }
     },
     ".NETFramework,Version=v4.7.2/win": {
+      "Imageflow.NativeRuntime.linux-arm64": {
+        "type": "Transitive",
+        "resolved": "2.1.1-rc10",
+        "contentHash": "FAbFjhzHoot0WZIbpNeEm4qyCvPM8lmWZx8PpL08YVJPmsUysrbwQh2UTeGK6MZnyHAqXDGwarOLLRIu9nzA0g=="
+      },
+      "Imageflow.NativeRuntime.linux-x64": {
+        "type": "Transitive",
+        "resolved": "2.1.1-rc10",
+        "contentHash": "BzH663uZoOFZV2488AEK0zDXdr3JW3ZtVFR47asBi6n6B4FTZxQBzqK7ey/oFEmAlMRAd0yk1R+FdyOROSVAbg=="
+      },
       "Imageflow.NativeRuntime.osx-arm64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "EnAd0B4BWUweFPaNBxwzfZ5OiXT71uhQXlB5H5t/w1hMxJqQzzyVq6ifiS6KdGMWaYwmAg9fPYQcrh7FC9puTA=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "3VkfMGLllX5uOv8vBfQMsKxTcOodhLWRCQ5QTXrzO76RNH4oazHhhOqYZ+V5vpmwlREWdj0struCUGuH2xQN/A=="
       },
       "Imageflow.NativeRuntime.osx-x86_64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "rJeBPlQQfo2uqV43KN2WiYxU54yPdBr5IWz1t/HVZlUzK0V2fbXJtAptV3uTaOVQYYczkCpm2OpYlSkSIsrb3w=="
-      },
-      "Imageflow.NativeRuntime.ubuntu-arm64": {
-        "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "mv2SE2tsTLNBSHa+pmeilqRMSYdP9kRP4wOXVXPRl3R30li5h0/aExLR1fa+35nvkAZCCscKuoG6Xp2IM2k2SQ=="
-      },
-      "Imageflow.NativeRuntime.ubuntu-x86_64": {
-        "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "XwepQpYW68IOH4m7dmoOl4xDn1LNaU+Srdz2gzAmSjXuVgmHBdCF+CiqBhAIQGKyUxx6a/44Ch2H2/3as5sDXg=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "Gq6p8WRpelsDic7odmNismD5NsVreGcmFB6g3rmMl4pFENJ73egd3vpxPhm47qTvKVrhNKuEeBZKEEB0r+Ha6Q=="
       },
       "Imageflow.NativeRuntime.win-arm64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "AJzoa4jsxA0MFg+seRmWz+O/5EBeBCl0ZX33MqLX0je/HpAfSju/kG5VoAX5q5VO6JsKiCbapJMX7wGnhrNTEw=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "lfO+464graQefp4j/Rmak3AU+4Qv5OaN+hvkbdet41r6AhGSZkn73W6Dx9gvOYcr1x7QzNpDHjoPTGXJR9cXyQ=="
       },
       "Imageflow.NativeRuntime.win-x86": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "/zz9NLFWMRyY6v4rPxyt2tlzPMCBYMeBxsLMBaaS2I7YLXa3I+GbcZRkvtgiM8bTzf8fIKyy6Z90I+KGmdl4Lg=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "3GndGoWvhDGxpYrT3t1SlSzFYIs35CyRU0NdgiZeg4NMrjMjXJHTUnLBdOIjQ8gYHLP42tW1FS4DNFnu8/idMg=="
       },
       "Imageflow.NativeRuntime.win-x86_64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "4G6/DaRS9or54iGeLTwE+b7N8zwFa1XvMMwVYgOzYUzYKCrwPbUTqcLWvdrQYOLLzzF+ioFNAz8pQfNDlqritA=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "cikOC8JCISfy+ycrBNKBxNVFLuZc+EED12lbIwJw0VthBECJrOnXLUtNFYEsLWLXrEn5OtCULZTPBIRM5o0UnA=="
       }
     },
     ".NETFramework,Version=v4.7.2/win-arm64": {
+      "Imageflow.NativeRuntime.linux-arm64": {
+        "type": "Transitive",
+        "resolved": "2.1.1-rc10",
+        "contentHash": "FAbFjhzHoot0WZIbpNeEm4qyCvPM8lmWZx8PpL08YVJPmsUysrbwQh2UTeGK6MZnyHAqXDGwarOLLRIu9nzA0g=="
+      },
+      "Imageflow.NativeRuntime.linux-x64": {
+        "type": "Transitive",
+        "resolved": "2.1.1-rc10",
+        "contentHash": "BzH663uZoOFZV2488AEK0zDXdr3JW3ZtVFR47asBi6n6B4FTZxQBzqK7ey/oFEmAlMRAd0yk1R+FdyOROSVAbg=="
+      },
       "Imageflow.NativeRuntime.osx-arm64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "EnAd0B4BWUweFPaNBxwzfZ5OiXT71uhQXlB5H5t/w1hMxJqQzzyVq6ifiS6KdGMWaYwmAg9fPYQcrh7FC9puTA=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "3VkfMGLllX5uOv8vBfQMsKxTcOodhLWRCQ5QTXrzO76RNH4oazHhhOqYZ+V5vpmwlREWdj0struCUGuH2xQN/A=="
       },
       "Imageflow.NativeRuntime.osx-x86_64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "rJeBPlQQfo2uqV43KN2WiYxU54yPdBr5IWz1t/HVZlUzK0V2fbXJtAptV3uTaOVQYYczkCpm2OpYlSkSIsrb3w=="
-      },
-      "Imageflow.NativeRuntime.ubuntu-arm64": {
-        "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "mv2SE2tsTLNBSHa+pmeilqRMSYdP9kRP4wOXVXPRl3R30li5h0/aExLR1fa+35nvkAZCCscKuoG6Xp2IM2k2SQ=="
-      },
-      "Imageflow.NativeRuntime.ubuntu-x86_64": {
-        "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "XwepQpYW68IOH4m7dmoOl4xDn1LNaU+Srdz2gzAmSjXuVgmHBdCF+CiqBhAIQGKyUxx6a/44Ch2H2/3as5sDXg=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "Gq6p8WRpelsDic7odmNismD5NsVreGcmFB6g3rmMl4pFENJ73egd3vpxPhm47qTvKVrhNKuEeBZKEEB0r+Ha6Q=="
       },
       "Imageflow.NativeRuntime.win-arm64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "AJzoa4jsxA0MFg+seRmWz+O/5EBeBCl0ZX33MqLX0je/HpAfSju/kG5VoAX5q5VO6JsKiCbapJMX7wGnhrNTEw=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "lfO+464graQefp4j/Rmak3AU+4Qv5OaN+hvkbdet41r6AhGSZkn73W6Dx9gvOYcr1x7QzNpDHjoPTGXJR9cXyQ=="
       },
       "Imageflow.NativeRuntime.win-x86": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "/zz9NLFWMRyY6v4rPxyt2tlzPMCBYMeBxsLMBaaS2I7YLXa3I+GbcZRkvtgiM8bTzf8fIKyy6Z90I+KGmdl4Lg=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "3GndGoWvhDGxpYrT3t1SlSzFYIs35CyRU0NdgiZeg4NMrjMjXJHTUnLBdOIjQ8gYHLP42tW1FS4DNFnu8/idMg=="
       },
       "Imageflow.NativeRuntime.win-x86_64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "4G6/DaRS9or54iGeLTwE+b7N8zwFa1XvMMwVYgOzYUzYKCrwPbUTqcLWvdrQYOLLzzF+ioFNAz8pQfNDlqritA=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "cikOC8JCISfy+ycrBNKBxNVFLuZc+EED12lbIwJw0VthBECJrOnXLUtNFYEsLWLXrEn5OtCULZTPBIRM5o0UnA=="
       }
     },
     ".NETFramework,Version=v4.7.2/win-x64": {
+      "Imageflow.NativeRuntime.linux-arm64": {
+        "type": "Transitive",
+        "resolved": "2.1.1-rc10",
+        "contentHash": "FAbFjhzHoot0WZIbpNeEm4qyCvPM8lmWZx8PpL08YVJPmsUysrbwQh2UTeGK6MZnyHAqXDGwarOLLRIu9nzA0g=="
+      },
+      "Imageflow.NativeRuntime.linux-x64": {
+        "type": "Transitive",
+        "resolved": "2.1.1-rc10",
+        "contentHash": "BzH663uZoOFZV2488AEK0zDXdr3JW3ZtVFR47asBi6n6B4FTZxQBzqK7ey/oFEmAlMRAd0yk1R+FdyOROSVAbg=="
+      },
       "Imageflow.NativeRuntime.osx-arm64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "EnAd0B4BWUweFPaNBxwzfZ5OiXT71uhQXlB5H5t/w1hMxJqQzzyVq6ifiS6KdGMWaYwmAg9fPYQcrh7FC9puTA=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "3VkfMGLllX5uOv8vBfQMsKxTcOodhLWRCQ5QTXrzO76RNH4oazHhhOqYZ+V5vpmwlREWdj0struCUGuH2xQN/A=="
       },
       "Imageflow.NativeRuntime.osx-x86_64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "rJeBPlQQfo2uqV43KN2WiYxU54yPdBr5IWz1t/HVZlUzK0V2fbXJtAptV3uTaOVQYYczkCpm2OpYlSkSIsrb3w=="
-      },
-      "Imageflow.NativeRuntime.ubuntu-arm64": {
-        "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "mv2SE2tsTLNBSHa+pmeilqRMSYdP9kRP4wOXVXPRl3R30li5h0/aExLR1fa+35nvkAZCCscKuoG6Xp2IM2k2SQ=="
-      },
-      "Imageflow.NativeRuntime.ubuntu-x86_64": {
-        "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "XwepQpYW68IOH4m7dmoOl4xDn1LNaU+Srdz2gzAmSjXuVgmHBdCF+CiqBhAIQGKyUxx6a/44Ch2H2/3as5sDXg=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "Gq6p8WRpelsDic7odmNismD5NsVreGcmFB6g3rmMl4pFENJ73egd3vpxPhm47qTvKVrhNKuEeBZKEEB0r+Ha6Q=="
       },
       "Imageflow.NativeRuntime.win-arm64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "AJzoa4jsxA0MFg+seRmWz+O/5EBeBCl0ZX33MqLX0je/HpAfSju/kG5VoAX5q5VO6JsKiCbapJMX7wGnhrNTEw=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "lfO+464graQefp4j/Rmak3AU+4Qv5OaN+hvkbdet41r6AhGSZkn73W6Dx9gvOYcr1x7QzNpDHjoPTGXJR9cXyQ=="
       },
       "Imageflow.NativeRuntime.win-x86": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "/zz9NLFWMRyY6v4rPxyt2tlzPMCBYMeBxsLMBaaS2I7YLXa3I+GbcZRkvtgiM8bTzf8fIKyy6Z90I+KGmdl4Lg=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "3GndGoWvhDGxpYrT3t1SlSzFYIs35CyRU0NdgiZeg4NMrjMjXJHTUnLBdOIjQ8gYHLP42tW1FS4DNFnu8/idMg=="
       },
       "Imageflow.NativeRuntime.win-x86_64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "4G6/DaRS9or54iGeLTwE+b7N8zwFa1XvMMwVYgOzYUzYKCrwPbUTqcLWvdrQYOLLzzF+ioFNAz8pQfNDlqritA=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "cikOC8JCISfy+ycrBNKBxNVFLuZc+EED12lbIwJw0VthBECJrOnXLUtNFYEsLWLXrEn5OtCULZTPBIRM5o0UnA=="
       }
     },
     ".NETFramework,Version=v4.7.2/win-x86": {
+      "Imageflow.NativeRuntime.linux-arm64": {
+        "type": "Transitive",
+        "resolved": "2.1.1-rc10",
+        "contentHash": "FAbFjhzHoot0WZIbpNeEm4qyCvPM8lmWZx8PpL08YVJPmsUysrbwQh2UTeGK6MZnyHAqXDGwarOLLRIu9nzA0g=="
+      },
+      "Imageflow.NativeRuntime.linux-x64": {
+        "type": "Transitive",
+        "resolved": "2.1.1-rc10",
+        "contentHash": "BzH663uZoOFZV2488AEK0zDXdr3JW3ZtVFR47asBi6n6B4FTZxQBzqK7ey/oFEmAlMRAd0yk1R+FdyOROSVAbg=="
+      },
       "Imageflow.NativeRuntime.osx-arm64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "EnAd0B4BWUweFPaNBxwzfZ5OiXT71uhQXlB5H5t/w1hMxJqQzzyVq6ifiS6KdGMWaYwmAg9fPYQcrh7FC9puTA=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "3VkfMGLllX5uOv8vBfQMsKxTcOodhLWRCQ5QTXrzO76RNH4oazHhhOqYZ+V5vpmwlREWdj0struCUGuH2xQN/A=="
       },
       "Imageflow.NativeRuntime.osx-x86_64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "rJeBPlQQfo2uqV43KN2WiYxU54yPdBr5IWz1t/HVZlUzK0V2fbXJtAptV3uTaOVQYYczkCpm2OpYlSkSIsrb3w=="
-      },
-      "Imageflow.NativeRuntime.ubuntu-arm64": {
-        "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "mv2SE2tsTLNBSHa+pmeilqRMSYdP9kRP4wOXVXPRl3R30li5h0/aExLR1fa+35nvkAZCCscKuoG6Xp2IM2k2SQ=="
-      },
-      "Imageflow.NativeRuntime.ubuntu-x86_64": {
-        "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "XwepQpYW68IOH4m7dmoOl4xDn1LNaU+Srdz2gzAmSjXuVgmHBdCF+CiqBhAIQGKyUxx6a/44Ch2H2/3as5sDXg=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "Gq6p8WRpelsDic7odmNismD5NsVreGcmFB6g3rmMl4pFENJ73egd3vpxPhm47qTvKVrhNKuEeBZKEEB0r+Ha6Q=="
       },
       "Imageflow.NativeRuntime.win-arm64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "AJzoa4jsxA0MFg+seRmWz+O/5EBeBCl0ZX33MqLX0je/HpAfSju/kG5VoAX5q5VO6JsKiCbapJMX7wGnhrNTEw=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "lfO+464graQefp4j/Rmak3AU+4Qv5OaN+hvkbdet41r6AhGSZkn73W6Dx9gvOYcr1x7QzNpDHjoPTGXJR9cXyQ=="
       },
       "Imageflow.NativeRuntime.win-x86": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "/zz9NLFWMRyY6v4rPxyt2tlzPMCBYMeBxsLMBaaS2I7YLXa3I+GbcZRkvtgiM8bTzf8fIKyy6Z90I+KGmdl4Lg=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "3GndGoWvhDGxpYrT3t1SlSzFYIs35CyRU0NdgiZeg4NMrjMjXJHTUnLBdOIjQ8gYHLP42tW1FS4DNFnu8/idMg=="
       },
       "Imageflow.NativeRuntime.win-x86_64": {
         "type": "Transitive",
-        "resolved": "2.1.0-rc01",
-        "contentHash": "4G6/DaRS9or54iGeLTwE+b7N8zwFa1XvMMwVYgOzYUzYKCrwPbUTqcLWvdrQYOLLzzF+ioFNAz8pQfNDlqritA=="
+        "resolved": "2.1.1-rc10",
+        "contentHash": "cikOC8JCISfy+ycrBNKBxNVFLuZc+EED12lbIwJw0VthBECJrOnXLUtNFYEsLWLXrEn5OtCULZTPBIRM5o0UnA=="
       }
     }
   }
