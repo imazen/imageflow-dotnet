@@ -33,6 +33,12 @@ jobs:
             test_legacy: true
             test_aot: false
             rid: win-x64
+
+          - os: windows-11-arm
+            test_aot: false
+            test_legacy: true
+            rid: win-arm64
+
           - os: macos-14
             test_aot: false
             rid: osx-arm64
