@@ -12,6 +12,17 @@ Note: We recently switched from Newtonsoft to System.Text.Json to support AOT an
 dotnet add package Imageflow.AllPlatforms
 ```
 
+#### .NET 4.X: A note on `PackageReference` and `Any CPU`
+If your project uses `PackageReference`  and targets the `Any CPU` platform, you must add `<RuntimeIdentifiers>` to your `.csproj` file. This is because this library contains native code, and MSBuild needs to know which native assets to use for the ambiguous `Any CPU` target.
+
+Without this, you may see an error like `Your project file doesn't list 'win' as a "RuntimeIdentifier"`.
+
+Add the following to your project's primary `<PropertyGroup>`:
+```xml
+<RuntimeIdentifiers>win;win-x64;win-x86</RuntimeIdentifiers>
+```
+
+
 ### If you're still using packages.config on .NET 4.x (such as for ASP.NET projects), you have to install Imageflow directly
 
 ```
@@ -22,18 +33,18 @@ PM> Install-Package Imageflow.NativeRuntime.osx-x86_64 -pre
 PM> Install-Package Imageflow.NativeRuntime.ubuntu-x86_64 -pre
 ```
 
-Note: On .NET 4.x you must install the [appropriate NativeRuntime(s)](https://www.nuget.org/packages?q=Imageflow+AND+NativeRuntime) in the project you are deploying - they have to copy imageflow.dll to the output folder. They are not copied transitively. 
+Note: On .NET 4.x you must install the [appropriate NativeRuntime(s)](https://www.nuget.org/packages?q=Imageflow+AND+NativeRuntime) in the project you are deploying - they have to copy imageflow.dll to the output folder. They are not copied transitively.
 
-Also note: Older versions of Windows may not have the C Runtime 
-installed ([Install 32-bit](https://aka.ms/vs/16/release/vc_redist.x86.exe) or [64-bit](https://aka.ms/vs/16/release/vc_redist.x64.exe)). 
+Also note: Older versions of Windows may not have the C Runtime
+installed ([Install 32-bit](https://aka.ms/vs/16/release/vc_redist.x86.exe) or [64-bit](https://aka.ms/vs/16/release/vc_redist.x64.exe)).
 
-### License 
+### License
 
 * Imageflow is dual licensed under a commercial license and the AGPLv3.
 * Imageflow.NET is tri-licensed under a commercial license, the AGPLv3, and the Apache 2 license.
 * Imageflow.NET Server is dual licensed under a commercial license and the AGPLv3.
 * We offer commercial licenses at https://imageresizing.net/pricing
-* Imageflow.NET's Apache 2 license allows for integration with non-copyleft products, as long as jobs are not actually executed (since the AGPLv3/commercial license is needed when libimageflow is linked at runtime). This can allow end-users to benefit from optional imageflow integration in products. 
+* Imageflow.NET's Apache 2 license allows for integration with non-copyleft products, as long as jobs are not actually executed (since the AGPLv3/commercial license is needed when libimageflow is linked at runtime). This can allow end-users to benefit from optional imageflow integration in products.
 
 
 
@@ -49,7 +60,7 @@ public async void TestGetImageInfo()
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
 
     var info = await ImageJob.GetImageInfo(new MemorySource(imageBytes));
-    
+
     Assert.Equal(info.ImageWidth, 1);
     Assert.Equal(info.ImageHeight, 1);
     Assert.Equal(info.PreferredExtension, "png");
@@ -78,7 +89,7 @@ public async Task TestAllJob()
             .Distort(30, 20)
             .Crop(0,0,10,10)
             .Region(-5,-5,10,10, AnyColor.Black)
-            .RegionPercent(-10f, -10f, 110f, 110f, AnyColor.Transparent)    
+            .RegionPercent(-10f, -10f, 110f, 110f, AnyColor.Transparent)
             .BrightnessSrgb(-1f)
             .ContrastSrgb(1f)
             .SaturationSrgb(1f)
@@ -93,11 +104,11 @@ public async Task TestAllJob()
             .FillRectangle(2,2,8,8, AnyColor.Black)
             .ResizerCommands("width=10&height=10&mode=crop")
             .ConstrainWithin(5, 5)
-            .Watermark(new BytesSource(imageBytes), 
+            .Watermark(new BytesSource(imageBytes),
                 new WatermarkOptions()
                    .SetMarginsLayout(
-                        new WatermarkMargins(WatermarkAlign.Image, 1,1,1,1), 
-                        WatermarkConstraintMode.Within, 
+                        new WatermarkMargins(WatermarkAlign.Image, 1,1,1,1),
+                        WatermarkConstraintMode.Within,
                         new ConstraintGravity(90,90))
                     .SetOpacity(0.5f)
                     .SetHints(new ResampleHints().SetSharpen(15f, SharpenWhen.Always))
@@ -147,7 +158,7 @@ public async Task TestBuildCommandString()
     // We wrap the job in a using() statement to free memory faster
     using (var b = new ImageJob())
     {
-        
+
         var r = await b.BuildCommandString(
             new MemorySource(imageBytes), // or new StreamSource(Stream stream, bool disposeStream)
             new BytesDestination(), // or new StreamDestination

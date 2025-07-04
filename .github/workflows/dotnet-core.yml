@@ -42,7 +42,7 @@ jobs:
           - os: macos-14
             test_aot: false
             rid: osx-arm64
-          - os: ubuntu-22-arm-32gb
+          - os: ubuntu-22.04-arm
             test_aot: false
             rid: linux-arm64
 
