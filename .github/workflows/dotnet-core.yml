@@ -154,9 +154,9 @@ jobs:
     - name: Build legacy projects on Windows
       if: matrix.test_legacy
       run: |
-        nuget restore  tests/Imageflow.TestDotNetFull/Imageflow.TestDotNetFull.csproj -SolutionDirectory src
-        nuget restore  tests/Imageflow.TestDotNetFullPackageReference/Imageflow.TestDotNetFullPackageReference.csproj -SolutionDirectory src
-        msbuild src/Imageflow.dnfull.sln /p:Configuration=Release /p:Platform="Any CPU"
+        dotnet restore ${{ env.FULL_SLN }}
+        nuget restore tests/Imageflow.TestDotNetFull/Imageflow.TestDotNetFull.csproj -SolutionDirectory src
+        msbuild ${{ env.FULL_SLN }} /p:Configuration=Release /p:Platform="Any CPU"
 
     - name: Legacy - Test Imageflow.TestDotNetFull and Imageflow.TestDotNetFullPackageReference
       if: matrix.test_legacy
