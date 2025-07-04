@@ -48,6 +48,8 @@ Write-Host "Step 0: Cleaning up previous builds and caches..."
 try {
     dotnet clean $solutionFile --configuration Release
     dotnet nuget locals all --clear
+    # delete src/packages
+    Remove-Item -Recurse -Force src/packages
     Write-Host "Cleanup successful."
 } catch {
     Write-Warning "Cleanup step failed. This might not affect the build, but it's not a clean run. $_"
@@ -68,7 +70,7 @@ try {
 Write-Host "Step 2: Restoring NuGet packages for the solution (nuget.exe)..."
 try {
     # This is required for legacy projects that use packages.config
-    nuget restore $solutionFile
+    nuget restore $solutionFile -SolutionDirectory src
     Write-Host "NuGet restore for legacy project completed successfully."
 } catch {
     Write-Error "NuGet restore failed. $_"

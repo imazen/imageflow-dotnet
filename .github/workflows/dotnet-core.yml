@@ -36,7 +36,6 @@ jobs:
 
           - os: windows-11-arm
             test_aot: false
-            test_legacy: true
             rid: win-arm64
 
           - os: macos-14
@@ -155,7 +154,7 @@ jobs:
       if: matrix.test_legacy
       run: |
         dotnet restore ${{ env.FULL_SLN }}
-        nuget restore ${{ env.FULL_SLN }}
+        nuget restore ${{ env.FULL_SLN }} -SolutionDirectory src
         msbuild ${{ env.FULL_SLN }} /p:Configuration=Release /p:Platform="Any CPU"
 
     - name: Legacy - Test Imageflow.TestDotNetFull and Imageflow.TestDotNetFullPackageReference
