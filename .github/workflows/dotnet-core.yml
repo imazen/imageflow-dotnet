@@ -155,7 +155,7 @@ jobs:
       if: matrix.test_legacy
       run: |
         dotnet restore ${{ env.FULL_SLN }}
-        nuget restore tests/Imageflow.TestDotNetFull/Imageflow.TestDotNetFull.csproj -SolutionDirectory src
+        nuget restore ${{ env.FULL_SLN }}
         msbuild ${{ env.FULL_SLN }} /p:Configuration=Release /p:Platform="Any CPU"
 
     - name: Legacy - Test Imageflow.TestDotNetFull and Imageflow.TestDotNetFullPackageReference

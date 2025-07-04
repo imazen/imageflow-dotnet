@@ -10,7 +10,7 @@
 $ErrorActionPreference = "Stop"
 
 $solutionFile = "src/Imageflow.dnfull.sln"
-$testProject1 = "tests/Imageflow.TestDotNetFull/Imageflow.TestDotNetFull.csproj"
+
 
 # --- Helper function to find MSBuild ---
 function Get-MSBuildPath {
@@ -44,7 +44,17 @@ function Get-MSBuildPath {
 $finalExitCode = 0
 # --- Build Steps ---
 
-Write-Host "Step 1: Restoring NuGet packages for the solution..."
+Write-Host "Step 0: Cleaning up previous builds and caches..."
+try {
+    dotnet clean $solutionFile --configuration Release
+    dotnet nuget locals all --clear
+    Write-Host "Cleanup successful."
+} catch {
+    Write-Warning "Cleanup step failed. This might not affect the build, but it's not a clean run. $_"
+    # We don't exit here, as it might not be critical
+}
+
+Write-Host "Step 1: Restoring NuGet packages for the solution (dotnet restore)..."
 try {
     # Restore all projects in the solution, this should handle SDK projects correctly.
     dotnet restore $solutionFile --force-evaluate
@@ -55,10 +65,10 @@ try {
 }
 
 
-Write-Host "Step 2: Restoring NuGet packages for the legacy packages.config project (using nuget.exe)..."
+Write-Host "Step 2: Restoring NuGet packages for the solution (nuget.exe)..."
 try {
-    # This is required for the legacy project that uses packages.config
-    nuget restore $testProject1 -SolutionDirectory src
+    # This is required for legacy projects that use packages.config
+    nuget restore $solutionFile
     Write-Host "NuGet restore for legacy project completed successfully."
 } catch {
     Write-Error "NuGet restore failed. $_"
