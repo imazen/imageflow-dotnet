@@ -11,3 +11,4 @@ using System.Runtime.CompilerServices;
 
 // internals visible to Imageflow.Test
 [assembly: InternalsVisibleTo("Imageflow.Test")]
+[assembly: InternalsVisibleTo("Imageflow.Benchmarks")]

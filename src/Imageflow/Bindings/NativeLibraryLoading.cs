@@ -200,9 +200,9 @@ internal static class RuntimeFileLocator
             case PlatformID.Win32Windows:
             case PlatformID.WinCE:
             case PlatformID.Xbox:
-                return "dll";
+                return "exe";
             default:
-                return "dll";
+                return "exe";
         }
     }, LazyThreadSafetyMode.PublicationOnly);
 

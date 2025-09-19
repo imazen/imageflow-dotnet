@@ -44,6 +44,12 @@ public class BuildNode : BuildItemBase
     public BuildEndpoint EncodeToStream(Stream stream, bool disposeStream, IEncoderPreset encoderPreset) =>
         Encode(new StreamDestination(stream, disposeStream), encoderPreset);
 
+    public BuildEndpoint EncodeToFile(string path, IEncoderPreset encoderPreset) =>
+        Encode(FileDestination.ToPath(path), encoderPreset);
+
+    public BuildEndpoint EncodeToFile(string path, int ioId, IEncoderPreset encoderPreset) =>
+        Encode(FileDestination.ToPath(path), ioId, encoderPreset);
+
     private BuildNode(ImageJob builder, JsonNode nodeData, BuildNode? inputNode, BuildNode? canvasNode) : base(builder, nodeData, inputNode,
         canvasNode)
     { }
@@ -96,7 +102,7 @@ public class BuildNode : BuildItemBase
     }
 
     /// <summary>
-    /// Scale an image using the given Constraint object. 
+    /// Scale an image using the given Constraint object.
     /// </summary>
     /// <param name="constraint"></param>
     /// <returns></returns>
@@ -237,7 +243,7 @@ public class BuildNode : BuildItemBase
         });
 
     /// <summary>
-    /// Crops away whitespace of any color at the edges of the image. 
+    /// Crops away whitespace of any color at the edges of the image.
     /// </summary>
     /// <param name="threshold">(1..255). determines how much noise/edges to tolerate before cropping
     /// is finalized. 80 is a good starting point.</param>
@@ -264,7 +270,7 @@ public class BuildNode : BuildItemBase
 
     /// <summary>
     /// Does not honor encoding or decoding parameters. Use ImageJob.BuildCommandString() instead unless
-    /// you are actually combining this node with others in a job. 
+    /// you are actually combining this node with others in a job.
     /// </summary>
     /// <param name="commandString"></param>
     /// <returns></returns>
@@ -301,19 +307,19 @@ public class BuildNode : BuildItemBase
         => To(new JsonObject { ["flip_h"] = null });
 
     /// <summary>
-    /// Rotates the image 90 degrees clockwise. 
+    /// Rotates the image 90 degrees clockwise.
     /// </summary>
     /// <returns></returns>
     public BuildNode Rotate90() // => To(new {rotate_90 = (string?)null });
         => To(new JsonObject { ["rotate_90"] = null });
     /// <summary>
-    /// Rotates the image 180 degrees clockwise. 
+    /// Rotates the image 180 degrees clockwise.
     /// </summary>
     /// <returns></returns>
     public BuildNode Rotate180() // To(new {rotate_180 = (string?)null });
         => To(new JsonObject { ["rotate_180"] = null });
     /// <summary>
-    /// Rotates the image 270 degrees clockwise. (same as 90 degrees counterclockwise). 
+    /// Rotates the image 270 degrees clockwise. (same as 90 degrees counterclockwise).
     /// </summary>
     /// <returns></returns>
     public BuildNode Rotate270() //To(new {rotate_270 = (string?)null });
@@ -345,7 +351,7 @@ public class BuildNode : BuildItemBase
 
     /// <summary>
     /// Copies (not composes) the given rectangle from input to canvas.
-    /// You cannot copy from a BGRA input to a BGR canvas. 
+    /// You cannot copy from a BGRA input to a BGR canvas.
     /// </summary>
     /// <param name="canvas"></param>
     /// <param name="area"></param>
@@ -379,7 +385,7 @@ public class BuildNode : BuildItemBase
 
     /// <summary>
     /// Draws the input image to the given rectangle on the canvas, distorting if the aspect ratios differ.
-    /// 
+    ///
     /// </summary>
     /// <param name="canvas"></param>
     /// <param name="to"></param>
@@ -580,7 +586,7 @@ public class BuildNode : BuildItemBase
         });
 
     /// <summary>
-    /// Adjust contrast between -1 and 1. 
+    /// Adjust contrast between -1 and 1.
     /// </summary>
     /// <param name="amount">-1...1</param>
     /// <returns></returns>
@@ -601,7 +607,7 @@ public class BuildNode : BuildItemBase
         });
 
     /// <summary>
-    /// Adjust brightness between -1 and 1. 
+    /// Adjust brightness between -1 and 1.
     /// </summary>
     /// <param name="amount">-1...1</param>
     /// <returns></returns>
@@ -622,7 +628,7 @@ public class BuildNode : BuildItemBase
         });
 
     /// <summary>
-    /// Adjust saturation between -1 and 1. 
+    /// Adjust saturation between -1 and 1.
     /// </summary>
     /// <param name="amount">-1...1</param>
     /// <returns></returns>
@@ -690,7 +696,7 @@ public class BuildNode : BuildItemBase
     }
 
     /// <summary>
-    /// Draw a watermark from the given BufferedStreamSource or MemorySource 
+    /// Draw a watermark from the given BufferedStreamSource or MemorySource
     /// </summary>
     /// <param name="source"></param>
     /// <param name="ioId"></param>

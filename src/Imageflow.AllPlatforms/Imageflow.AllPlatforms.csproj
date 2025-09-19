@@ -18,10 +18,10 @@
       <ProjectReference Include="..\Imageflow\Imageflow.Net.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="Imageflow.NativeRuntime.All" Version="2.1.1-rc10"/>
+      <PackageReference Include="Imageflow.NativeRuntime.All" Version="2.1.1-rc11" />
     </ItemGroup>
   <ItemGroup>
         <None Include="images\icon.png" Pack="true" PackagePath="" />
-        <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
+        <None Include="..\..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>

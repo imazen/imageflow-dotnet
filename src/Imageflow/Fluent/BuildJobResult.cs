@@ -50,7 +50,7 @@ public class BuildJobResult
     public BuildEncodeResult this[int ioId] => _encodeResults[ioId];
 
     /// <summary>
-    /// Returns null if the encode result by the given io_id doesn't exist. 
+    /// Returns null if the encode result by the given io_id doesn't exist.
     /// </summary>
     /// <param name="ioId"></param>
     /// <returns></returns>
@@ -112,7 +112,10 @@ public class BuildJobResult
 
         if (jobResult == null)
         {
-            data.AsObject().TryGetPropertyValue("build_result", out jobResultValue);
+            if (data.AsObject().TryGetPropertyValue("build_result", out jobResultValue))
+            {
+                jobResult = jobResultValue;
+            }
         }
 
         if (jobResult == null)

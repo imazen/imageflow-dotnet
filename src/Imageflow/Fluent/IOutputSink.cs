@@ -4,14 +4,23 @@ internal interface IOutputSink : IDisposable
 {
     void RequestCapacity(int bytes);
     void Write(ReadOnlySpan<byte> data);
-    void Flush();
+    /// <summary>
+    /// Called after writes are complete - it is invalid to call any other write/flush/requestCapacity methods after this.
+    /// No need to call Flush before this.
+    /// </summary>
+    void Finished();
 }
 
 internal interface IAsyncOutputSink : IDisposable
 {
     ValueTask FastRequestCapacityAsync(int bytes);
     ValueTask FastWriteAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken);
-    ValueTask FastFlushAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Called after writes are complete - it is invalid to call any other write/flush/requestCapacity methods after this.
+    /// No need to call Flush before this.
+    /// </summary>
+    ValueTask FinishedAsync(CancellationToken cancellationToken);
 }
 
 internal static class OutputSinkExtensions
@@ -20,6 +29,6 @@ internal static class OutputSinkExtensions
     {
         await sink.FastRequestCapacityAsync(data.Length).ConfigureAwait(false);
         await sink.FastWriteAsync(data, cancellationToken).ConfigureAwait(false);
-        await sink.FastFlushAsync(cancellationToken).ConfigureAwait(false);
+        await sink.FinishedAsync(cancellationToken).ConfigureAwait(false);
     }
 }

@@ -5,13 +5,19 @@ namespace Imageflow.Fluent;
 
 public static class IOutputDestinationExtensions
 {
+
+    /// <summary>
+    ///     Synchronously writes all data to the destination. Don't call more than once per destination.
+    /// </summary>
+    /// <param name="dest"></param>
+    /// <param name="data"></param>
     internal static void AdaptiveWriteAll(this IOutputDestination dest, ReadOnlyMemory<byte> data)
     {
         if (dest is IOutputSink syncSink)
         {
             syncSink.RequestCapacity(data.Length);
             syncSink.Write(data.Span);
-            syncSink.Flush();
+            syncSink.Finished();
         }
         else
         {
@@ -21,13 +27,20 @@ public static class IOutputDestinationExtensions
         }
     }
 
+    /// <summary>
+    ///     Asynchronously writes all data to the destination. Don't call more than once per destination.
+    /// </summary>
+    /// <param name="dest"></param>
+    /// <param name="data"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     internal static async ValueTask AdaptiveWriteAllAsync(this IOutputDestination dest, ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
     {
         if (dest is IAsyncOutputSink sink)
         {
             await sink.FastRequestCapacityAsync(data.Length).ConfigureAwait(false);
             await sink.FastWriteAsync(data, cancellationToken).ConfigureAwait(false);
-            await sink.FastFlushAsync(cancellationToken).ConfigureAwait(false);
+            await sink.FinishedAsync(cancellationToken).ConfigureAwait(false);
             return;
         }
         await dest.RequestCapacityAsync(data.Length).ConfigureAwait(false);

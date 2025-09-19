@@ -444,37 +444,37 @@ namespace Imageflow.Test
                 {
                     jsonPath = job.JsonPath;
 
-                    if (isUnix)
-                    {
+                    // if (isUnix)
+                    // {
                         Assert.True(File.Exists(jsonPath));
-                    }
-                    else
-                    {
-#pragma warning disable CA1416
-                        using (var _ = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
-#pragma warning restore CA1416
-                        {
-                        } // Will throw filenotfoundexception if missing
-                    }
+//                     }
+//                     else
+//                     {
+// #pragma warning disable CA1416
+//                         using (var _ = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
+// #pragma warning restore CA1416
+//                         {
+//                         } // Will throw filenotfoundexception if missing
+//                     }
                 }
 
-                if (isUnix)
-                {
+                // if (isUnix)
+                // {
                     Assert.False(File.Exists(jsonPath));
-                }
-                else
-                {
+//                 }
+//                 else
+//                 {
 
-                    Assert.Throws<FileNotFoundException>(delegate
-                    {
+//                     Assert.Throws<FileNotFoundException>(delegate
+//                     {
 
-#pragma warning disable CA1416
-                        using (var _ = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
-#pragma warning restore CA1416
-                        {
-                        }
-                    });
-                }
+// #pragma warning disable CA1416
+//                         using (var _ = System.IO.MemoryMappedFiles.MemoryMappedFile.OpenExisting(jsonPath))
+// #pragma warning restore CA1416
+//                         {
+//                         }
+//                     });
+//                 }
             }
         }
 

@@ -70,6 +70,9 @@ public class ImageJob : IDisposable
     public BuildNode Decode(byte[] source) => Decode(new MemorySource(source), GenerateIoId());
     public BuildNode Decode(byte[] source, int ioId) => Decode(new MemorySource(source), ioId);
 
+    public BuildNode DecodeFile(string path) => Decode(new FileSource(path), GenerateIoId());
+    public BuildNode DecodeFile(string path, int ioId) => Decode(new FileSource(path), ioId);
+
     public BuildNode Decode<T>(T source) where T : IAsyncMemorySource
     {
         return Decode(source, GenerateIoId(), null);
@@ -161,6 +164,10 @@ public class ImageJob : IDisposable
     /// <returns></returns>
     ///
     public BuildEndpoint BuildCommandString(IAsyncMemorySource source, IOutputDestination dest, string commandString) => BuildCommandString(source, null, dest, null, commandString);
+
+    public BuildEndpoint BuildCommandString(string sourcePath, string destPath, string commandString) => BuildCommandString(FileSource.FromPath(sourcePath), FileDestination.ToPath(destPath), commandString);
+
+    public BuildEndpoint BuildCommandString(string sourcePath, string destPath, string commandString, ICollection<InputWatermark>? watermarks) => BuildCommandString(FileSource.FromPath(sourcePath), FileDestination.ToPath(destPath), commandString, watermarks);
 
     public BuildEndpoint BuildCommandString(IAsyncMemorySource source, int? sourceIoId, IOutputDestination dest,
         int? destIoId, string commandString)
@@ -320,7 +327,7 @@ public class ImageJob : IDisposable
 
     private static ITemporaryFileProvider SystemTempProvider()
     {
-        return RuntimeFileLocator.IsUnix ? TemporaryFile.CreateProvider() : TemporaryMemoryFile.CreateProvider();
+        return TemporaryFile.CreateProvider();
     }
 
     class SubprocessFilesystemJob : IPreparedFilesystemJob
@@ -467,13 +474,10 @@ public class ImageJob : IDisposable
     internal async Task<BuildJobResult> FinishInSubprocessAsync(SecurityOptions? securityOptions,
         string? imageflowToolPath, long? outputBufferCapacity = null, CancellationToken cancellationToken = default(CancellationToken))
     {
+        // Raises exception if missing
         if (imageflowToolPath == null)
         {
-            imageflowToolPath = RuntimeFileLocator.IsUnix ? "imageflow_tool" : "imageflow_tool.exe";
-        }
-        if (!File.Exists(imageflowToolPath))
-        {
-            throw new FileNotFoundException("Cannot find imageflow_tool using path \"" + imageflowToolPath + "\" and currect folder \"" + Directory.GetCurrentDirectory() + "\"");
+            imageflowToolPath = ExecutableLocator.FindExecutable("imageflow_tool");
         }
 
         using (var job = await PrepareForSubprocessAsync(cancellationToken, securityOptions, true, outputBufferCapacity).ConfigureAwait(false))
@@ -488,22 +492,34 @@ public class ImageJob : IDisposable
                 FileName = imageflowToolPath
             };
 
+            if (!File.Exists(job.JsonPath))
+            {
+                throw new FileNotFoundException($"Internal error: JSON file {job.JsonPath} does not exist", job.JsonPath);
+            }
+
             var results = await ProcessEx.RunAsync(startInfo, cancellationToken).ConfigureAwait(false);
 
             var output = results.GetBufferedOutputStream();
             var errors = results.GetStandardErrorString();
 
-            if (!string.IsNullOrWhiteSpace(errors) || results.ExitCode != 0)
+            if (results.ExitCode != 0)
             {
                 if (errors.Contains("InvalidJson"))
                 {
                     //throw new ImageflowException(errors + $"\n{JsonConvert.SerializeObject(job.JobMessage)}");
                     throw new ImageflowException(errors + $"\n{job.JobMessage}");
+                } else if (errors.Contains("JsonRecipeNotFound"))
+                {
+                    throw new ImageflowException(errors + $"\n{job.JobMessage}\nJson Recipe Path: {job.JsonPath}");
                 }
                 else
                 {
                     throw new ImageflowException(errors);
                 }
+            }
+            if (!string.IsNullOrWhiteSpace(errors))
+            {
+                Debug.WriteLine(errors);
             }
 
             await job.CopyOutputsToDestinations(cancellationToken).ConfigureAwait(false);

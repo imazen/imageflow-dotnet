@@ -83,6 +83,10 @@ public class BytesDestination : IOutputDestination, IOutputSink, IAsyncOutputSin
 
         return _m.WriteMemoryAsync(data, cancellationToken);
     }
+    public void Finished()
+    {
+        _m?.Flush(); // Redundant for MemoryStream.
+    }
     public void Flush()
     {
         _m?.Flush(); // Redundant for MemoryStream.
@@ -93,6 +97,13 @@ public class BytesDestination : IOutputDestination, IOutputSink, IAsyncOutputSin
         RequestCapacity(bytes);
         return new ValueTask();
     }
+
+    public ValueTask FinishedAsync(CancellationToken cancellationToken)
+    {
+        Finished();
+        return new ValueTask();
+    }
+
     public ValueTask FastFlushAsync(CancellationToken cancellationToken)
     {
         Flush();

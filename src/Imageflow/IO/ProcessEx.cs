@@ -33,7 +33,8 @@ internal sealed
     {
         // Initial alloc is optimized for ascii
         var stream = Mgr.GetStream("stdout bytes", strings.Sum(s => s.Length));
-        var streamWriter = new StreamWriter(stream, Encoding.UTF8, 4096, true);
+        var utf8NoBom = new UTF8Encoding(false);
+        var streamWriter = new StreamWriter(stream, utf8NoBom, 4096, true);
         foreach (var str in strings)
         {
             streamWriter.Write(str);

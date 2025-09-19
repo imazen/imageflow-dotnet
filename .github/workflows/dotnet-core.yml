@@ -120,7 +120,7 @@ jobs:
       uses: codecov/codecov-action@v3
       if: matrix.coverage
       with:
-        files:
+        files: ./**/coverage.opencover.xml
         token: ${{ secrets.CODECOV_TOKEN }} # replace with your Codecov token
         fail_ci_if_error: false
 

@@ -25,6 +25,7 @@ bld/
 [Ll]og/
 test-publish/
 NuGetPackages/
+CoverageReport/
 
 **/.idea/copilot
 
