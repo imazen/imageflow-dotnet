@@ -5,7 +5,7 @@ using System.IO;
 
 public class NonSeekableReadStream : Stream
 {
-    private byte[] data;
+    private readonly byte[] data;
     private long position; // =0 Current position within the data
 
     public NonSeekableReadStream(byte[] dataSource)

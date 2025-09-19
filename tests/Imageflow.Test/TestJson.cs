@@ -20,7 +20,6 @@ public class TestJson
     public void TestAllJob()
     {
 
-
         var b = new ImageJob();
         var jsonStr = b.Decode(Array.Empty<byte>())
                 .FlipVertical()

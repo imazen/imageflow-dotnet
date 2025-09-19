@@ -71,12 +71,18 @@ public class FinishJobBuilder
 
     public Task<BuildJobResult> InProcessAsync() => _builder.FinishAsync(new JobExecutionOptions(), _security, _token);
 
+    /// <summary>
+    /// Will auto-discover imageflow_tool if imageflowToolPath is null, looking in a number of directories
+    /// </summary>
+    /// <param name="imageflowToolPath"></param>
+    /// <param name="outputBufferCapacity"></param>
+    /// <returns></returns>
     public Task<BuildJobResult> InSubprocessAsync(string? imageflowToolPath = null, long? outputBufferCapacity = null) =>
         _builder.FinishInSubprocessAsync(_security, imageflowToolPath, outputBufferCapacity, _token);
 
     /// <summary>
     /// Returns a prepared job that can be executed with `imageflow_tool --json [job.JsonPath]`. Supporting input/output files are also created.
-    /// If deleteFilesOnDispose is true, then the files will be deleted when the job is disposed. 
+    /// If deleteFilesOnDispose is true, then the files will be deleted when the job is disposed.
     /// </summary>
     /// <returns></returns>
     public Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(bool deleteFilesOnDispose) =>

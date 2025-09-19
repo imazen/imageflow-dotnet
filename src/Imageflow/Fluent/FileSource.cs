@@ -1,6 +1,3 @@
-using Imageflow.Fluent;
-using System.IO;
-
 namespace Imageflow.Fluent;
 
 public sealed class FileSource : IAsyncMemorySource, IMemorySource
@@ -18,7 +15,6 @@ public sealed class FileSource : IAsyncMemorySource, IMemorySource
     public static FileSource FromPath(string path) => new(path);
 
     public bool AsyncPreferred => true;
-
 
     // Opens the file unbuffered, since we provide one massive buffer ourselves.
     private static FileStream ReadUnbuffered(string path)

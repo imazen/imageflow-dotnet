@@ -31,7 +31,6 @@ public class TestFileSourceAndDestination
         }
     }
 
-
     private static async Task<BuildJobResult> GenerateDemoSourceImage(string path, int width, int height)
     {
         using var b = new ImageJob(); // Make sure ImageJob is always disposed with using

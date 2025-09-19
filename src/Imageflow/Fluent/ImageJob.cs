@@ -311,7 +311,6 @@ public class ImageJob : IDisposable
         }
     }
 
-
     // private object BuildJsonWithPlaceholders()
     // {
     //     var inputIo = _inputs.Select(pair =>
@@ -562,8 +561,6 @@ public class ImageJob : IDisposable
     }
 
     private ICollection<BuildItemBase> CollectUnique() => _nodesCreated;
-
-
 
     internal JsonNode ToFramewise()
     {

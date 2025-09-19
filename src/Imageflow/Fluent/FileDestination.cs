@@ -39,7 +39,6 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
 
     private bool _finishCalled;
 
-
     public void Finished()
     {
         if (_useHardFlush)
@@ -93,7 +92,6 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
         _handle?.Dispose();
         _handle = null;
     }
-
 
     private FileStream CreateOpen(long preallocationSize, bool asynchronous)
     {
@@ -165,7 +163,6 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
         Prepare(bytes, asynchronous: false);
     }
 
-
     public async Task WriteAsync(ArraySegment<byte> bytes, CancellationToken cancellationToken)
     {
         if (bytes.Array == null)
@@ -174,7 +171,6 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
         }
         await FastWriteAsync(bytes.AsMemory(), cancellationToken).ConfigureAwait(false);
     }
-
 
     public async ValueTask FastWriteAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
     {
