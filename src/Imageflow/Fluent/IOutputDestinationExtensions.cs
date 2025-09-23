@@ -15,7 +15,7 @@ public static class IOutputDestinationExtensions
     {
         if (dest is IOutputSink syncSink)
         {
-            syncSink.RequestCapacity(data.Length);
+            syncSink.SetHints(new OutputSinkHints(ExpectedSize: data.Length, MultipleWritesExpected: false, Asynchronous: false));
             syncSink.Write(data.Span);
             syncSink.Finished();
         }
@@ -38,7 +38,7 @@ public static class IOutputDestinationExtensions
     {
         if (dest is IAsyncOutputSink sink)
         {
-            await sink.FastRequestCapacityAsync(data.Length).ConfigureAwait(false);
+            sink.SetHints(new OutputSinkHints(ExpectedSize: data.Length, MultipleWritesExpected: false, Asynchronous: true));
             await sink.FastWriteAsync(data, cancellationToken).ConfigureAwait(false);
             await sink.FinishedAsync(cancellationToken).ConfigureAwait(false);
             return;

@@ -296,3 +296,4 @@ __pycache__/
 *.xsd.cs
 
 tempfile.txt
+benchmarks/Imageflow.Benchmarks/BenchmarkDotNet.Artifacts/

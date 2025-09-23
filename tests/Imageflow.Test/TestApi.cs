@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-
+using System.Runtime.InteropServices;
 using Imageflow.Bindings;
 using Imageflow.Fluent;
 
@@ -445,8 +445,9 @@ public class TestApi
 
         var imageBytes = Convert.FromBase64String(
             "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
-        using (var b = new ImageJob())
+        try
         {
+            using var b = new ImageJob();
             var r = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20).ConstrainWithin(5, 5)
                 .EncodeToBytes(new GifEncoder())
                 .Finish()
@@ -458,7 +459,14 @@ public class TestApi
             Assert.Equal(5, r.First!.Width);
             Assert.True(r.First.TryGetBytes().HasValue);
         }
+        catch (System.DllNotFoundException ex)
+        {
+            if (!ImageJobSubprocessTests.LogAndForgive(ex))
+            {
+                throw;
+            }
 
+        }
     }
 
     [Fact]

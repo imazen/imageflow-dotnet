@@ -89,9 +89,10 @@ public class TestFileSourceAndDestination
     private static async Task<BuildJobResult> ProcessFileToFileExclusiveAccess(string inputPath, string outputPath, string commandString)
     {
         using var b = new ImageJob(); // Make sure ImageJob is always disposed with using
+        var options = new FileDestinationOptions(Atomic: false, ShareReadAccess: false, PreferRandomAccessApi: false);
         var r = await b.BuildCommandString(
             source: FileSource.FromPath(inputPath),
-            dest: FileDestination.ToPath(outputPath, useSfh: true, useHardFlush: false, shareRead: false),
+            dest: FileDestination.ToPath(outputPath, options),
             commandString)
             .Finish()
             .InProcessAsync()
@@ -106,9 +107,10 @@ public class TestFileSourceAndDestination
     private static async Task<BuildJobResult> ProcessFileToFileAtomic(string inputPath, string outputPath, string commandString)
     {
         using var b = new ImageJob(); // Make sure ImageJob is always disposed with using
+        var options = new FileDestinationOptions(Atomic: true, ShareReadAccess: false, PreferRandomAccessApi: false);
         var r = await b.BuildCommandString(
             source: FileSource.FromPath(inputPath),
-            dest: FileDestination.ToPath(outputPath, useSfh: true, useHardFlush: true),
+            dest: FileDestination.ToPath(outputPath, options),
             commandString)
             .Finish()
             .InProcessAsync()
@@ -124,9 +126,10 @@ public class TestFileSourceAndDestination
     private static async Task<BuildJobResult> ProcessFileToFileFileStream(string inputPath, string outputPath, string commandString)
     {
         using var b = new ImageJob(); // Make sure ImageJob is always disposed with using
+        var options = new FileDestinationOptions(Atomic: false, ShareReadAccess: false, PreferRandomAccessApi: false);
         var r = await b.BuildCommandString(
             source: FileSource.FromPath(inputPath),
-            dest: FileDestination.ToPath(outputPath, useSfh: false, useHardFlush: false),
+            dest: FileDestination.ToPath(outputPath, options),
             commandString)
             .Finish()
             .InProcessAsync()

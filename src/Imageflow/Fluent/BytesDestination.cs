@@ -65,6 +65,11 @@ public class BytesDestination : IOutputDestination, IOutputSink, IAsyncOutputSin
         }
     }
 
+    public void SetHints(OutputSinkHints hints)
+    {
+        RequestCapacity((int)Math.Min(hints.ExpectedSize ?? 0, int.MaxValue));
+    }
+
     public void Write(ReadOnlySpan<byte> data)
     {
         if (_m == null)

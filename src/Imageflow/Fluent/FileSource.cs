@@ -36,7 +36,7 @@ public sealed class FileSource : IAsyncMemorySource, IMemorySource
 
     public async ValueTask<ReadOnlyMemory<byte>> BorrowReadOnlyMemoryAsync(CancellationToken cancellationToken)
     {
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1_OR_GREATER
     return await File.ReadAllBytesAsync(_path, cancellationToken).ConfigureAwait(false);
 #else
         _underlying ??= BufferedStreamSource.UseEntireStreamAndDisposeWithSource(ReadUnbuffered(_path));

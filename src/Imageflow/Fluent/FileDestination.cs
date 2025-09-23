@@ -4,143 +4,233 @@ using Microsoft.Win32.SafeHandles;
 
 namespace Imageflow.Fluent;
 
+public sealed record FileDestinationOptions(
+    bool Atomic,
+    bool ShareReadAccess,
+    bool PreferRandomAccessApi
+    );
+// Findings: SequentialScan and Preallocation do not improve performance for single writes. WriteThrough +Flush(false) is faster than no write through but Flush(true)\
+// sharing read access helps a little.
+// Buffer size is irrelevant, 0/1 is fine.
+// THis is all tilting at windmills, FileStream uses adaptive strategies and RandomAccess itself.
+
 public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOutputSink
 {
-    public FileDestination(string path) : this(path, useSfh: true, useHardFlush: false, shareRead: true) { }
-    private FileDestination(string path, bool useSfh, bool useHardFlush, bool shareRead)
+    private static readonly FileDestinationOptions DefaultOptions = new(Atomic: false, ShareReadAccess: true, PreferRandomAccessApi: true);
+
+    public FileDestination(string path) : this(path, DefaultOptions) { }
+    private FileDestination(string path, FileDestinationOptions options)
     {
         _path = path;
 #if NET6_0_OR_GREATER
-        _useSfh = useSfh;
+        _useFileStream = !options.PreferRandomAccessApi;
 #else
-        _useSfh = false;
+        _useFileStream = true;
 #endif
-        _useHardFlush = useHardFlush;
-        _shareRead = shareRead;
+        _options = options;
     }
     public static FileDestination ToPath(string path) => new(path);
-    internal static FileDestination ToPath(string path, bool useSfh = true, bool useHardFlush = false, bool shareRead = true) => new(path, useSfh, useHardFlush, shareRead);
+    internal static FileDestination ToPath(string path, FileDestinationOptions options) => new(path, options);
     private readonly string _path;
     public string Path => _path;
 
-    // We can benchmark our implementation vs File.WriteAllBytes(Async)
-    private readonly bool _useSfh;
-    // Force write, bypassing OS cache, overkill.
-    private readonly bool _useHardFlush;
-    private readonly bool _shareRead;
+    private readonly FileDestinationOptions _options;
+    private OutputSinkHints? _writeHints;
+#if NETSTANDARD2_1_OR_GREATER
+    private bool PerformHardFlush => _options.Atomic && (_writeHints?.MultipleWritesExpected == true);
+    private bool UseWriteThrough => _options.Atomic && (_writeHints == null || _writeHints?.MultipleWritesExpected == false);
+#else
+    private static bool PerformHardFlush => false; // Flush(True) is not available on .NET Standard 2.0
+    private bool UseWriteThrough => _options.Atomic;  // WriteThrough should be
+#endif
+
+#if NET6_0_OR_GREATER
+    private long PreallocationSize => (_writeHints?.MultipleWritesExpected == true && _writeHints?.ExpectedSize > 0) ? (long)(_writeHints?.ExpectedSize ?? 0) : 0;
+#else
+    private long PreallocationSize => 0;
+#endif
+    private readonly bool _useFileStream;
+
+
     private FileStream? _stream;
     private SafeFileHandle? _handle;
 
     private int _writeCallCount;
     private long? _position;
     private long? _pendingPosition;
-    private bool? _asynchronous;
-    private long _requestedCapacityHint;
 
     private bool _finishCalled;
 
     public void Finished()
     {
-        if (_useHardFlush)
+        if (PerformHardFlush)
         {
 #if NET6_0_OR_GREATER
             if (_handle != null) RandomAccess.FlushToDisk(_handle);
 #endif
-            _stream?.Flush(_useHardFlush);
+#if NETSTANDARD2_1_OR_GREATER
+            _stream?.Flush(true);
+#endif
         }
-        _stream?.Dispose();
+        _stream?.Dispose(); //Auto soft flushes
         _stream = null;
         _handle?.Dispose();
         _handle = null;
         _finishCalled = true;
     }
 
-    public async ValueTask FinishedAsync(CancellationToken cancellationToken)
+    public ValueTask FinishedAsync(CancellationToken cancellationToken)
     {
         ObjectDisposedHelper.ThrowIf(_disposed, this);
-        if (_useHardFlush && _stream != null)
-        {
-            await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
-        }
-        if (_stream != null)
-        {
-#if NETSTANDARD2_1
-            await _stream.DisposeAsync().ConfigureAwait(false);
-#else
-            _stream.Dispose();
-#endif
-            _stream = null;
-        }
+        _finishCalled = true;
         if (_handle != null)
         {
+            if (PerformHardFlush)
+            {
+#if NET6_0_OR_GREATER
+                RandomAccess.FlushToDisk(_handle);
+#endif
+            }
             _handle.Dispose();
             _handle = null;
         }
-        _finishCalled = true;
+        if (_stream != null)
+        {
+            var tempStreamRef = _stream;
+            _stream = null;
+
+            if (PerformHardFlush)
+            {
+#if NETSTANDARD2_1_OR_GREATER
+                return new ValueTask(Task.Run(() =>
+                {
+                    tempStreamRef.Flush(true);
+                    tempStreamRef.Dispose();
+                }, cancellationToken));
+#endif
+            } else {
+#if NETSTANDARD2_1_OR_GREATER
+                // It will flush before disposal, just not the OS buffers.
+                return tempStreamRef.DisposeAsync();
+#else
+                tempStreamRef.Dispose(); // We can't access DisposeAsync OR Flush(true)
+#endif
+            }
+
+        }
+        return default;
+    }
+    /// <summary>
+    /// Hopefully, you're calling FinishedAsync instead.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public Task FlushAsync(CancellationToken cancellationToken)
+    {
+        ObjectDisposedHelper.ThrowIf(_disposed, this);
+        if (_finishCalled) throw new InvalidOperationException("FileDestination.Finished already called, no more writes allowed.");
+        if (_stream != null)
+        {
+            if (PerformHardFlush)
+            {
+#if NETSTANDARD2_1_OR_GREATER
+                return Task.Run(
+                        () => _stream!.Flush(true),
+                    cancellationToken);
+#endif
+            }
+            else
+            {
+                return _stream.FlushAsync(cancellationToken);
+            }
+        }
+        if (_handle != null)
+        {
+            if (PerformHardFlush)
+            {
+#if NET6_0_OR_GREATER
+                RandomAccess.FlushToDisk(_handle);
+#endif
+            }
+        }
+        return Task.CompletedTask;
     }
 
     private bool _disposed;
     public void Dispose()
     {
-        if (_writeCallCount > 1) throw new InvalidOperationException("FileDestination not tested with multiple writes yet, even if implementation is desgined accordingly.");
         _disposed = true;
         _position = null;
         _pendingPosition = null;
-        _asynchronous = null;
-        _stream?.Dispose();
-        _stream = null;
-        _handle?.Dispose();
-        _handle = null;
+        if (!_finishCalled)
+        {
+            Finished();
+        }
     }
 
-    private FileStream CreateOpen(long preallocationSize, bool asynchronous)
+    private FileStream CreateOpen(bool asynchronous, long firstWriteSize)
     {
-        _asynchronous = asynchronous;
-        _requestedCapacityHint = preallocationSize;
+        if (_writeHints == null) throw new InvalidOperationException("Write hints must be set before opening the file.");
         var fileOptions = asynchronous ? FileOptions.Asynchronous : FileOptions.None;
-        if (FileSource.IsWindows) fileOptions |= FileOptions.SequentialScan;
+        if (PerformHardFlush) fileOptions |= FileOptions.WriteThrough;
+
+
+        int bufferSize = 80 * 1024;
+        if (_writeHints?.MultipleWritesExpected == false) {
+            bufferSize = 1;
+        }
+        bufferSize = Math.Max(bufferSize, (int)(_writeHints?.ExpectedSize ?? 0));
+
+        var fileShare = _options.ShareReadAccess ? FileShare.Read : FileShare.None;
+
 #if NET6_0_OR_GREATER
         var options = new FileStreamOptions
         {
             Mode = FileMode.Create,
             Access = FileAccess.Write,
-            Share = _shareRead ? FileShare.Read : FileShare.None, // Unsure if none is more performant?
-            BufferSize = 0, //Buffering not useful, we're writing it all at once.
-            PreallocationSize = preallocationSize,
+            Share = fileShare,
+            BufferSize = bufferSize,
             Options = fileOptions,
+            PreallocationSize = PreallocationSize,
 
         };
-        return File.Open(Path, options);
+        return new FileStream(Path, options);
 #else
-        return new FileStream(Path, FileMode.Create, FileAccess.Write, FileShare.Read, 1, fileOptions);
+
+        return new FileStream(Path, FileMode.Create, FileAccess.Write, fileShare, bufferSize, fileOptions);
 #endif
     }
 
 #if NET6_0_OR_GREATER
-    private SafeFileHandle OpenHandle(long preallocationSize, bool asynchronous)
+    private SafeFileHandle OpenHandle(bool asynchronous)
     {
 
-        _asynchronous = asynchronous;
-        _requestedCapacityHint = preallocationSize;
         var fileOptions = asynchronous ? FileOptions.Asynchronous : FileOptions.None;
-        if (FileSource.IsWindows) fileOptions |= FileOptions.SequentialScan;
-        return File.OpenHandle(Path, FileMode.Create, FileAccess.Write, _shareRead ? FileShare.Read : FileShare.None, fileOptions, preallocationSize);
-        throw new NotSupportedException("OpenHandle not supported on .net standard 2.0");
+        if (UseWriteThrough) fileOptions |= FileOptions.WriteThrough;
+        return File.OpenHandle(Path, FileMode.Create, FileAccess.Write, _options.ShareReadAccess ? FileShare.Read : FileShare.None, fileOptions, PreallocationSize);
     }
 #endif
 
-    private void Prepare(int bytes, bool asynchronous)
+    private void Prepare(long firstWriteSize, bool asynchronous)
     {
         ObjectDisposedHelper.ThrowIf(_disposed, this);
         if (_finishCalled) throw new InvalidOperationException("FileDestination.Finished already called, no more writes allowed.");
-        if (!_useSfh)
+        if (_useFileStream)
         {
-            _stream ??= CreateOpen(bytes, asynchronous);
+            if (_writeHints == null){
+                _writeHints = new OutputSinkHints(
+                    ExpectedSize: null,
+                    MultipleWritesExpected: false,
+                    Asynchronous: asynchronous
+                );
+            }
+            _stream ??= CreateOpen(asynchronous, firstWriteSize);
         }
         else
         {
 #if NET6_0_OR_GREATER
-            _handle ??= OpenHandle(bytes, asynchronous);
+            _handle ??= OpenHandle(asynchronous);
 #else
             throw new NotSupportedException("RandomAccess not supported on this .NET version");
 #endif
@@ -150,17 +240,14 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
 
     public Task RequestCapacityAsync(int bytes)
     {
-        Prepare(bytes, asynchronous: true);
+        _writeHints ??= new OutputSinkHints(ExpectedSize: bytes, MultipleWritesExpected: false, Asynchronous: true);
+        _writeHints = _writeHints with { ExpectedSize = Math.Max(_writeHints!.ExpectedSize ?? 0, (long) bytes) };
         return Task.CompletedTask;
     }
-    public ValueTask FastRequestCapacityAsync(int bytes)
+    public void SetHints(OutputSinkHints hints)
     {
-        Prepare(bytes, asynchronous: true);
-        return default;
-    }
-    public void RequestCapacity(int bytes)
-    {
-        Prepare(bytes, asynchronous: false);
+        if (_writeHints != null) throw new InvalidOperationException("FileDestination.SetHints cannot be called twice, or after a Write/FastWriteAsync/WriteAsync or RequestCapacityAsync.");
+        _writeHints = hints;
     }
 
     public async Task WriteAsync(ArraySegment<byte> bytes, CancellationToken cancellationToken)
@@ -179,7 +266,7 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
         _position ??= 0;
         if (_pendingPosition.HasValue) throw new InvalidOperationException("Write already pending; cannot issue overlapping write calls");
         _pendingPosition = _position + data.Length;
-        if (!_useSfh)
+        if (_useFileStream)
         {
             await _stream!.WriteMemoryAsync(data, cancellationToken).ConfigureAwait(false);
         }
@@ -201,7 +288,7 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
         _position ??= 0;
         if (_pendingPosition.HasValue) throw new InvalidOperationException("Write already pending; cannot issue overlapping write calls");
         _pendingPosition = _position + data.Length;
-        if (!_useSfh)
+        if (_useFileStream)
         {
             _stream!.WriteSpan(data);
         }
@@ -216,26 +303,5 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
         _pendingPosition = null;
     }
 
-    public Task FlushAsync(CancellationToken cancellationToken)
-    {
-        ObjectDisposedHelper.ThrowIf(_disposed, this);
-        if (_finishCalled) throw new InvalidOperationException("FileDestination.Finished already called, no more writes allowed.");
-        if (_stream != null)
-        {
-            return _stream.FlushAsync(cancellationToken);
-        }
-        if (_handle != null)
-        {
-            if (_useHardFlush)
-            {
-#if NET6_0_OR_GREATER
-                RandomAccess.FlushToDisk(_handle);
-#else
-                throw new NotSupportedException("SafeFileHandle not supported on this .NET version");
-#endif
-            }
-        }
-        return Task.CompletedTask;
-    }
-
 }
+
