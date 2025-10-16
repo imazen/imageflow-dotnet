@@ -16,6 +16,8 @@ internal sealed class JobContextHandle : SafeHandleZeroOrMinusOneIsInvalid, IAss
     public JobContextHandle()
         : base(true)
     {
+        //TODO: On .NET 6+, we could use AssemblyLoadContext.ResolvingUnmanagedDll event instead...
+        //But most likely, it's only happening on .NET Framework anyway.
         //var timer = Stopwatch.StartNew();
         var ptr = NativeLibraryLoader.FixDllNotFoundException("imageflow", () => NativeMethods.imageflow_context_create(NativeMethods.ABI_MAJOR, NativeMethods.ABI_MINOR));
         //timer.Stop();

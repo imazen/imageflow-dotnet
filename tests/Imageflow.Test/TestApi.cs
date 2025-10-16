@@ -168,7 +168,7 @@ public class TestApi
                 .EncodeToBytes(new MozJpegEncoder(80, true))
                 .Finish().InProcessAsync();
 
-            Assert.True(r.First.TryGetBytes().HasValue);
+            Assert.True(r.First!.TryGetBytes().HasValue);
         }
     }
 
@@ -205,21 +205,21 @@ public class TestApi
         using (var b = new ImageJob())
         {
             var r = await b.Decode(imageBytes).Constrain(new Constraint(ConstraintMode.Fit_Crop, 10, 20)
+            {
+                CanvasColor = null,
+                H = 20,
+                W = 10,
+                Hints = new ResampleHints()
                 {
-                    CanvasColor = null,
-                    H = 20,
-                    W = 10,
-                    Hints = new ResampleHints()
-                    {
-                        InterpolationColorspace = ScalingFloatspace.Linear,
-                        DownFilter = InterpolationFilter.Mitchell,
-                        ResampleWhen = ResampleWhen.Size_Differs_Or_Sharpening_Requested,
-                        SharpenWhen = SharpenWhen.Always,
-                        SharpenPercent = 15,
-                        UpFilter = InterpolationFilter.Ginseng
-                    },
-                    Mode = ConstraintMode.Fit_Crop
-                })
+                    InterpolationColorspace = ScalingFloatspace.Linear,
+                    DownFilter = InterpolationFilter.Mitchell,
+                    ResampleWhen = ResampleWhen.Size_Differs_Or_Sharpening_Requested,
+                    SharpenWhen = SharpenWhen.Always,
+                    SharpenPercent = 15,
+                    UpFilter = InterpolationFilter.Ginseng
+                },
+                Mode = ConstraintMode.Fit_Crop
+            })
                 .EncodeToBytes(new GifEncoder()).Finish().InProcessAsync();
 
             Assert.Equal(10, r.First!.Width);
@@ -241,7 +241,10 @@ public class TestApi
                 .Branch(f => f.ConstrainWithin(40, 30).EncodeToBytes(new WebPLossyEncoder(50)))
                 .Branch(f => f.ConstrainWithin(40, 30).EncodeToBytes(new PngQuantEncoder()
                 {
-                    MinimumQuality = 70, Quality = 90, MaximumDeflate = false, Speed = 10
+                    MinimumQuality = 70,
+                    Quality = 90,
+                    MaximumDeflate = false,
+                    Speed = 10
                 }))
                 .Branch(f => f.Constrain(new Constraint(40, 30)).EncodeToBytes(new MozJpegEncoder(76, true)
                     .SetProgressive(true)))
