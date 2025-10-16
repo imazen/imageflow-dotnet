@@ -16,13 +16,13 @@ public static class IOutputDestinationExtensions
         if (dest is IOutputSink syncSink)
         {
             syncSink.SetHints(new OutputSinkHints(ExpectedSize: data.Length, MultipleWritesExpected: false, Asynchronous: false));
-            syncSink.Write(data.Span);
+            syncSink.Write(data);
             syncSink.Finished();
         }
         else
         {
             dest.RequestCapacityAsync(data.Length).Wait();
-            dest.AdaptedWrite(data.Span);
+            dest.AdaptedWrite(data);
             dest.FlushAsync(default).Wait();
         }
     }
@@ -36,6 +36,14 @@ public static class IOutputDestinationExtensions
     /// <returns></returns>
     internal static async ValueTask AdaptiveWriteAllAsync(this IOutputDestination dest, ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
     {
+        if (dest is IOutputSink syncSink && syncSink.PreferSynchronousWrites)
+        {
+            syncSink.SetHints(new OutputSinkHints(ExpectedSize: data.Length, MultipleWritesExpected: false, Asynchronous: false));
+            syncSink.Write(data);
+            syncSink.Finished();
+            return;
+        }
+
         if (dest is IAsyncOutputSink sink)
         {
             sink.SetHints(new OutputSinkHints(ExpectedSize: data.Length, MultipleWritesExpected: false, Asynchronous: true));
@@ -48,7 +56,7 @@ public static class IOutputDestinationExtensions
         await dest.FlushAsync(cancellationToken).ConfigureAwait(false);
     }
 
-    internal static async ValueTask AdaptedWriteAsync(this IOutputDestination dest, ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
+    internal static async Task AdaptedWriteAsync(this IOutputDestination dest, ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
     {
         if (MemoryMarshal.TryGetArray(data, out ArraySegment<byte> segment))
         {
@@ -72,23 +80,9 @@ public static class IOutputDestinationExtensions
         }
 
     }
-    internal static void AdaptedWrite(this IOutputDestination dest, ReadOnlySpan<byte> data)
+    internal static void AdaptedWrite(this IOutputDestination dest, ReadOnlyMemory<byte> data)
     {
-
-        var rent = ArrayPool<byte>.Shared.Rent(Math.Min(81920, data.Length));
-        try
-        {
-            for (int i = 0; i < data.Length; i += rent.Length)
-            {
-                int len = Math.Min(rent.Length, data.Length - i);
-                data.Slice(i, len).CopyTo(rent);
-                dest.WriteAsync(new ArraySegment<byte>(rent, 0, len), default).Wait();
-            }
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(rent);
-        }
+        AdaptedWriteAsync(dest, data, default).GetAwaiter().GetResult();
     }
 
     // internal static IAsyncOutputSink ToAsyncOutputSink(this IOutputDestination dest, bool disposeUnderlying = true)

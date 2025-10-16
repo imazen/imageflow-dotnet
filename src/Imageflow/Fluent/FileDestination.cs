@@ -16,7 +16,7 @@ public sealed record FileDestinationOptions(
 
 public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOutputSink
 {
-    private static readonly FileDestinationOptions DefaultOptions = new(Atomic: false, ShareReadAccess: true, PreferRandomAccessApi: true);
+    private static readonly FileDestinationOptions DefaultOptions = new(Atomic: false, ShareReadAccess: false, PreferRandomAccessApi: false);
 
     public FileDestination(string path) : this(path, DefaultOptions) { }
     private FileDestination(string path, FileDestinationOptions options)
@@ -283,6 +283,18 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
 
     public void Write(ReadOnlySpan<byte> data)
     {
+        WriteInternal(data, null);
+    }
+
+    public void Write(ReadOnlyMemory<byte> data)
+    {
+        WriteInternal(data.Span, data);
+    }
+
+    public bool PreferSynchronousWrites => false;
+
+    public void WriteInternal(ReadOnlySpan<byte> data, ReadOnlyMemory<byte>? memory)
+    {
         Prepare(data.Length, asynchronous: false);
         _writeCallCount++;
         _position ??= 0;
@@ -290,7 +302,14 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
         _pendingPosition = _position + data.Length;
         if (_useFileStream)
         {
-            _stream!.WriteSpan(data);
+            if (memory.HasValue)
+            {
+                _stream!.WriteMemory(memory.Value);
+            }
+            else
+            {
+                _stream!.WriteSpan(data);
+            }
         }
 #if NET6_0_OR_GREATER
         else
@@ -302,6 +321,5 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
         _position = _pendingPosition;
         _pendingPosition = null;
     }
-
 }
 

@@ -79,6 +79,17 @@ public class BytesDestination : IOutputDestination, IOutputSink, IAsyncOutputSin
 
         _m.WriteSpan(data);
     }
+    public bool PreferSynchronousWrites => true;
+    public void Write(ReadOnlyMemory<byte> data)
+    {
+        if (_m == null)
+        {
+            throw new ImageflowAssertionFailed("BytesDestination.Write called before RequestCapacity");
+        }
+
+        _m.WriteMemory(data);
+    }
+
     public ValueTask FastWriteAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
     {
         if (_m == null)

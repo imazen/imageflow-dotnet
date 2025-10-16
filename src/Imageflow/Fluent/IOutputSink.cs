@@ -6,6 +6,8 @@ internal interface IOutputSink : IDisposable
 {
     void SetHints(OutputSinkHints hints);
     void Write(ReadOnlySpan<byte> data);
+    void Write(ReadOnlyMemory<byte> data);
+    bool PreferSynchronousWrites { get; }
     /// <summary>
     /// Called after writes are complete - it is invalid to call any other write/flush/requestCapacity methods after this.
     /// No need to call Flush before this.

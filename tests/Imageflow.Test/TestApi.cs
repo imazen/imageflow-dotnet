@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using Imageflow.Bindings;
 using Imageflow.Fluent;
 
