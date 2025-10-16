@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ConstrainedExecution;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-
+using System.Text.Json.Serialization;
 using Imageflow.Fluent;
 using Imageflow.Internal.Helpers;
 
@@ -50,7 +50,6 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     public bool HasError => NativeMethods.imageflow_context_has_error(Handle);
 
     [Obsolete("Use SerializeNode instead for AOT compatibility")]
-
     [RequiresUnreferencedCode("Use SerializeNode instead for AOT compatibility")]
     [RequiresDynamicCode("Use SerializeNode instead for AOT compatibility")]
     private static byte[] ObsoleteSerializeToJson<T>(T obj)
@@ -59,16 +58,13 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         var options = new JsonSerializerOptions
         {
             WriteIndented = true,
-            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
 #if NET8_0_OR_GREATER
             PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
 #endif
         };
         var ms = new MemoryStream();
-        var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions
-        {
-            Indented = true
-        });
+        var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = true });
         JsonSerializer.Serialize(utf8JsonWriter, obj, options);
         utf8JsonWriter.Flush();
         return ms.ToArray();
@@ -77,10 +73,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     internal static void WriteSerializedNode(IBufferWriter<byte> bufferWriter, JsonNode node, bool indented = true)
     {
         // Use System.Text.Json for serialization
-        using var utf8JsonWriter = new Utf8JsonWriter(bufferWriter, new JsonWriterOptions
-        {
-            Indented = indented
-        });
+        using var utf8JsonWriter = new Utf8JsonWriter(bufferWriter, new JsonWriterOptions { Indented = indented });
         node.WriteTo(utf8JsonWriter);
         // flushes on disposal
     }
@@ -89,10 +82,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     {
         // Use System.Text.Json for serialization
         var ms = new MemoryStream();
-        var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions
-        {
-            Indented = indented
-        });
+        var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = indented });
         node.WriteTo(utf8JsonWriter);
         utf8JsonWriter.Flush();
         return ms.ToArray();
@@ -232,6 +222,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     {
         return InvokeInternal(method, utf8Json);
     }
+
     public IJsonResponse Invoke(string method)
     {
         return InvokeInternal(method, "{}"u8);
@@ -242,6 +233,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         using var response = InvokeInternal(method, message);
         return response.Parse();
     }
+
     public JsonNode? InvokeAndParse(string method)
     {
         using var response = InvokeInternal(method);
@@ -277,15 +269,12 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
 
         // Use System.Text.Json for serialization
         var ms = new MemoryStream();
-        var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions
-        {
-            Indented = true
-        });
+        var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = true });
         message.WriteTo(utf8JsonWriter);
         utf8JsonWriter.Flush();
-        return ms.TryGetBufferSliceAllWrittenData(out var buffer) ?
-            InvokeInternal(nullTerminatedMethod, buffer) :
-            InvokeInternal(nullTerminatedMethod, ms.ToArray());
+        return ms.TryGetBufferSliceAllWrittenData(out var buffer)
+            ? InvokeInternal(nullTerminatedMethod, buffer)
+            : InvokeInternal(nullTerminatedMethod, ms.ToArray());
 
 #endif
     }
@@ -298,6 +287,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         {
             throw new ArgumentException("Method must only contain ASCII characters", nameof(method));
         }
+
         return InvokeInternal(nullTerminatedBytes, message);
     }
 
@@ -309,10 +299,12 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         {
             throw new ArgumentException("Method must only contain ASCII characters", nameof(method));
         }
+
         return InvokeInternal(nullTerminatedBytes, utf8Json);
     }
 
-    private unsafe ImageflowJsonResponse InvokeInternal(ReadOnlySpan<byte> nullTerminatedMethod, ReadOnlySpan<byte> utf8Json)
+    private unsafe ImageflowJsonResponse InvokeInternal(ReadOnlySpan<byte> nullTerminatedMethod,
+        ReadOnlySpan<byte> utf8Json)
     {
         if (utf8Json.Length < 0)
         {
@@ -363,9 +355,9 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         AssertReady();
         return ExecuteImageResizer4CommandStringInternal(inputId, outputId, commands);
     }
+
     internal ImageflowJsonResponse ExecuteImageResizer4CommandStringInternal(int inputId, int outputId, string commands)
     {
-
         // var message = new
         // {
         //     framewise = new
@@ -387,22 +379,31 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         // };
         var message = new JsonObject()
         {
-            {"framewise", new JsonObject()
             {
-                {"steps", new JsonArray()
+                "framewise",
+                new JsonObject()
                 {
-                    (JsonNode)new JsonObject()
                     {
-                        {"command_string", new JsonObject()
+                        "steps",
+                        new JsonArray()
                         {
-                            {"kind", "ir4"},
-                            {"value", commands},
-                            {"decode", inputId},
-                            {"encode", outputId}
-                        }}
+                            (JsonNode)new JsonObject()
+                            {
+                                {
+                                    "command_string",
+                                    new JsonObject()
+                                    {
+                                        { "kind", "ir4" },
+                                        { "value", commands },
+                                        { "decode", inputId },
+                                        { "encode", outputId }
+                                    }
+                                }
+                            }
+                        }
                     }
-                }}
-            }}
+                }
+            }
         };
 
         return InvokeInternal(ImageflowMethods.Execute, message);
@@ -417,6 +418,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     {
         AddInputBytes(ioId, buffer.AsSpan());
     }
+
     /// <summary>
     /// Copies the given data into Imageflow's memory.  Use AddInputBytesPinned to avoid copying.
     /// </summary>
@@ -432,6 +434,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
 
         AddInputBytes(ioId, buffer.Array, buffer.Offset, buffer.Count);
     }
+
     /// <summary>
     /// Copies the given data into Imageflow's memory.  Use AddInputBytesPinned to avoid copying.
     /// </summary>
@@ -462,11 +465,13 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
 
         if (count < 0 || offset + count > buffer.LongLength)
         {
-            throw new ArgumentOutOfRangeException(nameof(count), count, "offset + count must be within array bounds. count cannot be negative");
+            throw new ArgumentOutOfRangeException(nameof(count), count,
+                "offset + count must be within array bounds. count cannot be negative");
         }
 
         AddInputBytes(ioId, buffer.AsSpan((int)offset, (int)count));
     }
+
     /// <summary>
     /// Copies the given data into Imageflow's memory.  Use AddInputBytesPinned to avoid copying.
     /// </summary>
@@ -513,6 +518,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
 
         AddInputBytesPinned(ioId, new ReadOnlyMemory<byte>(buffer), MemoryLifetimePromise.MemoryIsOwnedByRuntime);
     }
+
     /// <summary>
     /// Pins the given data in managed memory and gives Imageflow a pointer to it. The data must not be modified until after the job is disposed.
     /// </summary>
@@ -528,6 +534,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
 
         AddInputBytesPinned(ioId, buffer.Array, buffer.Offset, buffer.Count);
     }
+
     /// <summary>
     /// Pins the given data in managed memory and gives Imageflow a pointer to it. The data must not be modified until after the job is disposed.
     /// </summary>
@@ -579,7 +586,9 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     {
         if (callerPromise == MemoryLifetimePromise.MemoryOwnerDisposedByMemorySource)
         {
-            throw new ArgumentException("callerPromise cannot be MemoryLifetimePromise.MemoryOwnerDisposedByMemorySource", nameof(callerPromise));
+            throw new ArgumentException(
+                "AddInputBytesPinned callerPromise cannot be MemoryLifetimePromise.MemoryOwnerDisposedByMemorySource",
+                nameof(callerPromise));
         }
 
         AssertReady();
@@ -589,27 +598,19 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         }
 
         var pinned = data.Pin();
-        try
-        {
-            var length = (ulong)data.Length;
-            AddPinnedData(pinned);
+        AddPinnedData(pinned);
+        var length = (ulong)data.Length;
+        AddPinnedData(pinned);
 
-            var addr = new IntPtr(pinned.Pointer);
-            if (!NativeMethods.imageflow_context_add_input_buffer(Handle, ioId, addr, new UIntPtr(length),
-                    NativeMethods.Lifetime.OutlivesContext))
-            {
-                AssertReady();
-                throw new ImageflowAssertionFailed("AssertReady should raise an exception if method fails");
-            }
-
-            _ioSet.Add(ioId, IoKind.InputBuffer);
-        }
-        catch
+        var addr = new IntPtr(pinned.Pointer);
+        if (!NativeMethods.imageflow_context_add_input_buffer(Handle, ioId, addr, new UIntPtr(length),
+                NativeMethods.Lifetime.OutlivesContext))
         {
-            _pinnedMemory?.Remove(pinned);
-            pinned.Dispose();
-            throw;
+            AssertReady();
+            throw new ImageflowAssertionFailed("AssertReady should raise an exception if method fails");
         }
+
+        _ioSet.Add(ioId, IoKind.InputBuffer);
     }
 
     public void AddOutputBuffer(int ioId)
@@ -625,6 +626,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
             AssertReady();
             throw new ImageflowAssertionFailed("AssertReady should raise an exception if method fails");
         }
+
         _ioSet.Add(ioId, IoKind.OutputBuffer);
     }
 
@@ -642,13 +644,15 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         {
             throw new ArgumentException($"ioId {ioId} does not correspond to an output buffer", nameof(ioId));
         }
+
         AssertReady();
         if (!NativeMethods.imageflow_context_get_output_buffer_by_id(Handle, ioId, out var buffer,
-            out var bufferSize))
+                out var bufferSize))
         {
             AssertReady();
             throw new ImageflowAssertionFailed("AssertReady should raise an exception if method fails");
         }
+
         return new ImageflowUnmanagedReadStream(this, this._handle, buffer, bufferSize);
     }
 
@@ -665,13 +669,15 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         {
             throw new ArgumentException($"ioId {ioId} does not correspond to an output buffer", nameof(ioId));
         }
+
         AssertReady();
         if (!NativeMethods.imageflow_context_get_output_buffer_by_id(Handle, ioId, out var buffer,
-            out var bufferSize))
+                out var bufferSize))
         {
             AssertReady();
             throw new ImageflowAssertionFailed("AssertReady should raise an exception if method fails");
         }
+
         return new Span<byte>((void*)buffer, (int)bufferSize);
     }
 
@@ -689,17 +695,20 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         {
             throw new ArgumentException($"ioId {ioId} does not correspond to an output buffer", nameof(ioId));
         }
+
         AssertReady();
         if (!NativeMethods.imageflow_context_get_output_buffer_by_id(Handle, ioId, out var buffer,
-            out var bufferSize))
+                out var bufferSize))
         {
             AssertReady();
             throw new ImageflowAssertionFailed("AssertReady should raise an exception if method fails");
         }
+
         return SafeHandleMemoryManager.BorrowFromHandle(_handle, buffer, (uint)bufferSize);
     }
 
     private int _refCount;
+
     internal void AddRef()
     {
         Interlocked.Increment(ref _refCount);
@@ -711,6 +720,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     }
 
     public bool IsDisposed => !_handle.IsValid;
+
     public void Dispose()
     {
         ObjectDisposedHelper.ThrowIf(IsDisposed, this);
@@ -740,6 +750,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
 
                 _toDispose = null;
             }
+
             GC.SuppressFinalize(this);
             if (e != null)
             {
@@ -768,5 +779,4 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         // _handle specifically handles it's own disposal and finalizer
         UnpinAll();
     }
-
 }
