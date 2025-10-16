@@ -18,7 +18,7 @@
       <ProjectReference Include="..\Imageflow\Imageflow.Net.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="Imageflow.NativeRuntime.All" Version="2.1.2-rc01"/>
+      <PackageReference Include="Imageflow.NativeRuntime.All" Version="2.1.2-rc02"/>
     </ItemGroup>
   <ItemGroup>
         <None Include="images\icon.png" Pack="true" PackagePath="" />
