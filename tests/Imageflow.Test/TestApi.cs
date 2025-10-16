@@ -2,7 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using Imageflow.Bindings;
 using Imageflow.Fluent;
-
 using Xunit;
 using Xunit.Abstractions;
 
@@ -41,7 +40,8 @@ public class TestApi
         var imageBytes = Convert.FromBase64String(
             "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
 
-        var info = await ImageJob.GetImageInfoAsync(new MemorySource(imageBytes), SourceLifetime.NowOwnedAndDisposedByTask);
+        var info = await ImageJob.GetImageInfoAsync(new MemorySource(imageBytes),
+            SourceLifetime.NowOwnedAndDisposedByTask);
 
         Assert.Equal(1, info.ImageWidth);
         Assert.Equal(1, info.ImageHeight);
@@ -69,7 +69,9 @@ public class TestApi
     [Fact]
     public async Task TestBuildJob()
     {
-        var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var imageBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
         using (var b = new ImageJob())
         {
             var r = await b.Decode(imageBytes)
@@ -136,21 +138,58 @@ public class TestApi
         }
     }
 
+
+    [Fact]
+    public async Task TestWatermarkConfiguartion()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        using (var b = new ImageJob())
+        {
+            var r = await b.Decode(imageBytes)
+                .Distort(30, 20)
+                .Watermark(new MemorySource(imageBytes),
+                    new WatermarkOptions()
+                        .SetMarginsLayout(
+                            new WatermarkMargins()
+                                .SetRelativeTo(WatermarkAlign.Image).SetBottom(2).SetLeft(2).SetTop(2).SetBottom(2),
+                            WatermarkConstraintMode.Within,
+                            new ConstraintGravity(90, 90))
+                        .SetOpacity(0.5f)
+                        .SetHints(new ResampleHints().SetSharpen(15f, SharpenWhen.Always))
+                        .SetMinCanvasSize(1, 1))
+                .Watermark(new MemorySource(imageBytes),
+                    new WatermarkOptions().SetFitBox(
+                            new WatermarkFitBox(WatermarkAlign.Canvas, 0, 0, 8, 8)
+                                .SetRelativeTo(WatermarkAlign.Canvas).SetTopLeft(0, 0).SetBottomRight(8, 8))
+                        .SetOpacity(0.1f)
+                        .SetHints(new ResampleHints().SetSharpen(15f, SharpenWhen.Always))
+                        .SetMinCanvasSize(1, 1))
+                .EncodeToBytes(new MozJpegEncoder(80, true))
+                .Finish().InProcessAsync();
+
+            Assert.True(r.First.TryGetBytes().HasValue);
+        }
+    }
+
     [Fact]
     public async Task TestCreateCanvasBgra32()
     {
         using var b = new ImageJob();
-        var r = await b.CreateCanvasBgra32(10, 20, AnyColor.Black).Encode(new BytesDestination(), new WebPLosslessEncoder()).Finish().InProcessAsync();
+        var r = await b.CreateCanvasBgra32(10, 20, AnyColor.Black)
+            .Encode(new BytesDestination(), new WebPLosslessEncoder()).Finish().InProcessAsync();
 
         Assert.Equal(10, r.First!.Width);
         Assert.Equal(20, r.First.Height);
         Assert.True(r.First.TryGetBytes().HasValue);
     }
+
     [Fact]
     public async Task TestCreateCanvasBgr32()
     {
         using var b = new ImageJob();
-        var r = await b.CreateCanvasBgr32(10, 20, AnyColor.Black).Encode(new BytesDestination(), new WebPLosslessEncoder()).Finish().InProcessAsync();
+        var r = await b.CreateCanvasBgr32(10, 20, AnyColor.Black)
+            .Encode(new BytesDestination(), new WebPLosslessEncoder()).Finish().InProcessAsync();
 
         Assert.Equal(10, r.First!.Width);
         Assert.Equal(20, r.First.Height);
@@ -160,11 +199,12 @@ public class TestApi
     [Fact]
     public async Task TestConstraints()
     {
-        var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var imageBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
         using (var b = new ImageJob())
         {
-            var r = await b.Decode(imageBytes).
-                Constrain(new Constraint(ConstraintMode.Fit_Crop, 10, 20)
+            var r = await b.Decode(imageBytes).Constrain(new Constraint(ConstraintMode.Fit_Crop, 10, 20)
                 {
                     CanvasColor = null,
                     H = 20,
@@ -186,35 +226,52 @@ public class TestApi
             Assert.Equal(20, r.First.Height);
             Assert.True(r.First.TryGetBytes().HasValue);
         }
-
     }
+
     [Fact]
     public async Task TestMultipleOutputs()
     {
-        var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var imageBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
         using (var b = new ImageJob())
         {
-            var r = await b.Decode(imageBytes).
-                Constrain(new Constraint(ConstraintMode.Fit, 160, 120))
+            var r = await b.Decode(imageBytes).Constrain(new Constraint(ConstraintMode.Fit, 160, 120))
                 .Branch(f => f.ConstrainWithin(80, 60).EncodeToBytes(new WebPLosslessEncoder()))
                 .Branch(f => f.ConstrainWithin(40, 30).EncodeToBytes(new WebPLossyEncoder(50)))
+                .Branch(f => f.ConstrainWithin(40, 30).EncodeToBytes(new PngQuantEncoder()
+                {
+                    MinimumQuality = 70, Quality = 90, MaximumDeflate = false, Speed = 10
+                }))
+                .Branch(f => f.Constrain(new Constraint(40, 30)).EncodeToBytes(new MozJpegEncoder(76, true)
+                    .SetProgressive(true)))
+                .Branch(f => f.Constrain(new Constraint(40, 30)).EncodeToBytes(new MozJpegEncoder(76, true)
+                    .SetProgressive(true)))
+                .Branch(f => f.Constrain(new Constraint(ConstraintMode.Fit, 40, 30,
+                    new ResampleHints().SetSharpen(15f, SharpenWhen.Always),
+                    SrgbColor.BGRA(0, 0, 0, 255).ToAnyColor())).EncodeToBytes(new MozJpegEncoder(76, true)
+                    .SetProgressive(true)))
                 .EncodeToBytes(new LodePngEncoder())
                 .Finish().InProcessAsync();
 
             Assert.Equal(60, r.TryGet(1)!.Width);
             Assert.Equal(30, r.TryGet(2)!.Width);
-            Assert.Equal(120, r.TryGet(3)!.Width);
+            Assert.Equal(30, r.TryGet(3)!.Width);
+            Assert.Equal(30, r.TryGet(4)!.Width);
+            Assert.Equal(30, r.TryGet(5)!.Width);
+            Assert.Equal(30, r.TryGet(6)!.Width);
             Assert.True(r.First!.TryGetBytes().HasValue);
         }
-
     }
+
     [Fact]
     public async Task TestMultipleInputs()
     {
-        var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var imageBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
         using (var b = new ImageJob())
         {
-
             var canvas = b.Decode(imageBytes)
                 .Distort(30, 30);
 
@@ -232,13 +289,14 @@ public class TestApi
             Assert.Equal(30, r.TryGet(2)!.Width);
             Assert.True(r.First!.TryGetBytes().HasValue);
         }
-
     }
 
     [Fact]
     public async Task TestJobWithCommandString()
     {
-        var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var imageBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
         using (var b = new ImageJob())
         {
             var r = await b.Decode(imageBytes).ResizerCommands("width=3&height=2&mode=stretch&scale=both")
@@ -247,13 +305,14 @@ public class TestApi
             Assert.Equal(3, r.First!.Width);
             Assert.True(r.First.TryGetBytes().HasValue);
         }
-
     }
 
     [Fact]
     public async Task TestEncodeSizeLimit()
     {
-        var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var imageBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
         using (var b = new ImageJob())
         {
             var e = await Assert.ThrowsAsync<ImageflowException>(async () =>
@@ -264,24 +323,24 @@ public class TestApi
                     .Finish()
                     .SetSecurityOptions(new SecurityOptions().SetMaxEncodeSize(new FrameSizeLimit(1, 1, 1)))
                     .InProcessAsync();
-
             });
             Assert.StartsWith("ArgumentInvalid: SizeLimitExceeded: Frame width 3 exceeds max_encode_size.w", e.Message);
         }
-
     }
+
     [Fact]
     public async Task TestBuildCommandString()
     {
-        var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var imageBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
         // We wrap the job in a using() statement to free memory faster
         using (var b = new ImageJob())
         {
-
             var r = await b.BuildCommandString(
-                new MemorySource(imageBytes), // or new StreamSource(Stream stream, bool disposeStream)
-                new BytesDestination(), // or new StreamDestination
-                "width=3&height=2&mode=stretch&scale=both&format=webp")
+                    new MemorySource(imageBytes), // or new StreamSource(Stream stream, bool disposeStream)
+                    new BytesDestination(), // or new StreamDestination
+                    "width=3&height=2&mode=stretch&scale=both&format=webp")
                 .Finish().InProcessAsync();
 
             Assert.NotEmpty(r.PerformanceDetails.GetFirstFrameSummary());
@@ -295,12 +354,15 @@ public class TestApi
     [Obsolete("Obsolete")]
     public async Task TestBuildCommandStringWithWatermarksLegacy()
     {
-        var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var imageBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
         using (var b = new ImageJob())
         {
             var watermarks = new List<InputWatermark>();
             watermarks.Add(new InputWatermark(new BytesSource(imageBytes), new WatermarkOptions()));
-            watermarks.Add(new InputWatermark(new BytesSource(imageBytes), new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
+            watermarks.Add(new InputWatermark(new BytesSource(imageBytes),
+                new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
 
             var r = await b.BuildCommandString(
                 new BytesSource(imageBytes),
@@ -311,18 +373,20 @@ public class TestApi
             Assert.Equal("webp", r.First.PreferredExtension);
             Assert.True(r.First.TryGetBytes().HasValue);
         }
-
     }
 
     [Fact]
     public async Task TestBuildCommandStringWithWatermarks()
     {
-        var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var imageBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
         using (var b = new ImageJob())
         {
             var watermarks = new List<InputWatermark>();
             watermarks.Add(new InputWatermark(new MemorySource(imageBytes), new WatermarkOptions()));
-            watermarks.Add(new InputWatermark(new MemorySource(imageBytes), new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
+            watermarks.Add(new InputWatermark(new MemorySource(imageBytes),
+                new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
 
             var r = await b.BuildCommandString(
                 new MemorySource(imageBytes),
@@ -333,13 +397,15 @@ public class TestApi
             Assert.Equal("webp", r.First.PreferredExtension);
             Assert.True(r.First.TryGetBytes().HasValue);
         }
-
     }
+
     [Fact]
     [Obsolete("Obsolete")]
     public async Task TestBuildCommandStringWithStreamsAndWatermarksLegacy()
     {
-        var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var imageBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
         // var stream1 = new BufferedStream(new System.IO.MemoryStream(imageBytes));
         // var stream2 = new BufferedStream(new System.IO.MemoryStream(imageBytes));
         var stream1 = new BufferedStream(new MemoryStream(imageBytes));
@@ -351,7 +417,8 @@ public class TestApi
         {
             var watermarks = new List<InputWatermark>();
             watermarks.Add(new InputWatermark(new StreamSource(stream1, true), new WatermarkOptions()));
-            watermarks.Add(new InputWatermark(new StreamSource(stream2, true), new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
+            watermarks.Add(new InputWatermark(new StreamSource(stream2, true),
+                new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
 
             var r = await b.BuildCommandString(
                 new StreamSource(stream3, true),
@@ -362,13 +429,14 @@ public class TestApi
             Assert.Equal("webp", r.First.PreferredExtension);
             Assert.True(r.First.TryGetBytes().HasValue);
         }
-
     }
 
     [Fact]
     public async Task TestBuildCommandStringWithStreamsAndWatermarks()
     {
-        var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var imageBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
         // var stream1 = new BufferedStream(new System.IO.MemoryStream(imageBytes));
         // var stream2 = new BufferedStream(new System.IO.MemoryStream(imageBytes));
         var stream1 = new BufferedStream(new MemoryStream(imageBytes));
@@ -378,8 +446,10 @@ public class TestApi
         var stream3 = new BufferedStream(new MemoryStream(imageBytes));
         using var b = new ImageJob();
         var watermarks = new List<InputWatermark>();
-        watermarks.Add(new InputWatermark(BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream1), new WatermarkOptions()));
-        watermarks.Add(new InputWatermark(BufferedStreamSource.UseStreamRemainderAndDisposeWithSource(stream2), new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
+        watermarks.Add(new InputWatermark(BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream1),
+            new WatermarkOptions()));
+        watermarks.Add(new InputWatermark(BufferedStreamSource.UseStreamRemainderAndDisposeWithSource(stream2),
+            new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100))));
 
         var r = await b.BuildCommandString(
             BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream3),
@@ -394,7 +464,9 @@ public class TestApi
     [Fact]
     public async Task TestBuildCommandStringWithStreamWithoutTryGetBuffer()
     {
-        var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var imageBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
         var stream1 = new StreamWithoutTryGetBuffer(imageBytes);
         Assert.Equal(137, stream1.ReadByte());
         stream1.Seek(0, SeekOrigin.Begin);
@@ -404,7 +476,8 @@ public class TestApi
         var watermarks = new List<InputWatermark>
         {
             new(BufferedStreamSource.UseStreamRemainderAndDisposeWithSource(stream1), new WatermarkOptions()),
-            new(BufferedStreamSource.UseStreamRemainderAndDisposeWithSource(stream2), new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100)))
+            new(BufferedStreamSource.UseStreamRemainderAndDisposeWithSource(stream2),
+                new WatermarkOptions().SetGravity(new ConstraintGravity(100, 100)))
         };
 
         var r = await b.BuildCommandString(
@@ -426,13 +499,14 @@ public class TestApi
         {
             string jsonPath;
             using (var job = await b.Decode(imageBytes).FlipHorizontal().Rotate90().Distort(30, 20)
-                .ConstrainWithin(5, 5)
-                .EncodeToBytes(new GifEncoder()).Finish().WithCancellationTimeout(2000)
-                .WriteJsonJobAndInputs(true))
+                       .ConstrainWithin(5, 5)
+                       .EncodeToBytes(new GifEncoder()).Finish().WithCancellationTimeout(2000)
+                       .WriteJsonJobAndInputs(true))
             {
                 jsonPath = job.JsonPath;
                 Assert.True(File.Exists(jsonPath));
             }
+
             Assert.False(File.Exists(jsonPath));
         }
     }
@@ -451,27 +525,30 @@ public class TestApi
                 .EncodeToBytes(new GifEncoder())
                 .Finish()
                 .WithCancellationTimeout(2000)
-                .InSubprocessAsync(!string.IsNullOrWhiteSpace(imageflowTool) ? imageflowTool : null); // Fall back to default discovery process if null
+                .InSubprocessAsync(!string.IsNullOrWhiteSpace(imageflowTool)
+                    ? imageflowTool
+                    : null); // Fall back to default discovery process if null
 
             // ExecutableLocator.FindExecutable("imageflow_tool", new [] {"/home/n/Documents/imazen/imageflow/target/release/"})
 
             Assert.Equal(5, r.First!.Width);
             Assert.True(r.First.TryGetBytes().HasValue);
         }
-        catch (System.DllNotFoundException ex)
+        catch (DllNotFoundException ex)
         {
             if (!ImageJobSubprocessTests.LogAndForgive(ex))
             {
                 throw;
             }
-
         }
     }
 
     [Fact]
     public async Task TestCustomDownscalingAndDecodeEncodeResults()
     {
-        var imageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var imageBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
         using (var b = new ImageJob())
         {
             var cmd = new DecodeCommands
@@ -481,7 +558,9 @@ public class TestApi
                 DiscardColorProfile = true
             };
             var r = await b.Decode(new MemorySource(imageBytes), 0, cmd)
-                .Distort(30, 20, new ResampleHints().SetSharpen(50.0f, SharpenWhen.Always).SetResampleFilters(InterpolationFilter.Robidoux_Fast, InterpolationFilter.Cubic))
+                .Distort(30, 20,
+                    new ResampleHints().SetSharpen(50.0f, SharpenWhen.Always)
+                        .SetResampleFilters(InterpolationFilter.Robidoux_Fast, InterpolationFilter.Cubic))
                 .ConstrainWithin(5, 5)
                 .EncodeToBytes(new LodePngEncoder()).Finish().InProcessAsync();
 
@@ -497,13 +576,14 @@ public class TestApi
             Assert.Equal("png", r.EncodeResults.First().PreferredExtension);
             Assert.Equal("image/png", r.EncodeResults.First().PreferredMimeType);
         }
-
     }
 
     [Fact]
     public void TestContentTypeDetection()
     {
-        var pngBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+        var pngBytes =
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
 #pragma warning disable CS0618 // Type or member is obsolete
         Assert.Equal("image/png", ImageJob.GetContentTypeForBytes(pngBytes));
 
@@ -513,15 +593,24 @@ public class TestApi
         Assert.Equal("image/jpeg", ImageJob.GetContentTypeForBytes(jpegBytes));
         Assert.True(ImageJob.CanDecodeBytes(jpegBytes));
 
-        var gifBytes = new byte[] { (byte)'G', (byte)'I', (byte)'F', (byte)'8', (byte)'9', (byte)'a', 0, 0, 0, 0, 0, 0, 0 };
+        var gifBytes = new byte[]
+        {
+            (byte)'G', (byte)'I', (byte)'F', (byte)'8', (byte)'9', (byte)'a', 0, 0, 0, 0, 0, 0, 0
+        };
         Assert.Equal("image/gif", ImageJob.GetContentTypeForBytes(gifBytes));
         Assert.True(ImageJob.CanDecodeBytes(gifBytes));
 
-        var webpBytes = new byte[] { (byte)'R', (byte)'I', (byte)'F', (byte)'F', 0, 0, 0, 0, (byte)'W', (byte)'E', (byte)'B', (byte)'P' };
+        var webpBytes = new byte[]
+        {
+            (byte)'R', (byte)'I', (byte)'F', (byte)'F', 0, 0, 0, 0, (byte)'W', (byte)'E', (byte)'B', (byte)'P'
+        };
         Assert.Equal("image/webp", ImageJob.GetContentTypeForBytes(webpBytes));
         Assert.True(ImageJob.CanDecodeBytes(webpBytes));
 
-        var nonsenseBytes = new byte[] { (byte)'A', (byte)'B', (byte)'C', (byte)'D', (byte)'E', (byte)'F', 0, 0, 0, 0, 0, 0, 0 };
+        var nonsenseBytes = new byte[]
+        {
+            (byte)'A', (byte)'B', (byte)'C', (byte)'D', (byte)'E', (byte)'F', 0, 0, 0, 0, 0, 0, 0
+        };
         Assert.Null(ImageJob.GetContentTypeForBytes(nonsenseBytes));
         Assert.False(ImageJob.CanDecodeBytes(nonsenseBytes));
 #pragma warning restore CS0618 // Type or member is obsolete
