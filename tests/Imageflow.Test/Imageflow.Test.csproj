@@ -24,6 +24,11 @@
   <ItemGroup>
     <PackageReference Include="Imageflow.NativeTool.win-x86" Version="2.1.2-rc01"/>
     <PackageReference Include="Imageflow.NativeTool.win-x86_64" Version="2.1.2-rc01"/>
+    <PackageReference Include="Imageflow.NativeTool.win-arm64" Version="2.1.2-rc01"/>
+    <PackageReference Include="Imageflow.NativeTool.linux-arm64" Version="2.1.2-rc01"/>
+    <PackageReference Include="Imageflow.NativeTool.linux-x64" Version="2.1.2-rc01"/>
+    <PackageReference Include="Imageflow.NativeTool.osx-x86_64" Version="2.1.2-rc01"/>
+    <PackageReference Include="Imageflow.NativeTool.osx-arm64" Version="2.1.2-rc01"/>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.extensibility.execution" Version="2.*" />
