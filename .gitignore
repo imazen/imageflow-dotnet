@@ -297,3 +297,4 @@ __pycache__/
 
 tempfile.txt
 benchmarks/Imageflow.Benchmarks/BenchmarkDotNet.Artifacts/
+BenchmarkDotNet.Artifacts
