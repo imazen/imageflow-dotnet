@@ -127,10 +127,13 @@ internal class LoadLogger : ILibraryLoadLogger
 
 internal static class RuntimeFileLocator
 {
-    internal static bool IsUnix => Environment.OSVersion.Platform == PlatformID.Unix ||
-                                   Environment.OSVersion.Platform == PlatformID.MacOSX;
+    internal static bool IsUnix => RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+#if NETCOREAPP
+                                   || RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD)
+#endif
+                                   || RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
-    internal static readonly Lazy<string> SharedLibraryPrefix =
+internal static readonly Lazy<string> SharedLibraryPrefix =
         new Lazy<string>(() => IsUnix ? "lib" : "", LazyThreadSafetyMode.PublicationOnly);
 #if NET8_0_OR_GREATER
     internal static readonly Lazy<bool> IsDotNetCore = new Lazy<bool>(() =>
@@ -143,21 +146,21 @@ internal static class RuntimeFileLocator
 #endif
     internal static readonly Lazy<string> PlatformRuntimePrefix = new Lazy<string>(() =>
     {
-        switch (Environment.OSVersion.Platform)
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
-            case PlatformID.MacOSX:
-                return "osx";
-            case PlatformID.Unix:
-                return "linux";
-            case PlatformID.Win32NT:
-            case PlatformID.Win32S:
-            case PlatformID.Win32Windows:
-            case PlatformID.WinCE:
-            case PlatformID.Xbox:
-                return "win";
-            default:
-                return "win";
+            return "osx";
         }
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+        {
+            return "linux";
+        }
+#if NETCOREAPP
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
+        {
+            return "freebsd";
+        }
+#endif
+        return "win";
     }, LazyThreadSafetyMode.PublicationOnly);
 
     internal static readonly Lazy<string> SharedLibraryExtension = new Lazy<string>(() =>
@@ -170,7 +173,7 @@ internal static class RuntimeFileLocator
         {
             return "so";
         }
-#if NETCOREAPP3_1
+#if NETCOREAPP
         else if (RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
         {
             return "so";
@@ -188,23 +191,8 @@ internal static class RuntimeFileLocator
     }, LazyThreadSafetyMode.PublicationOnly);
 
     internal static readonly Lazy<string> ExecutableExtension = new Lazy<string>(() =>
-    {
-        switch (Environment.OSVersion.Platform)
-        {
-            case PlatformID.MacOSX:
-                return "";
-            case PlatformID.Unix:
-                return "";
-            case PlatformID.Win32NT:
-            case PlatformID.Win32S:
-            case PlatformID.Win32Windows:
-            case PlatformID.WinCE:
-            case PlatformID.Xbox:
-                return "exe";
-            default:
-                return "exe";
-        }
-    }, LazyThreadSafetyMode.PublicationOnly);
+        RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "exe" : ""
+    , LazyThreadSafetyMode.PublicationOnly);
 
     /// <summary>
     /// The output subdirectory that NuGet .props/.targets should be copying unmanaged binaries to.
@@ -219,7 +207,7 @@ internal static class RuntimeFileLocator
             Architecture.X64 => "x64",
             Architecture.Arm => "arm",
             Architecture.Arm64 => "arm64",
-#if NETCOREAPP3_1
+#if NETCOREAPP
             Architecture.Armv6 => "armv6",
             Architecture.LoongArch64 => "loongarch64",
             Architecture.Ppc64le => "ppc64le",

@@ -1,4 +1,5 @@
 namespace Imageflow.Fluent;
+using System.Runtime.InteropServices;
 
 public sealed class FileSource : IAsyncMemorySource, IMemorySource
 {
@@ -59,6 +60,6 @@ public sealed class FileSource : IAsyncMemorySource, IMemorySource
 #if NET6_0_OR_GREATER
         OperatingSystem.IsWindows();
 #else
-        System.Environment.OSVersion.Platform == PlatformID.Win32NT;
+        RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 #endif
 }
