@@ -120,6 +120,7 @@
         }
       }
     },
+    ".NETStandard,Version=v2.0/win-x86": {},
     ".NETStandard,Version=v2.1": {
       "Microsoft.IO.RecyclableMemoryStream": {
         "type": "Direct",
@@ -213,6 +214,7 @@
         }
       }
     },
+    ".NETStandard,Version=v2.1/win-x86": {},
     "net8.0": {
       "Microsoft.IO.RecyclableMemoryStream": {
         "type": "Direct",
@@ -258,6 +260,7 @@
         "resolved": "8.0.0",
         "contentHash": "dk9JPxTCIevS75HyEQ0E4OVAFhB2N+V9ShCXf8Q6FkUQZDkgLI12y679Nym1YqsiSysuQskT7Z+6nUf3yab6Vw=="
       }
-    }
+    },
+    "net8.0/win-x86": {}
   }
 }
