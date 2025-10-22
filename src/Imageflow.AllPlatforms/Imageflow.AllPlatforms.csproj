@@ -4,7 +4,7 @@
         <AssemblyName>Imageflow.AllPlatforms</AssemblyName>
         <Description>Imageflow processes and optimizes images at incredible speeds. Works well with with .NET 8,7,6.. anything with .NET Standard 2.0. NOTE: For .NET 4.x projects, use the Imageflow.Net and Imageflow.NativeRuntime.[your platform] packages separately.</Description>
 
-        <TargetFrameworks>net8.0;netstandard2.0</TargetFrameworks>
+        <TargetFrameworks>net10.0;net8.0;netstandard2.0</TargetFrameworks>
         <IsTrimmable Condition="'$(TargetFramework)' == 'net8.0'">true</IsTrimmable>
         <EnableTrimAnalyzer Condition="'$(TargetFramework)' == 'net8.0'">true</EnableTrimAnalyzer>
         <IsAotCompatible Condition="'$(TargetFramework)' == 'net8.0'">true</IsAotCompatible>
