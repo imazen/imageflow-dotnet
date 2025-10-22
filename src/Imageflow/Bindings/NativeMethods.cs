@@ -17,7 +17,7 @@ internal static class NativeMethods
     // ReSharper disable once InconsistentNaming
     public const int ABI_MAJOR = 3;
     // ReSharper disable once InconsistentNaming
-    public const int ABI_MINOR = 0;
+    public const int ABI_MINOR = 1;
 
     [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
@@ -95,6 +95,30 @@ internal static class NativeMethods
     [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr imageflow_context_send_json(JobContextHandle context, IntPtr method,
         IntPtr jsonBuffer, UIntPtr jsonBufferSize);
+
+    [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr imageflow_context_send_json_(JobContextHandle context, IntPtr method,
+        IntPtr jsonBuffer, UIntPtr jsonBufferSize);
+
+
+    #if !NET5_0_OR_GREATER
+    // The delegate is only needed for the netstandard2.0 target
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    public delegate byte CancellationCallback(IntPtr data);
+    #endif
+
+    /// <summary>
+    /// The new PInvoke signature with cancellation support. Requires imageflow ABI 3.1 or higher
+    /// </summary>
+    [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr imageflow_context_send_json_with_cancellation(
+        JobContextHandle context,
+        IntPtr method,
+        IntPtr jsonBuffer,
+        UIntPtr jsonBufferSize,
+        IntPtr checkCancellationCallback,
+        IntPtr callback_data);
 
     [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr imageflow_context_memory_allocate(JobContextHandle context, IntPtr bytes,

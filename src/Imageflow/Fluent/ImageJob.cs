@@ -343,8 +343,8 @@ public class ImageJob : IDisposable
             var message = CreateJsonNodeForFramewiseWithSecurityOptions(securityOptions);
 
             var response = executionOptions.OffloadCpuToThreadPool
-                ? await Task.Run(() => ctx.InvokeExecute(message), cancellationToken).ConfigureAwait(false)
-                : ctx.InvokeExecute(message);
+                ? await Task.Run(() => ctx.InvokeExecute(message, cancellationToken), cancellationToken).ConfigureAwait(false)
+                : ctx.InvokeExecute(message, cancellationToken);
 
             // TODO: Should we handle failure before copying out the buffers??
             using (response)

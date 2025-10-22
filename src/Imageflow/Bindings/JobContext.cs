@@ -6,6 +6,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Imageflow.Fluent;
 using Imageflow.Internal.Helpers;
+using System.Runtime.InteropServices;
 
 namespace Imageflow.Bindings;
 
@@ -222,15 +223,29 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     {
         return InvokeInternal(method, utf8Json);
     }
+    public IJsonResponse Invoke(string method, ReadOnlySpan<byte> utf8Json, CancellationToken? cancellationToken)
+    {
+        return InvokeInternal(method, utf8Json, cancellationToken);
+    }
 
     public IJsonResponse Invoke(string method)
     {
         return InvokeInternal(method, "{}"u8);
     }
+    public IJsonResponse Invoke(string method, CancellationToken? cancellationToken)
+    {
+        return InvokeInternal(method, "{}"u8, cancellationToken);
+    }
 
     public JsonNode? InvokeAndParse(string method, JsonNode message)
     {
         using var response = InvokeInternal(method, message);
+        return response.Parse();
+    }
+
+    public JsonNode? InvokeAndParse(string method, JsonNode message, CancellationToken? cancellationToken)
+    {
+        using var response = InvokeInternal(method, message, cancellationToken);
         return response.Parse();
     }
 
@@ -240,19 +255,31 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         return response.Parse();
     }
 
+    public JsonNode? InvokeAndParse(string method, CancellationToken? cancellationToken)
+    {
+        using var response = InvokeInternal(method, cancellationToken);
+        return response.Parse();
+    }
+
     public IJsonResponse InvokeExecute(JsonNode message)
     {
         AssertReady();
         return InvokeInternal(ImageflowMethods.Execute, message);
     }
 
-    private ImageflowJsonResponse InvokeInternal(string method)
+    public IJsonResponse InvokeExecute(JsonNode message, CancellationToken? cancellationToken)
     {
         AssertReady();
-        return InvokeInternal(method, "{}"u8);
+        return InvokeInternal(ImageflowMethods.Execute, message, cancellationToken);
     }
 
-    private ImageflowJsonResponse InvokeInternal(ReadOnlySpan<byte> nullTerminatedMethod, JsonNode message)
+    private ImageflowJsonResponse InvokeInternal(string method, CancellationToken? cancellationToken = null)
+    {
+        AssertReady();
+        return InvokeInternal(method, "{}"u8, cancellationToken);
+    }
+
+    private ImageflowJsonResponse InvokeInternal(ReadOnlySpan<byte> nullTerminatedMethod, JsonNode message, CancellationToken? cancellationToken = null)
     {
         AssertReady();
 #if NETSTANDARD2_1_OR_GREATER
@@ -264,7 +291,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         });
         message.WriteTo(utf8JsonWriter);
         utf8JsonWriter.Flush();
-        return InvokeInternal(nullTerminatedMethod, writer.WrittenSpan);
+        return InvokeInternal(nullTerminatedMethod, writer.WrittenSpan, cancellationToken);
 #else
 
         // Use System.Text.Json for serialization
@@ -273,13 +300,13 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         message.WriteTo(utf8JsonWriter);
         utf8JsonWriter.Flush();
         return ms.TryGetBufferSliceAllWrittenData(out var buffer)
-            ? InvokeInternal(nullTerminatedMethod, buffer)
-            : InvokeInternal(nullTerminatedMethod, ms.ToArray());
+            ? InvokeInternal(nullTerminatedMethod, buffer, cancellationToken)
+            : InvokeInternal(nullTerminatedMethod, ms.ToArray(), cancellationToken);
 
 #endif
     }
 
-    private ImageflowJsonResponse InvokeInternal(string method, JsonNode message)
+    private ImageflowJsonResponse InvokeInternal(string method, JsonNode message, CancellationToken? cancellationToken = null)
     {
         AssertReady();
         var methodBuffer = method.Length < 128 ? stackalloc byte[method.Length + 1] : new byte[method.Length + 1];
@@ -288,10 +315,10 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
             throw new ArgumentException("Method must only contain ASCII characters", nameof(method));
         }
 
-        return InvokeInternal(nullTerminatedBytes, message);
+        return InvokeInternal(nullTerminatedBytes, message, cancellationToken);
     }
 
-    private ImageflowJsonResponse InvokeInternal(string method, ReadOnlySpan<byte> utf8Json)
+    private ImageflowJsonResponse InvokeInternal(string method, ReadOnlySpan<byte> utf8Json, CancellationToken? cancellationToken = null)
     {
         AssertReady();
         var methodBuffer = method.Length < 128 ? stackalloc byte[method.Length + 1] : new byte[method.Length + 1];
@@ -300,11 +327,42 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
             throw new ArgumentException("Method must only contain ASCII characters", nameof(method));
         }
 
-        return InvokeInternal(nullTerminatedBytes, utf8Json);
+        return InvokeInternal(nullTerminatedBytes, utf8Json, cancellationToken);
     }
+    // Conditionally apply the correct attribute for AOT compilation to a single method definition.
+    #if NET5_0_OR_GREATER
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
+    #elif __IOS__ || __MONO__
+    [AOT.MonoPInvokeCallback(typeof(NativeMethods.CancellationCallback))]
+    #endif
+    private static byte CheckCancellation(IntPtr data)
+    {
+        // The implementation is identical for all targets and only needs to be defined once.
+        if (data == IntPtr.Zero) return 0;
+        try
+        {
+            var handle = GCHandle.FromIntPtr(data);
+            if (handle.Target is CancellationToken token)
+            {
+                return token.IsCancellationRequested ? (byte)1 : (byte)0;
+            }
+            return (byte)0;
+        }
+        catch
+        {
+            // If anything goes wrong (e.g., invalid handle), signal cancellation to be safe.
+            return (byte)0;
+        }
+    }
+
+    // The delegate field is only needed for the legacy .NET Standard 2.0 path.
+    #if !NET5_0_OR_GREATER
+    private static readonly NativeMethods.CancellationCallback _callback = CheckCancellation;
+    #endif
+
 
     private unsafe ImageflowJsonResponse InvokeInternal(ReadOnlySpan<byte> nullTerminatedMethod,
-        ReadOnlySpan<byte> utf8Json)
+        ReadOnlySpan<byte> utf8Json, CancellationToken? cancellationToken = null)
     {
         if (utf8Json.Length < 0)
         {
@@ -320,14 +378,54 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         {
             throw new ArgumentException("Method must be null terminated", nameof(nullTerminatedMethod));
         }
-
+        cancellationToken?.ThrowIfCancellationRequested();
         fixed (byte* methodPtr = nullTerminatedMethod)
         {
             fixed (byte* jsonPtr = utf8Json)
             {
+                IntPtr ptr;
                 AssertReady();
-                var ptr = NativeMethods.imageflow_context_send_json(Handle, new IntPtr(methodPtr), new IntPtr(jsonPtr),
-                    new UIntPtr((ulong)utf8Json.Length));
+                // Check if a token was passed and if it can be canceled.
+                var token = cancellationToken ?? CancellationToken.None;
+                if (token.CanBeCanceled)
+                {
+                    var handle = GCHandle.Alloc(token, GCHandleType.Pinned);
+                    try
+                    {
+
+                        IntPtr callbackPtr;
+                        // Get the function pointer differently based on the target framework.
+                        #if NET5_0_OR_GREATER
+                        // For .NET 5+, we get a direct, high-performance pointer to the method.
+                        callbackPtr = (IntPtr)(delegate* unmanaged[Cdecl]<IntPtr, byte>)&CheckCancellation;
+                        #else
+                        // For .NET Standard 2.0, we get the pointer from the delegate instance.
+                        callbackPtr = Marshal.GetFunctionPointerForDelegate(_callback);
+                        #endif
+                        ptr = NativeMethods.imageflow_context_send_json_with_cancellation(
+                            Handle,
+                            new IntPtr(methodPtr),
+                            new IntPtr(jsonPtr),
+                            new UIntPtr((ulong)utf8Json.Length),
+                            callbackPtr,
+                            GCHandle.ToIntPtr(handle)
+                        );
+
+                        token.ThrowIfCancellationRequested();
+                    }
+                    finally
+                    {
+                        if (handle.IsAllocated)
+                        {
+                            handle.Free();
+                        }
+                    }
+                }
+                else
+                {
+                    ptr = NativeMethods.imageflow_context_send_json(Handle, new IntPtr(methodPtr), new IntPtr(jsonPtr),
+                        new UIntPtr((ulong)utf8Json.Length));
+                }
                 // check HasError, throw exception with our input JSON too
                 if (HasError)
                 {
