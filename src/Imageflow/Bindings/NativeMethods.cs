@@ -17,7 +17,7 @@ internal static class NativeMethods
     // ReSharper disable once InconsistentNaming
     public const int ABI_MAJOR = 3;
     // ReSharper disable once InconsistentNaming
-    public const int ABI_MINOR = 0;
+    public const int ABI_MINOR = 1;
 
     [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
@@ -77,6 +77,11 @@ internal static class NativeMethods
     [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
     public static extern bool imageflow_json_response_destroy(JobContextHandle context, IntPtr response);
+
+    [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    public static extern void imageflow_context_request_cancellation (JobContextHandle context);
+
 
     ///pointer: void*
     ///filename: char*

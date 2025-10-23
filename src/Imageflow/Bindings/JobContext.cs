@@ -6,6 +6,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Imageflow.Fluent;
 using Imageflow.Internal.Helpers;
+using System.Runtime.InteropServices;
 
 namespace Imageflow.Bindings;
 
@@ -222,15 +223,29 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     {
         return InvokeInternal(method, utf8Json);
     }
+    public IJsonResponse Invoke(string method, ReadOnlySpan<byte> utf8Json, CancellationToken cancellationToken)
+    {
+        return InvokeInternal(method, utf8Json, cancellationToken);
+    }
 
     public IJsonResponse Invoke(string method)
     {
         return InvokeInternal(method, "{}"u8);
     }
+    public IJsonResponse Invoke(string method, CancellationToken cancellationToken)
+    {
+        return InvokeInternal(method, "{}"u8, cancellationToken);
+    }
 
     public JsonNode? InvokeAndParse(string method, JsonNode message)
     {
         using var response = InvokeInternal(method, message);
+        return response.Parse();
+    }
+
+    public JsonNode? InvokeAndParse(string method, JsonNode message, CancellationToken cancellationToken)
+    {
+        using var response = InvokeInternal(method, message, cancellationToken);
         return response.Parse();
     }
 
@@ -240,19 +255,31 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         return response.Parse();
     }
 
+    public JsonNode? InvokeAndParse(string method, CancellationToken cancellationToken)
+    {
+        using var response = InvokeInternal(method, cancellationToken);
+        return response.Parse();
+    }
+
     public IJsonResponse InvokeExecute(JsonNode message)
     {
         AssertReady();
         return InvokeInternal(ImageflowMethods.Execute, message);
     }
 
-    private ImageflowJsonResponse InvokeInternal(string method)
+    public IJsonResponse InvokeExecute(JsonNode message, CancellationToken cancellationToken)
     {
         AssertReady();
-        return InvokeInternal(method, "{}"u8);
+        return InvokeInternal(ImageflowMethods.Execute, message, cancellationToken);
     }
 
-    private ImageflowJsonResponse InvokeInternal(ReadOnlySpan<byte> nullTerminatedMethod, JsonNode message)
+    private ImageflowJsonResponse InvokeInternal(string method, CancellationToken cancellationToken = default)
+    {
+        AssertReady();
+        return InvokeInternal(method, "{}"u8, cancellationToken);
+    }
+
+    private ImageflowJsonResponse InvokeInternal(ReadOnlySpan<byte> nullTerminatedMethod, JsonNode message, CancellationToken cancellationToken = default)
     {
         AssertReady();
 #if NETSTANDARD2_1_OR_GREATER
@@ -264,7 +291,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         });
         message.WriteTo(utf8JsonWriter);
         utf8JsonWriter.Flush();
-        return InvokeInternal(nullTerminatedMethod, writer.WrittenSpan);
+        return InvokeInternal(nullTerminatedMethod, writer.WrittenSpan, cancellationToken);
 #else
 
         // Use System.Text.Json for serialization
@@ -273,13 +300,13 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         message.WriteTo(utf8JsonWriter);
         utf8JsonWriter.Flush();
         return ms.TryGetBufferSliceAllWrittenData(out var buffer)
-            ? InvokeInternal(nullTerminatedMethod, buffer)
-            : InvokeInternal(nullTerminatedMethod, ms.ToArray());
+            ? InvokeInternal(nullTerminatedMethod, buffer, cancellationToken)
+            : InvokeInternal(nullTerminatedMethod, ms.ToArray(), cancellationToken);
 
 #endif
     }
 
-    private ImageflowJsonResponse InvokeInternal(string method, JsonNode message)
+    private ImageflowJsonResponse InvokeInternal(string method, JsonNode message, CancellationToken cancellationToken = default)
     {
         AssertReady();
         var methodBuffer = method.Length < 128 ? stackalloc byte[method.Length + 1] : new byte[method.Length + 1];
@@ -288,10 +315,10 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
             throw new ArgumentException("Method must only contain ASCII characters", nameof(method));
         }
 
-        return InvokeInternal(nullTerminatedBytes, message);
+        return InvokeInternal(nullTerminatedBytes, message, cancellationToken);
     }
 
-    private ImageflowJsonResponse InvokeInternal(string method, ReadOnlySpan<byte> utf8Json)
+    private ImageflowJsonResponse InvokeInternal(string method, ReadOnlySpan<byte> utf8Json, CancellationToken cancellationToken = default)
     {
         AssertReady();
         var methodBuffer = method.Length < 128 ? stackalloc byte[method.Length + 1] : new byte[method.Length + 1];
@@ -300,11 +327,18 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
             throw new ArgumentException("Method must only contain ASCII characters", nameof(method));
         }
 
-        return InvokeInternal(nullTerminatedBytes, utf8Json);
+        return InvokeInternal(nullTerminatedBytes, utf8Json, cancellationToken);
+    }
+
+    private void RequestCancellataion(){
+        if (!IsDisposed && Handle.IsValid)
+        {
+            NativeMethods.imageflow_context_request_cancellation(Handle);
+        }
     }
 
     private unsafe ImageflowJsonResponse InvokeInternal(ReadOnlySpan<byte> nullTerminatedMethod,
-        ReadOnlySpan<byte> utf8Json)
+        ReadOnlySpan<byte> utf8Json, CancellationToken cancellationToken = default)
     {
         if (utf8Json.Length < 0)
         {
@@ -320,23 +354,34 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         {
             throw new ArgumentException("Method must be null terminated", nameof(nullTerminatedMethod));
         }
-
-        fixed (byte* methodPtr = nullTerminatedMethod)
+        CancellationTokenRegistration? registration = null;
+        if (cancellationToken.CanBeCanceled)
         {
-            fixed (byte* jsonPtr = utf8Json)
+            cancellationToken.ThrowIfCancellationRequested();
+            registration = cancellationToken.Register(RequestCancellataion);
+        }
+        try
+        {
+            fixed (byte* methodPtr = nullTerminatedMethod)
             {
-                AssertReady();
-                var ptr = NativeMethods.imageflow_context_send_json(Handle, new IntPtr(methodPtr), new IntPtr(jsonPtr),
-                    new UIntPtr((ulong)utf8Json.Length));
-                // check HasError, throw exception with our input JSON too
-                if (HasError)
+                fixed (byte* jsonPtr = utf8Json)
                 {
-                    throw ImageflowException.FromContext(Handle, 2048, "JSON:\n" + TextHelpers.Utf8ToString(utf8Json));
-                }
+                    AssertReady();
+                    var ptr = NativeMethods.imageflow_context_send_json(Handle, new IntPtr(methodPtr), new IntPtr(jsonPtr),
+                        new UIntPtr((ulong)utf8Json.Length));
+                    // check HasError, throw exception with our input JSON too
+                    if (HasError)
+                    {
+                        throw ImageflowException.FromContext(Handle, 2048, "JSON:\n" + TextHelpers.Utf8ToString(utf8Json));
+                    }
 
-                AssertReady();
-                return new ImageflowJsonResponse(new JsonResponseHandle(_handle, ptr));
+                    AssertReady();
+                    return new ImageflowJsonResponse(new JsonResponseHandle(_handle, ptr));
+                }
             }
+        }finally
+        {
+            registration?.Dispose();
         }
     }
 
