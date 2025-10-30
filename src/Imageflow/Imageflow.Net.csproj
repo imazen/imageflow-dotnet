@@ -1,17 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!-- Extract major version of the SDK -->
+    <SdkMajorVersion>$([System.Text.RegularExpressions.Regex]::Match($(NETCoreSdkVersion), '^(\d+)').Value)</SdkMajorVersion>
+
+    <!-- Set TargetFrameworks based on SDK major version -->
+    <TargetFrameworks Condition="'$(SdkMajorVersion)' &gt;= '10'">net10.0;net8.0;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks Condition="'$(SdkMajorVersion)' == '8'">net8.0;netstandard2.0;netstandard2.1</TargetFrameworks>
+  </PropertyGroup>
+
+  <Target Name="ValidateSdkVersion" BeforeTargets="BeforeBuild">
+    <!-- Error if SDK is less than 8 -->
+    <Error Condition="'$(SdkMajorVersion)' &lt; '8'"
+          Text="This project requires .NET 8 SDK or higher. Current SDK version: $(NETCoreSdkVersion)" />
+
+    <!-- Warning if SDK is 8 or 9 (not 10+) -->
+    <Warning Condition="'$(SdkMajorVersion)' &lt; '10' AND '$(SdkMajorVersion)' &gt;= '8'"
+            Text="This project is designed for .NET 10 SDK. Current SDK version: $(NETCoreSdkVersion). Some targets will be skipped." />
+  </Target>
+
+
+  <PropertyGroup>
     <AssemblyName>Imageflow.Net</AssemblyName>
     <Description>Bindings for the Imageflow image processing library. Also remember to install Imageflow.NativeRuntime.[your platform] or use Imageflow.AllPlatforms instead.</Description>
 
-    <TargetFrameworks>net10.0;net8.0;netstandard2.0;netstandard2.1</TargetFrameworks>
-    <IsTrimmable Condition="'$(TargetFramework)' == 'net8.0'">true</IsTrimmable>
+
     <IsPackable>true</IsPackable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <PackageIcon>icon.png</PackageIcon>
-    <EnableTrimAnalyzer Condition="'$(TargetFramework)' == 'net8.0'">true</EnableTrimAnalyzer>
-    <IsAotCompatible Condition="'$(TargetFramework)' == 'net8.0'">true</IsAotCompatible>
-    <IsTrimmable Condition="'$(TargetFramework)' == 'net8.0'">true</IsTrimmable>
+    <EnableTrimAnalyzer Condition="'$(SdkMajorVersion)' &gt;= '8'">true</EnableTrimAnalyzer>
+    <IsAotCompatible Condition="'$(SdkMajorVersion)' &gt;= '8'">true</IsAotCompatible>
+    <IsTrimmable Condition="'$(SdkMajorVersion)' &gt;= '8'">true</IsTrimmable>
     <PolySharpIncludeRuntimeSupportedAttributes>true</PolySharpIncludeRuntimeSupportedAttributes>
     <RootNamespace>Imageflow</RootNamespace>
     <PackageReadmeFile>README.md</PackageReadmeFile>

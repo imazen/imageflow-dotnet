@@ -1,5 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
+  <PropertyGroup>
+    <!-- Extract major version of the SDK -->
+    <SdkMajorVersion>$([System.Text.RegularExpressions.Regex]::Match($(NETCoreSdkVersion), '^(\d+)').Value)</SdkMajorVersion>
+
+    <!-- Set TargetFrameworks based on SDK major version -->
+    <TargetFrameworks Condition="'$(SdkMajorVersion)' &gt;= '10'">net10.0;net9.0;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(SdkMajorVersion)' &gt; '9'">net9.0;</TargetFrameworks>
+  </PropertyGroup>
+
+  <Target Name="ValidateSdkVersion" BeforeTargets="BeforeBuild">
+    <!-- Error if SDK is less than 9 -->
+    <Error Condition="'$(SdkMajorVersion)' &lt; '9'"
+          Text="This project requires .NET 9 SDK or higher. Current SDK version: $(NETCoreSdkVersion)" />
+
+    <!-- Warning if SDK is 9 (not 10+) -->
+    <Warning Condition="'$(SdkMajorVersion)' &lt; '10' AND '$(SdkMajorVersion)' &gt;= '9'"
+            Text="This project is designed for .NET 10 SDK. Current SDK version: $(NETCoreSdkVersion). Some targets will be skipped." />
+  </Target>
+
+
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>

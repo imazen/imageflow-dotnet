@@ -1,10 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!-- Extract major version of the SDK -->
+    <SdkMajorVersion>$([System.Text.RegularExpressions.Regex]::Match($(NETCoreSdkVersion), '^(\d+)').Value)</SdkMajorVersion>
+
+    <!-- Set TargetFrameworks based on SDK major version and presence of windows or not (add net481 if windows) -->
+
+
+    <TargetFrameworks Condition="'$(SdkMajorVersion)' &gt;= '10'">net10.0;net9.0;net8.0;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(SdkMajorVersion)' == '9'">net9.0;net8.0;</TargetFrameworks>
+    <TargetFrameworks Condition="'$(SdkMajorVersion)' &gt;= '8'">net8.0;</TargetFrameworks>
+
+    <TargetFrameworks Condition="'$(SdkMajorVersion)' &gt;= '10' AND '$(OS)' == 'Windows_NT'">net10.0;net9.0;net8.0;net481</TargetFrameworks>
+    <TargetFrameworks Condition="'$(SdkMajorVersion)' == '9' AND '$(OS)' == 'Windows_NT'">net9.0;net8.0;net481</TargetFrameworks>
+    <TargetFrameworks Condition="'$(SdkMajorVersion)' &gt;= '8' AND '$(OS)' == 'Windows_NT'">net8.0;net481</TargetFrameworks>
+  </PropertyGroup>
+
+  <Target Name="ValidateSdkVersion" BeforeTargets="BeforeBuild">
+    <!-- Error if SDK is less than 8 -->
+    <Error Condition="'$(SdkMajorVersion)' &lt; '8'"
+          Text="This project requires .NET 8 SDK or higher. Current SDK version: $(NETCoreSdkVersion)" />
+
+    <!-- Warning if SDK is 8 or 9 (not 10+) -->
+    <Warning Condition="'$(SdkMajorVersion)' &lt; '10' AND '$(SdkMajorVersion)' &gt;= '8'"
+            Text="This project is designed for .NET 10 SDK. Current SDK version: $(NETCoreSdkVersion). Some targets will be skipped." />
+  </Target>
+
+  <PropertyGroup>
     <IsPackable>false</IsPackable>
     <Platforms>AnyCPU;x64;x86</Platforms>
-    <TargetFrameworks>net10.0;net8.0;net9.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">net8.0;net9.0;net481</TargetFrameworks>
-
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

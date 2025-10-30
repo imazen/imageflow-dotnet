@@ -120,7 +120,6 @@
         }
       }
     },
-    ".NETStandard,Version=v2.0/win-x86": {},
     ".NETStandard,Version=v2.1": {
       "Microsoft.IO.RecyclableMemoryStream": {
         "type": "Direct",
@@ -190,13 +189,18 @@
         }
       }
     },
-    ".NETStandard,Version=v2.1/win-x86": {},
     "net10.0": {
       "Microsoft.IO.RecyclableMemoryStream": {
         "type": "Direct",
         "requested": "[3.*, 4.0.0)",
         "resolved": "3.0.1",
         "contentHash": "s/s20YTVY9r9TPfTrN5g8zPF1YhwxyqO6PxUkrYTGI2B+OGPe9AdajWZrLhFqXIvqIW23fnUE4+ztrUWNU1+9g=="
+      },
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[10.0.0-rc.2.25502.107, )",
+        "resolved": "10.0.0-rc.2.25502.107",
+        "contentHash": "31DsUbLGwks+cdV++WjVY17hq0Dx21KA/F5MQRhBHSgpxFsdEXIJLIe3+2nzH9ZlDtAYR5qhQV5Abm+CIdvdzw=="
       },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
@@ -231,7 +235,6 @@
         "contentHash": "dk9JPxTCIevS75HyEQ0E4OVAFhB2N+V9ShCXf8Q6FkUQZDkgLI12y679Nym1YqsiSysuQskT7Z+6nUf3yab6Vw=="
       }
     },
-    "net10.0/win-x86": {},
     "net8.0": {
       "Microsoft.IO.RecyclableMemoryStream": {
         "type": "Direct",
@@ -277,7 +280,6 @@
         "resolved": "8.0.0",
         "contentHash": "dk9JPxTCIevS75HyEQ0E4OVAFhB2N+V9ShCXf8Q6FkUQZDkgLI12y679Nym1YqsiSysuQskT7Z+6nUf3yab6Vw=="
       }
-    },
-    "net8.0/win-x86": {}
+    }
   }
 }
