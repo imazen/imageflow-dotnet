@@ -32,7 +32,7 @@ internal sealed class JobContextHandle : SafeHandleZeroOrMinusOneIsInvalid, IAss
             var major = NativeMethods.imageflow_abi_version_major();
             var minor = NativeMethods.imageflow_abi_version_minor();
             throw new NotSupportedException(
-                $".NET Imageflow bindings only support ABI {NativeMethods.ABI_MAJOR}.{NativeMethods.ABI_MINOR}. libimageflow ABI {major}.{minor} is loaded.");
+                $"Upgrade the Imageflow.NativeRuntime.** packages: these Imageflow.Net bindings only support ABI {NativeMethods.ABI_MAJOR}.{NativeMethods.ABI_MINOR} and higher minor versions. libimageflow ABI {major}.{minor} is installed and loaded.");
         }
         SetHandle(ptr);
     }
