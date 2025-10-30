@@ -47,7 +47,6 @@ $finalExitCode = 0
 Write-Host "Step 0: Cleaning up previous builds and caches..."
 try {
     dotnet clean $solutionFile --configuration Release
-    dotnet nuget locals all --clear
     # delete src/packages
     Remove-Item -Recurse -Force src/packages
     Write-Host "Cleanup successful."

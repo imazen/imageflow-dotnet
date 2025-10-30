@@ -14,8 +14,7 @@ try {
     # Clean the solution first, which requires package assets from the previous run.
     dotnet clean $solutionFile --configuration Release
 
-    # Now, clear the caches to ensure the next restore is from the remote source.
-    dotnet nuget locals all --clear
+
     if (Test-Path $coverageDir) {
         Remove-Item -Recurse -Force $coverageDir
     }
