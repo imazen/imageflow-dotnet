@@ -65,8 +65,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
      <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="3.0.1" />
-    <PackageReference Include="System.Text.Json" Version="6.0.11" Condition="'$(SystemTextJsonVersion)' == ''" />
-    <PackageReference Include="System.Text.Json" Version="6.0.11" Condition="'$(SystemTextJsonVersion)' != ''" />
+    <PackageReference Include="System.Text.Json" Version="8.0.6" Condition="'$(SystemTextJsonVersion)' == ''" />
+    <PackageReference Include="System.Text.Json" Version="8.0.6" Condition="'$(SystemTextJsonVersion)' != ''" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Imageflow.AllPlatforms\Imageflow.AllPlatforms.csproj" />

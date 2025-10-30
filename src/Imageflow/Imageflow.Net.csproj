@@ -43,7 +43,6 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="[3.*,4)" />
     <PackageReference Include="System.Buffers" Version="[4.*,)" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
-    <PackageReference Include="System.Text.Json" Version="[6.0.11,)"/>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="All" />
@@ -59,5 +58,6 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'">
     <PackageReference Include="System.Memory" Version="[4.6.3,)"/>
+    <PackageReference Include="System.Text.Json" Version="[8.0.6,)"/>
   </ItemGroup>
 </Project>
