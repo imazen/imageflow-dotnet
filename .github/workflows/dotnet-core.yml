@@ -150,27 +150,17 @@ jobs:
         uses: microsoft/setup-msbuild@v1.3.2
         if: matrix.os == 'windows-latest' && matrix.test_legacy
 
+
       - name: Test win_x86
         if: matrix.test_legacy
         run: |
           dotnet test ${{ env.CORE_SLN }} -c Release --arch x86
 
-      - name: Build legacy projects on Windows
+      - name: Build and test .NET Framework projects
         if: matrix.test_legacy
+        shell: pwsh
         run: |
-          dotnet restore ${{ env.FULL_SLN }}
-          nuget restore ${{ env.FULL_SLN }} -SolutionDirectory src
-          msbuild ${{ env.FULL_SLN }} /p:Configuration=Release /p:Platform="Any CPU"
-
-      - name: Legacy - Test Imageflow.TestDotNetFull and Imageflow.TestDotNetFullPackageReference
-        if: matrix.test_legacy
-        run: |
-          dotnet test tests/Imageflow.TestDotNetFull/bin/Release/Imageflow.TestDotNetFull.dll
-          dotnet test tests/Imageflow.TestDotNetFullPackageReference/bin/Release/Imageflow.TestDotNetFullPackageReference.dll
-          dotnet test tests/Imageflow.TestDotNetFull/bin/Release/Imageflow.TestDotNetFull.dll --platform:x86
-          dotnet test tests/Imageflow.TestDotNetFullPackageReference/bin/Release/Imageflow.TestDotNetFullPackageReference.dll --platform:x86
-          dotnet test tests/Imageflow.TestDotNetFull/bin/Release/Imageflow.TestDotNetFull.dll --platform:x64
-          dotnet test tests/Imageflow.TestDotNetFullPackageReference/bin/Release/Imageflow.TestDotNetFullPackageReference.dll --platform:x64
+          ./test_dotnet_framework.ps1 -Solution "${{ env.FULL_SLN }}" -SkipPack
 
       - name: Test use in an AOT web app
         if: matrix.test_aot
