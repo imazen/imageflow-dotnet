@@ -360,7 +360,6 @@ public class ImageJob : IDisposable
         }
     }
 
-
     // private object BuildJsonWithPlaceholders()
     // {
     //     var inputIo = _inputs.Select(pair =>
@@ -478,11 +477,15 @@ public class ImageJob : IDisposable
                     .Select(v =>
                         (JsonNode)new JsonObject
                         {
-                            ["io_id"] = v.io_id, ["direction"] = v.direction, ["io"] = v.io
+                            ["io_id"] = v.io_id,
+                            ["direction"] = v.direction,
+                            ["io"] = v.io
                         }).Concat(outputFiles.Select(v => new JsonObject
-                    {
-                        ["io_id"] = v.io_id, ["direction"] = v.direction, ["io"] = v.io
-                    })).ToArray()),
+                        {
+                            ["io_id"] = v.io_id,
+                            ["direction"] = v.direction,
+                            ["io"] = v.io
+                        })).ToArray()),
                 ["builder_config"] = new JsonObject { ["security"] = securityOptions?.ToJsonNode() },
                 ["framewise"] = ToFramewise()
             };

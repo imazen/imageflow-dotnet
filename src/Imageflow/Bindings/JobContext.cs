@@ -1,12 +1,12 @@
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ConstrainedExecution;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Imageflow.Fluent;
 using Imageflow.Internal.Helpers;
-using System.Runtime.InteropServices;
 
 namespace Imageflow.Bindings;
 
@@ -330,7 +330,8 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         return InvokeInternal(nullTerminatedBytes, utf8Json, cancellationToken);
     }
 
-    private void RequestCancellataion(){
+    private void RequestCancellataion()
+    {
         if (!IsDisposed && Handle.IsValid)
         {
             NativeMethods.imageflow_context_request_cancellation(Handle);
@@ -379,7 +380,8 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
                     return new ImageflowJsonResponse(new JsonResponseHandle(_handle, ptr));
                 }
             }
-        }finally
+        }
+        finally
         {
             registration?.Dispose();
         }

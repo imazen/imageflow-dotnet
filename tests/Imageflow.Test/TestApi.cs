@@ -138,7 +138,6 @@ public class TestApi
         }
     }
 
-
     [Fact]
     public async Task TestWatermarkConfiguartion()
     {

@@ -34,7 +34,7 @@ public class PerformanceDetails
         var sb = new StringBuilder();
         if (Frames.Count > 1)
         {
-            sb.Append(string.Format(CultureInfo.InvariantCulture,"First of {0} frames: ", Frames.Count));
+            sb.Append(string.Format(CultureInfo.InvariantCulture, "First of {0} frames: ", Frames.Count));
         }
         else if (Frames.Count == 0)
         {
@@ -45,7 +45,7 @@ public class PerformanceDetails
         {
             sb.Append(n.Name);
             sb.Append('(');
-            sb.Append((n.WallMicroseconds / 1000.0).ToString( "0.####",CultureInfo.InvariantCulture));
+            sb.Append((n.WallMicroseconds / 1000.0).ToString("0.####", CultureInfo.InvariantCulture));
             sb.Append("ms) ");
         }
 

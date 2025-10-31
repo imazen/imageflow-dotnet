@@ -80,8 +80,7 @@ internal static class NativeMethods
 
     [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
-    public static extern void imageflow_context_request_cancellation (JobContextHandle context);
-
+    public static extern void imageflow_context_request_cancellation(JobContextHandle context);
 
     ///pointer: void*
     ///filename: char*

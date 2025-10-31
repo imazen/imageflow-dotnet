@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Nodes;
+using System.Text.Json.Nodes;
 using Imageflow.Bindings;
 
 namespace Imageflow.Internal.Helpers.Unused;

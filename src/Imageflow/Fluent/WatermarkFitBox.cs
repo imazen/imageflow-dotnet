@@ -30,7 +30,6 @@ public class WatermarkFitBox : IWatermarkConstraintBox
 
     public WatermarkAlign RelativeTo { get; set; } = WatermarkAlign.Image;
 
-
     /// <summary>
     /// The x1 coordinate in percentages of the width of the region selected in RelativeTo (image or canvas)
     /// </summary>

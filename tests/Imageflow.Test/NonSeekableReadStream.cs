@@ -1,4 +1,4 @@
-﻿namespace Imageflow.Test;
+namespace Imageflow.Test;
 
 using System;
 using System.IO;

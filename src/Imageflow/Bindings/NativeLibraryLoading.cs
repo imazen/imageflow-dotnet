@@ -133,8 +133,8 @@ internal static class RuntimeFileLocator
 #endif
                                    || RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
 
-internal static readonly Lazy<string> SharedLibraryPrefix =
-        new Lazy<string>(() => IsUnix ? "lib" : "", LazyThreadSafetyMode.PublicationOnly);
+    internal static readonly Lazy<string> SharedLibraryPrefix =
+            new Lazy<string>(() => IsUnix ? "lib" : "", LazyThreadSafetyMode.PublicationOnly);
 #if NET8_0_OR_GREATER
     internal static readonly Lazy<bool> IsDotNetCore = new Lazy<bool>(() =>
             true
@@ -462,7 +462,8 @@ internal static class NativeLibraryLoader
         //Try loading
         var logger = new LoadLogger
         {
-            FirstException = caughtException, Filename = GetFilenameWithoutDirectory(basename)
+            FirstException = caughtException,
+            Filename = GetFilenameWithoutDirectory(basename)
         };
         if (TryLoadByBasename(basename, logger, out _, customSearchDirectories))
         {
