@@ -1,4 +1,4 @@
-
+#pragma warning disable CA2007
 using Imageflow.Fluent;
 using Xunit;
 
@@ -14,9 +14,9 @@ public class TestFileSourceAndDestination
         var outputPath = Path.GetTempFileName();
         try
         {
-            await GenerateDemoSourceImage(inputPath, 1000, 1000).ConfigureAwait(false);
+            await GenerateDemoSourceImage(inputPath, 1000, 1000);
             // Decode, process, and encode the file
-            var r = await func(inputPath, outputPath, "format=jpg&quality=90").ConfigureAwait(false);
+            var r = await func(inputPath, outputPath, "format=jpg&quality=90");
 
             Assert.True(File.Exists(outputPath));
             Assert.NotEmpty(r.PerformanceDetails.GetFirstFrameSummary());
@@ -41,13 +41,13 @@ public class TestFileSourceAndDestination
             .Encode(FileDestination.ToPath(path), new MozJpegEncoder(100, true))
             .Finish()
             .InProcessAsync()
-            .ConfigureAwait(false);
+            ;
     }
 
     [Fact]
     public static async Task TestProcessBufferedStreamSourceToStreamDestination()
     {
-        await TestGivenFunction(ProcessBufferedStreamSourceToStreamDestination).ConfigureAwait(false);
+        await TestGivenFunction(ProcessBufferedStreamSourceToStreamDestination);
     }
     private static async Task<BuildJobResult> ProcessBufferedStreamSourceToStreamDestination(string inputPath, string outputPath, string commandString)
     {
@@ -60,14 +60,14 @@ public class TestFileSourceAndDestination
             commandString)
             .Finish()
             .InProcessAsync()
-            .ConfigureAwait(false);
+            ;
         return r;
     }
 
     [Fact]
     public static async Task TestProcessFileToFileDefault()
     {
-        await TestGivenFunction(ProcessFileToFileDefault).ConfigureAwait(false);
+        await TestGivenFunction(ProcessFileToFileDefault);
     }
     private static async Task<BuildJobResult> ProcessFileToFileDefault(string inputPath, string outputPath, string commandString)
     {
@@ -78,13 +78,13 @@ public class TestFileSourceAndDestination
             commandString)
             .Finish()
             .InProcessAsync()
-            .ConfigureAwait(false);
+            ;
         return r;
     }
     [Fact]
     public static async Task TestProcessFileToFileExclusiveAccess()
     {
-        await TestGivenFunction(ProcessFileToFileExclusiveAccess).ConfigureAwait(false);
+        await TestGivenFunction(ProcessFileToFileExclusiveAccess);
     }
     private static async Task<BuildJobResult> ProcessFileToFileExclusiveAccess(string inputPath, string outputPath, string commandString)
     {
@@ -96,13 +96,13 @@ public class TestFileSourceAndDestination
             commandString)
             .Finish()
             .InProcessAsync()
-            .ConfigureAwait(false);
+            ;
         return r;
     }
     [Fact]
     public static async Task TestProcessFileToFileAtomic()
     {
-        await TestGivenFunction(ProcessFileToFileAtomic).ConfigureAwait(false);
+        await TestGivenFunction(ProcessFileToFileAtomic);
     }
     private static async Task<BuildJobResult> ProcessFileToFileAtomic(string inputPath, string outputPath, string commandString)
     {
@@ -114,14 +114,14 @@ public class TestFileSourceAndDestination
             commandString)
             .Finish()
             .InProcessAsync()
-            .ConfigureAwait(false);
+            ;
         return r;
     }
 
     [Fact]
     public static async Task TestProcessFileToFileFileStream()
     {
-        await TestGivenFunction(ProcessFileToFileFileStream).ConfigureAwait(false);
+        await TestGivenFunction(ProcessFileToFileFileStream);
     }
     private static async Task<BuildJobResult> ProcessFileToFileFileStream(string inputPath, string outputPath, string commandString)
     {
@@ -133,7 +133,7 @@ public class TestFileSourceAndDestination
             commandString)
             .Finish()
             .InProcessAsync()
-            .ConfigureAwait(false);
+            ;
         return r;
     }
 }

@@ -21,7 +21,7 @@ public class ImageJobSubprocessTests
             var result = await job.Decode(imageBytes)
                 .Encode(dest, new LodePngEncoder())
                 .Finish()
-                .InSubprocessAsync().ConfigureAwait(false);
+                .InSubprocessAsync();
 
             // Assert
             Assert.Single(result.EncodeResults);

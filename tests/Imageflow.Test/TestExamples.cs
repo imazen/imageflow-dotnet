@@ -1,4 +1,4 @@
-
+#pragma warning disable CA2007
 using Imageflow.Fluent;
 using Xunit;
 
@@ -14,7 +14,7 @@ public class TestExamples
         var outputPath = Path.GetTempFileName();
         try
         {
-            await GenerateDemoSourceImage(inputPath, 1000, 1000).ConfigureAwait(false);
+            await GenerateDemoSourceImage(inputPath, 1000, 1000);
             // Decode, process, and encode the file
             using var b = new ImageJob(); // Make sure ImageJob is always disposed with using
             var r = await b.BuildCommandString(
@@ -22,7 +22,7 @@ public class TestExamples
                 dest: FileDestination.ToPath(outputPath),
                 "format=jpg&quality=90")
                 .Finish()
-                .InProcessAsync().ConfigureAwait(false);
+                .InProcessAsync();
             Assert.True(File.Exists(outputPath));
             Assert.NotEmpty(r.PerformanceDetails.GetFirstFrameSummary());
             Assert.Equal("jpg", r.First!.PreferredExtension);
@@ -44,8 +44,7 @@ public class TestExamples
             .FillRectangle(width / 2, height / 2, width, height, AnyColor.FromHexSrgb("FF00FF00"))
             .Encode(FileDestination.ToPath(path), new MozJpegEncoder(100, true))
             .Finish()
-            .InProcessAsync()
-            .ConfigureAwait(false);
+            .InProcessAsync();
     }
 
 }
