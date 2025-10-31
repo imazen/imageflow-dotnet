@@ -3,6 +3,7 @@ using Imageflow.Fluent;
 using Xunit;
 
 namespace Imageflow.Test;
+
 public class ImageJobSubprocessTests
 {
     [Fact]
@@ -20,7 +21,7 @@ public class ImageJobSubprocessTests
             var result = await job.Decode(imageBytes)
                 .Encode(dest, new LodePngEncoder())
                 .Finish()
-                .InSubprocessAsync();
+                .InSubprocessAsync().ConfigureAwait(false);
 
             // Assert
             Assert.Single(result.EncodeResults);

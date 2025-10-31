@@ -47,7 +47,7 @@ public class TestFileSourceAndDestination
     [Fact]
     public static async Task TestProcessBufferedStreamSourceToStreamDestination()
     {
-        await TestGivenFunction(ProcessBufferedStreamSourceToStreamDestination);
+        await TestGivenFunction(ProcessBufferedStreamSourceToStreamDestination).ConfigureAwait(false);
     }
     private static async Task<BuildJobResult> ProcessBufferedStreamSourceToStreamDestination(string inputPath, string outputPath, string commandString)
     {
@@ -67,7 +67,7 @@ public class TestFileSourceAndDestination
     [Fact]
     public static async Task TestProcessFileToFileDefault()
     {
-        await TestGivenFunction(ProcessFileToFileDefault);
+        await TestGivenFunction(ProcessFileToFileDefault).ConfigureAwait(false);
     }
     private static async Task<BuildJobResult> ProcessFileToFileDefault(string inputPath, string outputPath, string commandString)
     {
@@ -84,7 +84,7 @@ public class TestFileSourceAndDestination
     [Fact]
     public static async Task TestProcessFileToFileExclusiveAccess()
     {
-        await TestGivenFunction(ProcessFileToFileExclusiveAccess);
+        await TestGivenFunction(ProcessFileToFileExclusiveAccess).ConfigureAwait(false);
     }
     private static async Task<BuildJobResult> ProcessFileToFileExclusiveAccess(string inputPath, string outputPath, string commandString)
     {
@@ -102,7 +102,7 @@ public class TestFileSourceAndDestination
     [Fact]
     public static async Task TestProcessFileToFileAtomic()
     {
-        await TestGivenFunction(ProcessFileToFileAtomic);
+        await TestGivenFunction(ProcessFileToFileAtomic).ConfigureAwait(false);
     }
     private static async Task<BuildJobResult> ProcessFileToFileAtomic(string inputPath, string outputPath, string commandString)
     {
@@ -121,7 +121,7 @@ public class TestFileSourceAndDestination
     [Fact]
     public static async Task TestProcessFileToFileFileStream()
     {
-        await TestGivenFunction(ProcessFileToFileFileStream);
+        await TestGivenFunction(ProcessFileToFileFileStream).ConfigureAwait(false);
     }
     private static async Task<BuildJobResult> ProcessFileToFileFileStream(string inputPath, string outputPath, string commandString)
     {

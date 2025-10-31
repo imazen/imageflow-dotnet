@@ -1,4 +1,5 @@
 namespace Imageflow.Fluent;
+
 using System.Runtime.InteropServices;
 
 public sealed class FileSource : IAsyncMemorySource, IMemorySource

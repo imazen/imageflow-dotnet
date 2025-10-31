@@ -108,7 +108,9 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
                     tempStreamRef.Dispose();
                 }, cancellationToken));
 #endif
-            } else {
+            }
+            else
+            {
 #if NETSTANDARD2_1_OR_GREATER
                 // It will flush before disposal, just not the OS buffers.
                 return tempStreamRef.DisposeAsync();
@@ -175,9 +177,9 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
         var fileOptions = asynchronous ? FileOptions.Asynchronous : FileOptions.None;
         if (PerformHardFlush) fileOptions |= FileOptions.WriteThrough;
 
-
         int bufferSize = 80 * 1024;
-        if (_writeHints?.MultipleWritesExpected == false) {
+        if (_writeHints?.MultipleWritesExpected == false)
+        {
             bufferSize = 1;
         }
         bufferSize = Math.Max(bufferSize, (int)(_writeHints?.ExpectedSize ?? 0));
@@ -218,7 +220,8 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
         if (_finishCalled) throw new InvalidOperationException("FileDestination.Finished already called, no more writes allowed.");
         if (_useFileStream)
         {
-            if (_writeHints == null){
+            if (_writeHints == null)
+            {
                 _writeHints = new OutputSinkHints(
                     ExpectedSize: null,
                     MultipleWritesExpected: false,
@@ -241,7 +244,7 @@ public sealed class FileDestination : IOutputDestination, IAsyncOutputSink, IOut
     public Task RequestCapacityAsync(int bytes)
     {
         _writeHints ??= new OutputSinkHints(ExpectedSize: bytes, MultipleWritesExpected: false, Asynchronous: true);
-        _writeHints = _writeHints with { ExpectedSize = Math.Max(_writeHints!.ExpectedSize ?? 0, (long) bytes) };
+        _writeHints = _writeHints with { ExpectedSize = Math.Max(_writeHints!.ExpectedSize ?? 0, (long)bytes) };
         return Task.CompletedTask;
     }
     public void SetHints(OutputSinkHints hints)
