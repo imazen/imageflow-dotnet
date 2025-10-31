@@ -1,21 +1,20 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- Extract major version of the SDK -->
-    <SdkMajorVersion>$([System.Text.RegularExpressions.Regex]::Match($(NETCoreSdkVersion), '^(\d+)').Value)</SdkMajorVersion>
-
-    <!-- Set TargetFrameworks based on SDK major version and presence of windows or not (add net481 if windows) -->
-
-
-    <TargetFrameworks Condition="'$(SdkMajorVersion)' &gt;= '10'">net10.0;net9.0;net8.0;</TargetFrameworks>
-    <TargetFrameworks Condition="'$(SdkMajorVersion)' == '9'">net9.0;net8.0;</TargetFrameworks>
-    <TargetFrameworks Condition="'$(SdkMajorVersion)' &gt;= '8'">net8.0;</TargetFrameworks>
-
-    <TargetFrameworks Condition="'$(SdkMajorVersion)' &gt;= '10' AND '$(OS)' == 'Windows_NT'">net10.0;net9.0;net8.0;net481</TargetFrameworks>
-    <TargetFrameworks Condition="'$(SdkMajorVersion)' == '9' AND '$(OS)' == 'Windows_NT'">net9.0;net8.0;net481</TargetFrameworks>
-    <TargetFrameworks Condition="'$(SdkMajorVersion)' &gt;= '8' AND '$(OS)' == 'Windows_NT'">net8.0;net481</TargetFrameworks>
+    <!-- Default target frameworks - can be overridden via MSBuild property -->
+    <!-- Example: dotnet build -p:TestTargetFrameworks="net8.0;net9.0;net10.0" -->
+    <TestTargetFrameworks Condition="'$(TestTargetFrameworks)' == ''">net8.0</TestTargetFrameworks>
+    <TargetFrameworks>$(TestTargetFrameworks)</TargetFrameworks>
+    
+    <!-- Add .NET Framework 4.8.1 when running on Windows -->
+    <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);net481</TargetFrameworks>
   </PropertyGroup>
 
   <Target Name="ValidateSdkVersion" BeforeTargets="BeforeBuild">
+    <!-- Extract major version for validation -->
+    <PropertyGroup>
+      <SdkMajorVersion>$([System.Text.RegularExpressions.Regex]::Match($(NETCoreSdkVersion), '^(\d+)').Value)</SdkMajorVersion>
+    </PropertyGroup>
+    
     <!-- Error if SDK is less than 8 -->
     <Error Condition="'$(SdkMajorVersion)' &lt; '8'"
           Text="This project requires .NET 8 SDK or higher. Current SDK version: $(NETCoreSdkVersion)" />
@@ -37,13 +36,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <NoWarn>$(NoWarn);CA1510</NoWarn>
-</PropertyGroup>
-  <ItemGroup>
-<!--    <PackageReference Include="PolySharp" Version="1.*">-->
-<!--      <PrivateAssets>all</PrivateAssets>-->
-<!--      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
-<!--    </PackageReference>-->
-  </ItemGroup>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Imageflow.NativeTool.win-x86" Version="2.2.0-rc01"/>
     <PackageReference Include="Imageflow.NativeTool.win-x86_64" Version="2.2.0-rc01"/>
@@ -64,12 +57,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-
   </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="All" />
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="[3.*,4)" />
-    <PackageReference Include="PolySharp" Version="1.15.0">
+    <!-- PolySharp is only needed for .NET Framework 4.8.1 -->
+    <PackageReference Include="PolySharp" Version="1.15.0" Condition="'$(TargetFramework)' == 'net481'">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
