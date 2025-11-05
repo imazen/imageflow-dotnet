@@ -1,9 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- Default target frameworks - can be overridden via MSBuild property -->
-    <!-- Example: dotnet build /p:TestTargetFrameworks=net8.0%3Bnet9.0%3Bnet10.0 -->
-    <TargetFrameworks Condition="'$(TestTargetFrameworks)' == ''">net8.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TestTargetFrameworks)' != ''">$(TestTargetFrameworks)</TargetFrameworks>
+    <!-- dotnet test .\tests\Imageflow.Test\Imageflow.Test.csproj - -framework net6.0 -->
+    <!-- specifying multiple frameworks via properties or args is near impossible, semicolons are death -->
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
 
     <!-- Add .NET Framework 4.8.1 when running on Windows -->
     <TargetFrameworks Condition="'$(OS)' == 'Windows_NT'">$(TargetFrameworks);net481</TargetFrameworks>

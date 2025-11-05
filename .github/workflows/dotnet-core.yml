@@ -14,7 +14,6 @@ on:
 env:
   CORE_SLN: ./src/Imageflow.dncore.sln
   FULL_SLN: ./src/Imageflow.dnfull.sln
-  TEST_TARGET_FRAMEWORKS: "net6.0\\;net8.0\\;net9.0\\;net10.0"
 jobs:
   build:
     strategy:
@@ -56,7 +55,7 @@ jobs:
           path: ~/.nuget/packages
           key: ${{ runner.os    }}-nuget-${{ hashFiles('**/packages.lock.json') }}
 
-      - name: Setup .NET 6,8,9
+      - name: Setup .NET 8,9,10
         uses: actions/setup-dotnet@v4
         with:
           dotnet-quality: 'preview'
@@ -99,17 +98,17 @@ jobs:
         run: dotnet restore ${{ env.CORE_SLN }} --force-evaluate
 
       - name: Build all modern dotnet projects
-        run: dotnet build ${{ env.CORE_SLN }} --maxcpucount:1 -c Release "-p:TestTargetFrameworks=${{ env.TEST_TARGET_FRAMEWORKS }}"
+        run: dotnet build ${{ env.CORE_SLN }} --maxcpucount:1 -c Release
 
       - name: Test, relying on projects to only conditionally enable net48 TFMs on windows
         if: matrix.coverage == false
         run: |
-          dotnet test ${{ env.CORE_SLN }} -c Release "-p:TestTargetFrameworks=${{ env.TEST_TARGET_FRAMEWORKS }}"
+          dotnet test ${{ env.CORE_SLN }} -c Release
 
       - name: Test with coverage
         if: matrix.coverage
         run: |
-          dotnet test ${{ env.CORE_SLN }} -c Release "-p:TestTargetFrameworks=${{ env.TEST_TARGET_FRAMEWORKS }}" --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+          dotnet test ${{ env.CORE_SLN }} -c Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       - uses: actions/upload-artifact@v4
         if: failure()
