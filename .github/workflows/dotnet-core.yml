@@ -55,13 +55,19 @@ jobs:
           path: ~/.nuget/packages
           key: ${{ runner.os    }}-nuget-${{ hashFiles('**/packages.lock.json') }}
 
-      - name: Setup .NET 8,9,10
+      - name: Setup .NET 8,9
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             8
             9
-            10.0.0-rc.2.25502.107
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-quality: 'preview'
+          dotnet-version: |
+            10
 
       - uses: nowsprinting/check-version-format-action@v4
         id: version
