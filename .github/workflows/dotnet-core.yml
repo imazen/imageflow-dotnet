@@ -48,7 +48,7 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/cache@v4
         with:
@@ -56,16 +56,14 @@ jobs:
           key: ${{ runner.os    }}-nuget-${{ hashFiles('**/packages.lock.json') }}
 
       - name: Setup .NET 8,9,10
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
-          dotnet-quality: 'preview'
           dotnet-version: |
-            6
             8
             9
-            10
+            10.0.0-rc.2.25502.107
 
-      - uses: nowsprinting/check-version-format-action@v3.2.10
+      - uses: nowsprinting/check-version-format-action@v4
         id: version
         with:
           prefix: "v"
