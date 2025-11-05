@@ -14,6 +14,7 @@ on:
 env:
   CORE_SLN: ./src/Imageflow.dncore.sln
   FULL_SLN: ./src/Imageflow.dnfull.sln
+  TEST_CSPROJ: ./tests/Imageflow.Test/Imageflow.Test.csproj
 jobs:
   build:
     strategy:
@@ -155,10 +156,10 @@ jobs:
         if: matrix.os == 'windows-latest' && matrix.test_legacy
 
 
-      - name: Test win_x86
+      - name: Test win_x86 (only on .net 8, .NET 10 can't be found for 32-bit at the time of these words)
         if: matrix.test_legacy
         run: |
-          dotnet test ${{ env.CORE_SLN }} -c Release --arch x86
+          dotnet test ${{ env.TEST_CSPROJ }} -c Release --arch x86 --framework net8.0
 
       - name: Build and test .NET Framework projects
         if: matrix.test_legacy
