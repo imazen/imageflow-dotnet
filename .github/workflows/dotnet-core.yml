@@ -21,7 +21,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13
+          - os: macos-15-intel
+            rid: osx-x64
           - os: ubuntu-latest
             test_aot: false
             rid: linux-x64
@@ -39,7 +40,7 @@ jobs:
             test_aot: false
             rid: win-arm64
 
-          - os: macos-14
+          - os: macos-15
             test_aot: false
             rid: osx-arm64
           - os: ubuntu-22.04-arm
