@@ -460,6 +460,68 @@ public class TestContext
     }
 
     [Fact]
+    public void TestLowLevelInvokeWithCancelledToken()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        using var c = new JobContext();
+        c.AddInputBytes(0, imageBytes);
+
+        // Test the raw Invoke(string, ReadOnlySpan<byte>, CancellationToken) path
+        Assert.Throws<OperationCanceledException>(() =>
+        {
+            var json = System.Text.Encoding.UTF8.GetBytes("{\"io_id\": 0}");
+            c.Invoke("v0.1/get_image_info", json.AsSpan(), cts.Token);
+        });
+    }
+
+    [Fact]
+    public void TestLowLevelInvokeNoArgWithCancelledToken()
+    {
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        using var c = new JobContext();
+
+        // Test the Invoke(string, CancellationToken) path (no JSON argument)
+        Assert.Throws<OperationCanceledException>(() =>
+        {
+            c.Invoke("v0.1/get_version_info", cts.Token);
+        });
+    }
+
+    [Fact]
+    public void TestLowLevelInvokeAndParseNoArgWithCancelledToken()
+    {
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        using var c = new JobContext();
+
+        // Test InvokeAndParse(string, CancellationToken) path
+        Assert.Throws<OperationCanceledException>(() =>
+        {
+            c.InvokeAndParse("v0.1/get_version_info", cts.Token);
+        });
+    }
+
+    [Fact]
+    public void TestLowLevelInvokeAndParseNoArgCompletesNormally()
+    {
+        using var c = new JobContext();
+
+        // Test InvokeAndParse(string, CancellationToken) with non-cancelled token works
+        var result = c.InvokeAndParse("v0.1/get_version_info", CancellationToken.None);
+        Assert.NotNull(result);
+        Assert.Equal(200, (int)result["code"]!);
+        Assert.True((bool)result["success"]!);
+    }
+
+    [Fact]
     public void TestLowLevelNativeCancellationWithComplexJob()
     {
         using var cts = new CancellationTokenSource();

@@ -329,7 +329,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         return InvokeInternal(nullTerminatedBytes, utf8Json, cancellationToken);
     }
 
-    private void RequestCancellataion()
+    private void RequestCancellation()
     {
         if (!IsDisposed && Handle.IsValid)
         {
@@ -358,7 +358,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         if (cancellationToken.CanBeCanceled)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            registration = cancellationToken.Register(RequestCancellataion);
+            registration = cancellationToken.Register(RequestCancellation);
         }
         try
         {

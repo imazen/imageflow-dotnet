@@ -828,4 +828,246 @@ public class TestApi
             await jobBuilder.InProcessAsync();
         });
     }
+
+    [Fact]
+    public async Task TestSetCancellationTokenPreCancelled()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        using var b = new ImageJob();
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+        {
+            await b.Decode(imageBytes)
+                .EncodeToBytes(new GifEncoder())
+                .Finish()
+                .SetCancellationToken(cts.Token)
+                .InProcessAsync();
+        });
+    }
+
+    [Fact]
+    public async Task TestSetCancellationTimeoutCompletes()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var b = new ImageJob();
+        var r = await b.Decode(imageBytes)
+            .FlipHorizontal()
+            .EncodeToBytes(new GifEncoder())
+            .Finish()
+            .SetCancellationTimeout(5000)
+            .InProcessAsync();
+
+        Assert.Equal(1, r.First!.Width);
+        Assert.True(r.First.TryGetBytes().HasValue);
+    }
+
+    [Fact]
+    [Obsolete("Testing obsolete FinishWithToken")]
+    public async Task TestFinishWithTokenPreCancelled()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        using var b = new ImageJob();
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+        {
+            await b.Decode(imageBytes)
+                .EncodeToBytes(new GifEncoder())
+                .FinishWithToken(cts.Token)
+                .InProcessAsync();
+        });
+    }
+
+    [Fact]
+    [Obsolete("Testing obsolete FinishWithTimeout")]
+    public async Task TestFinishWithTimeoutCompletes()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var b = new ImageJob();
+        var r = await b.Decode(imageBytes)
+            .FlipHorizontal()
+            .EncodeToBytes(new GifEncoder())
+            .FinishWithTimeout(5000)
+            .InProcessAsync();
+
+        Assert.Equal(1, r.First!.Width);
+        Assert.True(r.First.TryGetBytes().HasValue);
+    }
+
+    [Fact]
+    public async Task TestBuildCommandStringWithCancellationPreCancelled()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        using var b = new ImageJob();
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+        {
+            await b.BuildCommandString(
+                    new MemorySource(imageBytes),
+                    new BytesDestination(),
+                    "width=3&height=2&mode=stretch&scale=both&format=webp")
+                .Finish()
+                .WithCancellationToken(cts.Token)
+                .InProcessAsync();
+        });
+    }
+
+    [Fact]
+    public async Task TestBuildCommandStringWithCancellationCompletes()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+        using var b = new ImageJob();
+        var r = await b.BuildCommandString(
+                new MemorySource(imageBytes),
+                new BytesDestination(),
+                "width=3&height=2&mode=stretch&scale=both&format=webp")
+            .Finish()
+            .WithCancellationToken(cts.Token)
+            .InProcessAsync();
+
+        Assert.Equal(3, r.First!.Width);
+        Assert.Equal("webp", r.First.PreferredExtension);
+    }
+
+    [Fact]
+    public async Task TestGetImageInfoAsyncWithCancellationPreCancelled()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () =>
+        {
+            await ImageJob.GetImageInfoAsync(
+                new MemorySource(imageBytes),
+                SourceLifetime.Borrowed,
+                cts.Token);
+        });
+    }
+
+    [Fact]
+    public async Task TestGetImageInfoAsyncWithCancellationCompletes()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        var info = await ImageJob.GetImageInfoAsync(
+            new MemorySource(imageBytes),
+            SourceLifetime.Borrowed,
+            CancellationToken.None);
+
+        Assert.Equal(1, info.ImageWidth);
+        Assert.Equal(1, info.ImageHeight);
+        Assert.Equal("png", info.PreferredExtension);
+    }
+
+    [Fact]
+    public async Task TestCancellationTokenSourceDisposedAfterTimeout()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var b = new ImageJob();
+        // WithCancellationTimeout creates an internal CancellationTokenSource
+        // that is disposed when the FinishJobBuilder is disposed
+        using var finisher = b.Decode(imageBytes)
+            .EncodeToBytes(new GifEncoder())
+            .Finish()
+            .WithCancellationTimeout(5000);
+
+        var r = await finisher.InProcessAsync();
+        Assert.Equal(1, r.First!.Width);
+        // finisher.Dispose() cleans up the internal CancellationTokenSource
+    }
+
+    [Fact]
+    public async Task TestCancellationWithStreamSource()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        var stream = new MemoryStream(imageBytes);
+        using var b = new ImageJob();
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+        {
+            await b.BuildCommandString(
+                    BufferedStreamSource.UseEntireStreamAndDisposeWithSource(stream),
+                    new BytesDestination(),
+                    "width=3&height=2&mode=stretch&scale=both&format=webp")
+                .Finish()
+                .WithCancellationToken(cts.Token)
+                .InProcessAsync();
+        });
+    }
+
+    [Fact]
+    public async Task TestCancellationDefaultTokenCompletesNormally()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var b = new ImageJob();
+        // default(CancellationToken) should work fine - no cancellation
+        var r = await b.Decode(imageBytes)
+            .FlipHorizontal()
+            .EncodeToBytes(new GifEncoder())
+            .Finish()
+            .WithCancellationToken(default)
+            .InProcessAsync();
+
+        Assert.Equal(1, r.First!.Width);
+        Assert.True(r.First.TryGetBytes().HasValue);
+    }
+
+    [Fact]
+    public async Task TestCancellationWithFileDestination()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        var tempPath = Path.GetTempFileName();
+        try
+        {
+            using var b = new ImageJob();
+            await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+            {
+                await b.Decode(imageBytes)
+                    .FlipHorizontal()
+                    .Encode(new StreamDestination(File.Create(tempPath), true), new GifEncoder())
+                    .Finish()
+                    .WithCancellationToken(cts.Token)
+                    .InProcessAsync();
+            });
+        }
+        finally
+        {
+            if (File.Exists(tempPath)) File.Delete(tempPath);
+        }
+    }
 }
