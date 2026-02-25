@@ -21,11 +21,11 @@
 
     <PropertyGroup>
         <AssemblyName>Imageflow.AllPlatforms</AssemblyName>
-        <Description>Imageflow processes and optimizes images at incredible speeds. Works well with with .NET 8,7,6.. anything with .NET Standard 2.0. NOTE: For .NET 4.x projects, use the Imageflow.Net and Imageflow.NativeRuntime.[your platform] packages separately.</Description>
+        <Description>Imageflow processes and optimizes images at incredible speeds. Compatible with .NET 8+, .NET Standard 2.0, and .NET Framework 4.6.2+. Supports x64, ARM64, and x86 on Windows, Linux, and macOS. NOTE: For .NET 4.x projects, use the Imageflow.Net and Imageflow.NativeRuntime.[your platform] packages separately.</Description>
 
-        <IsTrimmable Condition="'$(TargetFramework)' == 'net8.0'">true</IsTrimmable>
-        <EnableTrimAnalyzer Condition="'$(TargetFramework)' == 'net8.0'">true</EnableTrimAnalyzer>
-        <IsAotCompatible Condition="'$(TargetFramework)' == 'net8.0'">true</IsAotCompatible>
+        <IsTrimmable Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsTrimmable>
+        <EnableTrimAnalyzer Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</EnableTrimAnalyzer>
+        <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsAotCompatible>
         <IsPackable>true</IsPackable>
         <PackageIcon>icon.png</PackageIcon>
         <PackageReadmeFile>README.md</PackageReadmeFile>

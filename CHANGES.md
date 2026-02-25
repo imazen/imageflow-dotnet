@@ -1,9 +1,20 @@
 ﻿## Changelog
 
-##v0.14 (draft)
+## v0.15.1 (draft)
 
-Support ARM on Windows, Mac, & Linux!
-Also, bump the minimum System.Text.Json to 6.0.11
+* Now targets .NET 10 (LTS), .NET 8 (LTS), and .NET Standard 2.0/2.1
+* ARM64 support on Windows, macOS, and Linux
+* Minimum System.Text.Json raised to 8.0.6 (on netstandard2.0/2.1 only; inbox on net8.0+)
+* Fixed 7 memory safety bugs:
+  - Double-pin in `AddInputBytesPinned` (duplicate `AddPinnedData` call)
+  - `MemorySource.TakeOwnership` blocked by incorrect guard clause
+  - `FinishWithTimeout` disposed its `CancellationTokenSource` immediately, making cancellation inert
+  - `FinishJobBuilder` leaked `CancellationTokenSource` on replacement and on disposal
+  - `ImageflowUnmanagedReadStream` didn't call `base.Dispose`, leaving stream in "open" state
+  - `Utf8JsonWriter` in `SerializeNode` not disposed
+  - `BytesDestination` had no-op `Dispose`, leaking underlying `MemoryStream`
+* Added 29 memory safety tests including leak detection across all 8 codecs
+* `FinishJobBuilder` now implements `IDisposable`
 
 ##v0.13.2
 

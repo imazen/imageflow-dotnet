@@ -2,11 +2,11 @@
 
 
 
-Imageflow.NET is a .NET API for [Imageflow](https://github.com/imazen/imageflow), the fast image optimization and processing library for web servers. Imageflow focuses on security, quality, and performance - in that order. Imageflow.NET is a .NET 8.0 & .NET Standard 2.0 library, and as such is compatible with .NET 4.6.2+, .NET Core 2.0+, and .NET 5/6/7/8/9.
+Imageflow.NET is a .NET API for [Imageflow](https://github.com/imazen/imageflow), the fast image optimization and processing library for web servers. Imageflow focuses on security, quality, and performance - in that order. Imageflow.NET targets .NET 10, .NET 8, and .NET Standard 2.0/2.1, making it compatible with .NET 8+, .NET Framework 4.6.2+, and .NET Core 2.0+. Native runtimes are provided for x64, ARM64, and x86 on Windows, Linux, and macOS.
 
 Note: We recently switched from Newtonsoft to System.Text.Json to support AOT and trimming; see [CHANGES.md](https://github.com/imazen/imageflow-dotnet/blob/master/CHANGES.md) for details and some breaking changes. There are also new classes for attaching source image data to jobs; use MemorySource.* over ByteSource and BufferedStreamSource.* instead of StreamSource.
 
-### On .NET Core 3.x and .NET 5/6/7/8 (or if using PackageReference on .NET 4.x)
+### On .NET 8+ (or if using PackageReference on .NET 4.x)
 
 ```
 dotnet add package Imageflow.AllPlatforms

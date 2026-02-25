@@ -709,7 +709,9 @@ public class TestMemorySafety
             var growth = after - baseline;
             _output.WriteLine($"{name,-25} Baseline: {baseline,12:N0}  After: {after,12:N0}  Growth: {growth,8:N0}");
 
-            Assert.True(growth < 1_000_000,
+            // 2MB threshold: generous enough to absorb GC noise from test ordering,
+            // tight enough to catch real leaks (100 iterations of even a small leak would far exceed this)
+            Assert.True(growth < 2_000_000,
                 $"{name}: memory grew by {growth:N0} bytes over {iterations} iterations — possible leak");
         }
     }

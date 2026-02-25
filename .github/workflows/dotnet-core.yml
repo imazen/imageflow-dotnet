@@ -56,18 +56,12 @@ jobs:
           path: ~/.nuget/packages
           key: ${{ runner.os    }}-nuget-${{ hashFiles('**/packages.lock.json') }}
 
-      - name: Setup .NET 8,9
+      - name: Setup .NET 8, 9, 10
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             8
             9
-
-      - name: Setup .NET 10
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-quality: 'preview'
-          dotnet-version: |
             10
 
       - uses: nowsprinting/check-version-format-action@v4
@@ -156,7 +150,7 @@ jobs:
         if: matrix.os == 'windows-latest' && matrix.test_legacy
 
 
-      - name: Test win_x86 (only on .net 8, .NET 10 can't be found for 32-bit at the time of these words)
+      - name: Test win_x86 (.NET 8 only - native runtime doesn't ship x86 for .NET 10)
         if: matrix.test_legacy
         run: |
           dotnet test ${{ env.TEST_CSPROJ }} -c Release --arch x86 --framework net8.0

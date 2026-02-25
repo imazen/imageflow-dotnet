@@ -4,7 +4,7 @@
     </ItemGroup>
 
     <PropertyGroup>
-      <Copyright>Copyright © 2025 Imazen LLC</Copyright>
+      <Copyright>Copyright © 2017-2026 Imazen LLC</Copyright>
       <PackageProjectUrl>https://www.imageflow.io</PackageProjectUrl>
         <RepositoryUrl Condition="'$(GITHUB_REPOSITORY)' != ''">$(GITHUB_SERVER_URL)/$(GITHUB_REPOSITORY)</RepositoryUrl>
         <SourceRevisionId Condition="'$(SourceRevisionId)' == ''">$(GITHUB_SHA)</SourceRevisionId>
