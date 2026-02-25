@@ -256,4 +256,284 @@ public class TestContext
         }
     }
 
+    [Fact]
+    public void TestLowLevelCancellationWithPreCancelledToken()
+    {
+        using var cts = new CancellationTokenSource();
+        cts.Cancel(); // Cancel before starting the job
+
+        using var c = new JobContext();
+        c.AddInputBytesPinned(0,
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
+
+        c.AddOutputBuffer(1);
+
+        var message = new JsonObject
+        {
+            ["framewise"] = new JsonObject
+            {
+                ["steps"] = new JsonArray
+                {
+                    new JsonObject { ["decode"] = new JsonObject { ["io_id"] = 0 } },
+                    "flip_v",
+                    new JsonObject
+                    {
+                        ["encode"] = new JsonObject
+                        {
+                            ["io_id"] = 1,
+                            ["preset"] = new JsonObject
+                            {
+                                ["libjpegturbo"] = new JsonObject { ["quality"] = 90 }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        Assert.Throws<OperationCanceledException>(() =>
+        {
+            c.InvokeExecute(message, cts.Token);
+        });
+    }
+
+    [Fact]
+    public void TestLowLevelCancellationDuringExecution()
+    {
+        using var cts = new CancellationTokenSource();
+        using var c = new JobContext();
+        c.AddInputBytesPinned(0,
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
+
+        c.AddOutputBuffer(1);
+
+        var message = new JsonObject
+        {
+            ["framewise"] = new JsonObject
+            {
+                ["steps"] = new JsonArray
+                {
+                    new JsonObject { ["decode"] = new JsonObject { ["io_id"] = 0 } },
+                    "flip_v",
+                    new JsonObject
+                    {
+                        ["encode"] = new JsonObject
+                        {
+                            ["io_id"] = 1,
+                            ["preset"] = new JsonObject
+                            {
+                                ["libjpegturbo"] = new JsonObject { ["quality"] = 90 }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        // Schedule cancellation after 1ms
+        cts.CancelAfter(TimeSpan.FromMilliseconds(1));
+
+        // For a simple 1x1 image, this might complete before cancellation
+        try
+        {
+            using var response = c.InvokeExecute(message, cts.Token);
+            var data = response.Parse();
+
+            // If we got here, the job completed before cancellation
+            Assert.NotNull(data);
+            Assert.Equal(200, (int)data["code"]!);
+            Assert.True((bool)data["success"]!);
+        }
+        catch (OperationCanceledException)
+        {
+            // This is expected if cancellation happened during execution
+            Assert.True(cts.IsCancellationRequested);
+        }
+    }
+
+    [Fact]
+    public void TestLowLevelCancellationWithInvokeMethod()
+    {
+        using var cts = new CancellationTokenSource();
+        cts.Cancel(); // Cancel before starting
+
+        using var c = new JobContext();
+        c.AddInputBytesPinned(0,
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
+
+        Assert.Throws<OperationCanceledException>(() =>
+        {
+            c.InvokeAndParse("v0.1/get_image_info",
+                new JsonObject { ["io_id"] = 0 },
+                cts.Token);
+        });
+    }
+
+    [Fact]
+    public void TestLowLevelCancellationDoesNotAffectCompletedJob()
+    {
+        using var cts = new CancellationTokenSource();
+        using var c = new JobContext();
+        c.AddInputBytesPinned(0,
+            Convert.FromBase64String(
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=="));
+
+        c.AddOutputBuffer(1);
+
+        var message = new JsonObject
+        {
+            ["framewise"] = new JsonObject
+            {
+                ["steps"] = new JsonArray
+                {
+                    new JsonObject { ["decode"] = new JsonObject { ["io_id"] = 0 } },
+                    "flip_v",
+                    new JsonObject
+                    {
+                        ["encode"] = new JsonObject
+                        {
+                            ["io_id"] = 1,
+                            ["preset"] = new JsonObject
+                            {
+                                ["libjpegturbo"] = new JsonObject { ["quality"] = 90 }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        using var response = c.InvokeExecute(message, cts.Token);
+
+        // Cancel after the job completes
+        cts.Cancel();
+
+        // Response should still be accessible
+        var data = response.Parse();
+        Assert.NotNull(data);
+        Assert.Equal(200, (int)data["code"]!);
+        Assert.True((bool)data["success"]!);
+    }
+
+    [Fact]
+    public void TestLowLevelInvokeAndParseWithCancellationToken()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+        using var c = new JobContext();
+
+        c.AddInputBytes(0, imageBytes);
+
+        // Test that InvokeAndParse works with a non-cancelled token
+        var response = c.InvokeAndParse("v0.1/get_image_info",
+            new JsonObject { ["io_id"] = 0 },
+            cts.Token);
+
+        Assert.NotNull(response);
+        Assert.Equal(200, (int)response["code"]!);
+        Assert.True((bool)response["success"]!);
+    }
+
+    [Fact]
+    public void TestLowLevelInvokeAndParseWithCancelledToken()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+        cts.Cancel(); // Cancel before starting
+
+        using var c = new JobContext();
+        c.AddInputBytes(0, imageBytes);
+
+        Assert.Throws<OperationCanceledException>(() =>
+        {
+            c.InvokeAndParse("v0.1/get_image_info",
+                new JsonObject { ["io_id"] = 0 },
+                cts.Token);
+        });
+    }
+
+    [Fact]
+    public void TestLowLevelNativeCancellationWithComplexJob()
+    {
+        using var cts = new CancellationTokenSource();
+        using var c = new JobContext();
+
+        // Create a large output buffer for a 2000x2000 image
+        c.AddOutputBuffer(1);
+
+        // Build a complex job with many operations
+        var steps = new JsonArray();
+        steps.Add(new JsonObject
+        {
+            ["create_canvas"] = new JsonObject
+            {
+                ["w"] = 2000,
+                ["h"] = 2000,
+                ["format"] = "bgra_32",
+                ["color"] = "black"
+            }
+        });
+
+        // Add many flip operations to increase processing time
+        for (int i = 0; i < 20; i++)
+        {
+            steps.Add("flip_v");
+            steps.Add("flip_h");
+        }
+
+        steps.Add(new JsonObject
+        {
+            ["encode"] = new JsonObject
+            {
+                ["io_id"] = 1,
+                ["preset"] = new JsonObject
+                {
+                    ["mozjpeg"] = new JsonObject { ["quality"] = 95 }
+                }
+            }
+        });
+
+        var message = new JsonObject
+        {
+            ["framewise"] = new JsonObject
+            {
+                ["steps"] = steps
+            }
+        };
+
+        // Cancel after 1ms to try to catch during processing
+        cts.CancelAfter(TimeSpan.FromMilliseconds(1));
+
+        try
+        {
+            using var response = c.InvokeExecute(message, cts.Token);
+            var data = response.Parse();
+
+            // If we got here, the job completed before cancellation
+            _output.WriteLine("Job completed before native cancellation could be triggered");
+            Assert.NotNull(data);
+            Assert.Equal(200, (int)data["code"]!);
+        }
+        catch (ImageflowException ex)
+        {
+            // This is the native cancellation response we're looking for
+            _output.WriteLine($"Native cancellation triggered! Exception: {ex.Message}");
+            Assert.True(ex.Message.Contains("cancel", StringComparison.OrdinalIgnoreCase) ||
+                       ex.Message.Contains("abort", StringComparison.OrdinalIgnoreCase),
+                       $"Expected cancellation-related error, but got: {ex.Message}");
+        }
+        catch (OperationCanceledException)
+        {
+            // This happens if cancellation was checked before native call
+            _output.WriteLine("Cancellation detected before native call");
+        }
+    }
+
 }

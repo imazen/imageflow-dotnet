@@ -617,4 +617,215 @@ public class TestApi
         Assert.False(ImageJob.CanDecodeBytes(nonsenseBytes));
 #pragma warning restore CS0618 // Type or member is obsolete
     }
+
+    [Fact]
+    public async Task TestCancellationWithPreCancelledToken()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+        cts.Cancel(); // Cancel before starting the job
+
+        using var b = new ImageJob();
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+        {
+            await b.Decode(imageBytes)
+                .FlipHorizontal()
+                .Rotate90()
+                .ConstrainWithin(5, 5)
+                .EncodeToBytes(new GifEncoder())
+                .Finish()
+                .WithCancellationToken(cts.Token)
+                .InProcessAsync();
+        });
+    }
+
+    [Fact]
+    public async Task TestCancellationDuringJobExecution()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+
+        using var b = new ImageJob();
+
+        // Schedule cancellation to happen during job execution
+        cts.CancelAfter(TimeSpan.FromMilliseconds(1));
+
+        // For a simple 1x1 image, this might complete before cancellation,
+        // so we need to handle both success and cancellation
+        try
+        {
+            var r = await b.Decode(imageBytes)
+                .FlipHorizontal()
+                .Rotate90()
+                .ConstrainWithin(5, 5)
+                .EncodeToBytes(new GifEncoder())
+                .Finish()
+                .WithCancellationToken(cts.Token)
+                .InProcessAsync();
+
+            // If we got here, the job completed before cancellation
+            Assert.NotNull(r.First);
+        }
+        catch (OperationCanceledException)
+        {
+            // This is expected if cancellation happened during execution
+            Assert.True(cts.IsCancellationRequested);
+        }
+    }
+
+    [Fact]
+    public async Task TestCancellationWithTimeout()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var b = new ImageJob();
+
+        // Use a reasonable timeout - 1x1 image should complete very quickly
+        var r = await b.Decode(imageBytes)
+            .FlipHorizontal()
+            .Rotate90()
+            .Distort(30, 20)
+            .ConstrainWithin(5, 5)
+            .EncodeToBytes(new GifEncoder())
+            .Finish()
+            .WithCancellationTimeout(5000) // 5 second timeout (generous for this tiny image)
+            .InProcessAsync();
+
+        // Should complete successfully well before timeout
+        Assert.Equal(5, r.First!.Width);
+        Assert.True(r.First.TryGetBytes().HasValue);
+    }
+
+    [Fact]
+    public async Task TestCancellationDoesNotAffectCompletedJob()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+        using var b = new ImageJob();
+
+        var r = await b.Decode(imageBytes)
+            .FlipHorizontal()
+            .Rotate90()
+            .Distort(30, 20)
+            .ConstrainWithin(5, 5)
+            .EncodeToBytes(new GifEncoder())
+            .Finish()
+            .WithCancellationToken(cts.Token)
+            .InProcessAsync();
+
+        // Cancel after the job completes
+        cts.Cancel();
+
+        // Results should still be accessible
+        Assert.Equal(5, r.First!.Width);
+        Assert.True(r.First.TryGetBytes().HasValue);
+    }
+
+    [Fact]
+    public async Task TestCancellationWithMultipleOutputs()
+    {
+        var imageBytes = Convert.FromBase64String(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX/TQBcNTh/AAAAAXRSTlPM0jRW/QAAAApJREFUeJxjYgAAAAYAAzY3fKgAAAAASUVORK5CYII=");
+
+        using var cts = new CancellationTokenSource();
+        cts.Cancel(); // Cancel before starting
+
+        using var b = new ImageJob();
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+        {
+            await b.Decode(imageBytes)
+                .Constrain(new Constraint(ConstraintMode.Fit, 160, 120))
+                .Branch(f => f.ConstrainWithin(80, 60).EncodeToBytes(new WebPLosslessEncoder()))
+                .Branch(f => f.ConstrainWithin(40, 30).EncodeToBytes(new WebPLossyEncoder(50)))
+                .EncodeToBytes(new LodePngEncoder())
+                .Finish()
+                .WithCancellationToken(cts.Token)
+                .InProcessAsync();
+        });
+    }
+
+    [Fact]
+    public async Task TestNativeCancellationWithLargeImage()
+    {
+        // Create a larger image that takes more time to process
+        using var b = new ImageJob();
+        using var cts = new CancellationTokenSource();
+
+        // Create a 1000x1000 canvas with many operations to increase processing time
+        var jobBuilder = b.CreateCanvasBgra32(1000, 1000, AnyColor.Black)
+            .FlipHorizontal()
+            .FlipVertical()
+            .Rotate90()
+            .Rotate180()
+            .BrightnessSrgb(0.5f)
+            .ContrastSrgb(0.5f)
+            .SaturationSrgb(0.5f);
+
+        // Add many branches to increase processing complexity
+        for (int i = 0; i < 10; i++)
+        {
+            jobBuilder = jobBuilder.Branch(f => f.ConstrainWithin(500, 500).EncodeToBytes(new WebPLossyEncoder(50)));
+        }
+
+        var finalBuilder = jobBuilder.EncodeToBytes(new MozJpegEncoder(90, true))
+            .Finish()
+            .WithCancellationToken(cts.Token);
+
+        // Cancel after a very short delay to try to catch it mid-processing
+        cts.CancelAfter(TimeSpan.FromMilliseconds(1));
+
+        try
+        {
+            var r = await finalBuilder.InProcessAsync();
+            // If we got here, the job completed before cancellation - that's okay for this test
+            output.WriteLine("Job completed before cancellation could be triggered");
+            Assert.NotNull(r.First);
+        }
+        catch (ImageflowException ex)
+        {
+            // This is what we're looking for - native cancellation returns an ImageflowException
+            output.WriteLine($"Native cancellation triggered! Exception: {ex.Message}");
+            Assert.True(ex.Message.Contains("cancel", StringComparison.OrdinalIgnoreCase) ||
+                       ex.Message.Contains("abort", StringComparison.OrdinalIgnoreCase),
+                       $"Expected cancellation-related error, but got: {ex.Message}");
+        }
+        catch (OperationCanceledException)
+        {
+            // This happens if cancellation was checked before native call
+            output.WriteLine("Cancellation detected before native call");
+        }
+    }
+
+    [Fact]
+    public async Task TestNativeCancellationViaThreadPool()
+    {
+        // Test cancellation when offloading to thread pool
+        using var b = new ImageJob();
+        using var cts = new CancellationTokenSource();
+
+        var jobBuilder = b.CreateCanvasBgra32(2000, 2000, AnyColor.FromHexSrgb("FFFFFFFF"))
+            .BrightnessSrgb(0.5f)
+            .ContrastSrgb(0.5f)
+            .SaturationSrgb(0.5f)
+            .FlipHorizontal()
+            .FlipVertical()
+            .EncodeToBytes(new MozJpegEncoder(95, true))
+            .Finish()
+            .WithCancellationToken(cts.Token);
+
+        // Cancel immediately
+        cts.Cancel();
+
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
+        {
+            await jobBuilder.InProcessAsync();
+        });
+    }
 }
