@@ -256,6 +256,12 @@
           "Imageflow.NativeRuntime.win-x86_64": "2.2.0-rc01"
         }
       },
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[10.0.0, )",
+        "resolved": "10.0.0",
+        "contentHash": "kICGrGYEzCNI3wPzfEXcwNHgTvlvVn9yJDhSdRK+oZQy4jvYH529u7O0xf5ocQKzOMjfS07+3z9PKRIjrFMJDA=="
+      },
       "Imageflow.NativeRuntime.linux-arm64": {
         "type": "Transitive",
         "resolved": "2.2.0-rc01",
