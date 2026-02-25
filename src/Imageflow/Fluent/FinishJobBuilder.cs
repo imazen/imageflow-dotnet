@@ -3,7 +3,7 @@ namespace Imageflow.Fluent;
 /// <summary>
 /// Allows job execution in a fluent way
 /// </summary>
-public class FinishJobBuilder
+public class FinishJobBuilder : IDisposable
 {
     private readonly ImageJob _builder;
     private CancellationToken _token;
@@ -55,6 +55,7 @@ public class FinishJobBuilder
     /// <returns></returns>
     public FinishJobBuilder WithCancellationTimeout(int milliseconds)
     {
+        _tokenSource?.Dispose();
         _tokenSource = new CancellationTokenSource(milliseconds);
         return WithCancellationToken(_tokenSource.Token);
     }
@@ -65,6 +66,7 @@ public class FinishJobBuilder
     /// <returns></returns>
     public FinishJobBuilder SetCancellationTimeout(int milliseconds)
     {
+        _tokenSource?.Dispose();
         _tokenSource = new CancellationTokenSource(milliseconds);
         return WithCancellationToken(_tokenSource.Token);
     }
@@ -87,6 +89,12 @@ public class FinishJobBuilder
     /// <returns></returns>
     public Task<IPreparedFilesystemJob> WriteJsonJobAndInputs(bool deleteFilesOnDispose) =>
         _builder.WriteJsonJobAndInputs(_token, _security, deleteFilesOnDispose);
+
+    public void Dispose()
+    {
+        _tokenSource?.Dispose();
+        _tokenSource = null;
+    }
 
     internal string ToJsonDebug(SecurityOptions? securityOptions = null) => _builder.ToJsonDebug(securityOptions);
 

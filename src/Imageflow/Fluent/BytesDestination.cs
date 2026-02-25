@@ -6,10 +6,23 @@ namespace Imageflow.Fluent;
 public class BytesDestination : IOutputDestination, IOutputSink, IAsyncOutputSink
 {
     private MemoryStream? _m;
+    private bool _disposed;
+
     public void Dispose()
     {
-
+        if (_disposed) return;
+        _disposed = true;
+        _m?.Dispose();
+        _m = null;
     }
+
+    // CA1513 wants ObjectDisposedException.ThrowIf, but that's net7.0+ only
+#pragma warning disable CA1513
+    private void ThrowIfDisposed()
+    {
+        if (_disposed) throw new ObjectDisposedException(nameof(BytesDestination));
+    }
+#pragma warning restore CA1513
 
     public Task RequestCapacityAsync(int bytes)
     {
@@ -19,6 +32,7 @@ public class BytesDestination : IOutputDestination, IOutputSink, IAsyncOutputSin
 
     public Task WriteAsync(ArraySegment<byte> bytes, CancellationToken cancellationToken)
     {
+        ThrowIfDisposed();
         if (_m == null)
         {
             throw new ImageflowAssertionFailed("BytesDestination.WriteAsync called before RequestCapacityAsync");
@@ -44,6 +58,7 @@ public class BytesDestination : IOutputDestination, IOutputSink, IAsyncOutputSin
 
     public ArraySegment<byte> GetBytes()
     {
+        ThrowIfDisposed();
         if (_m == null)
         {
             throw new ImageflowAssertionFailed("BytesDestination.GetBytes called before RequestCapacityAsync");
@@ -58,6 +73,7 @@ public class BytesDestination : IOutputDestination, IOutputSink, IAsyncOutputSin
 
     public void RequestCapacity(int bytes)
     {
+        ThrowIfDisposed();
         _m ??= new MemoryStream(bytes);
         if (_m.Capacity < bytes)
         {
@@ -72,6 +88,7 @@ public class BytesDestination : IOutputDestination, IOutputSink, IAsyncOutputSin
 
     public void Write(ReadOnlySpan<byte> data)
     {
+        ThrowIfDisposed();
         if (_m == null)
         {
             throw new ImageflowAssertionFailed("BytesDestination.Write called before RequestCapacity");
@@ -82,6 +99,7 @@ public class BytesDestination : IOutputDestination, IOutputSink, IAsyncOutputSin
     public bool PreferSynchronousWrites => true;
     public void Write(ReadOnlyMemory<byte> data)
     {
+        ThrowIfDisposed();
         if (_m == null)
         {
             throw new ImageflowAssertionFailed("BytesDestination.Write called before RequestCapacity");
@@ -92,6 +110,7 @@ public class BytesDestination : IOutputDestination, IOutputSink, IAsyncOutputSin
 
     public ValueTask FastWriteAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
     {
+        ThrowIfDisposed();
         if (_m == null)
         {
             throw new ImageflowAssertionFailed("BytesDestination.FastWriteAsync called before RequestCapacityAsync");

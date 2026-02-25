@@ -77,5 +77,6 @@ public sealed class ImageflowUnmanagedReadStream : UnmanagedMemoryStream
             _handle?.DangerousRelease();
             _handle = null;
         }
+        base.Dispose(disposing);
     }
 }

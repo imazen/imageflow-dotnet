@@ -81,9 +81,8 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
 
     internal static byte[] SerializeNode(JsonNode node, bool indented = true)
     {
-        // Use System.Text.Json for serialization
         var ms = new MemoryStream();
-        var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = indented });
+        using var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = indented });
         node.WriteTo(utf8JsonWriter);
         utf8JsonWriter.Flush();
         return ms.ToArray();
@@ -647,7 +646,6 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         var pinned = data.Pin();
         AddPinnedData(pinned);
         var length = (ulong)data.Length;
-        AddPinnedData(pinned);
 
         var addr = new IntPtr(pinned.Pointer);
         if (!NativeMethods.imageflow_context_add_input_buffer(Handle, ioId, addr, new UIntPtr(length),

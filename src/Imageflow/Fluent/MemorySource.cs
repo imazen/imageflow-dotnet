@@ -34,12 +34,6 @@ public sealed class MemorySource : IAsyncMemorySource, IMemorySource
             }
         }
 
-        if (!borrowedMemory.HasValue)
-        {
-            throw new ArgumentNullException(nameof(borrowedMemory));
-        }
-
-        Argument.ThrowIfNull(borrowedMemory);
         _borrowedMemory = borrowedMemory;
         _ownedMemory = ownedMemory;
     }

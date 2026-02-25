@@ -20,8 +20,7 @@ public class BuildEndpoint : BuildItemBase
     [Obsolete("Use Finish().WithCancellationTimeout")]
     public FinishJobBuilder FinishWithTimeout(int milliseconds)
     {
-        using var tokenSource = new CancellationTokenSource(milliseconds);
-        return FinishWithToken(tokenSource.Token);
+        return Finish().WithCancellationTimeout(milliseconds);
     }
 
 }
