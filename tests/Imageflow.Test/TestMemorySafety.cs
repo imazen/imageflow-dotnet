@@ -355,7 +355,8 @@ public class TestMemorySafety
     }
 
     // ═══════════════════════════════════════════════════════════
-    // Long-running leak detection tests
+    // Long-running leak detection tests (local only, skipped in CI)
+    // Run locally with: dotnet test --filter "Category=LeakTest"
     // ═══════════════════════════════════════════════════════════
 
     private static long GetManagedMemory()
@@ -367,6 +368,7 @@ public class TestMemorySafety
     }
 
     [Fact]
+    [Trait("Category", "LeakTest")]
     public void LeakTest_Issue1_PinnedMemory_NoGrowth()
     {
         // Exercise AddInputBytesPinned + Dispose thousands of times.
@@ -399,6 +401,7 @@ public class TestMemorySafety
     }
 
     [Fact]
+    [Trait("Category", "LeakTest")]
     public void LeakTest_Issue1_MemoryManager_Balanced_Over_Many_Iterations()
     {
         // Verify Pin/Unpin stay balanced across many iterations
@@ -419,6 +422,7 @@ public class TestMemorySafety
     }
 
     [Fact]
+    [Trait("Category", "LeakTest")]
     public void LeakTest_Issue2_TakeOwnership_AllDisposed()
     {
         // Create many MemorySource via TakeOwnership, verify every owner is disposed
@@ -439,6 +443,7 @@ public class TestMemorySafety
     }
 
     [Fact]
+    [Trait("Category", "LeakTest")]
     public void LeakTest_Issue2_TakeOwnership_NoMemoryGrowth()
     {
         const int warmup = 50;
@@ -470,6 +475,7 @@ public class TestMemorySafety
     }
 
     [Fact]
+    [Trait("Category", "LeakTest")]
     public void LeakTest_Issue4_CTS_Replacement_NoGrowth()
     {
         // Replace CTS many times on the same builder — old ones must be disposed
@@ -497,6 +503,7 @@ public class TestMemorySafety
     }
 
     [Fact]
+    [Trait("Category", "LeakTest")]
     public void LeakTest_Issue4_CTS_WeakRefs_AllCollected()
     {
         // Track every replaced CTS with a WeakReference — after GC, all should be collected
@@ -530,6 +537,7 @@ public class TestMemorySafety
     }
 
     [Fact]
+    [Trait("Category", "LeakTest")]
     public void LeakTest_Issue7_BytesDestination_NoGrowth()
     {
         const int warmup = 50;
@@ -573,6 +581,7 @@ public class TestMemorySafety
     ];
 
     [Fact]
+    [Trait("Category", "LeakTest")]
     public async Task LeakTest_FullPipeline_AllCodecs_NoMonotonicGrowth()
     {
         // End-to-end: decode → resize → encode for every codec, many rounds.
@@ -656,6 +665,7 @@ public class TestMemorySafety
     }
 
     [Fact]
+    [Trait("Category", "LeakTest")]
     public async Task LeakTest_FullPipeline_PerCodec_NoGrowth()
     {
         // Test each codec individually for leaks.
@@ -720,6 +730,7 @@ public class TestMemorySafety
     }
 
     [Fact]
+    [Trait("Category", "LeakTest")]
     public void LeakTest_Issue6_SerializeNode_NoGrowth()
     {
         const int warmup = 100;

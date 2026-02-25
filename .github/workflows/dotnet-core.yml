@@ -103,12 +103,12 @@ jobs:
       - name: Test, relying on projects to only conditionally enable net48 TFMs on windows
         if: matrix.coverage == false
         run: |
-          dotnet test ${{ env.CORE_SLN }} -c Release
+          dotnet test ${{ env.CORE_SLN }} -c Release --filter "Category!=LeakTest"
 
       - name: Test with coverage
         if: matrix.coverage
         run: |
-          dotnet test ${{ env.CORE_SLN }} -c Release --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+          dotnet test ${{ env.CORE_SLN }} -c Release --filter "Category!=LeakTest" --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
       - uses: actions/upload-artifact@v4
         if: failure()
