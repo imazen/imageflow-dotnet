@@ -315,3 +315,41 @@ public class WebPLosslessEncoder : IEncoderPreset
 
     public JsonNode ToJsonNode() => new JsonObject() { { "webplossless", (string?)null } };
 }
+
+/// <summary>
+/// Encodes the image as a JPEG XL with lossy compression.
+/// Distance is butteraugli distance: 0.0 = mathematically lossless, 1.0 = high quality, higher = more compression.
+/// Requires imageflow ABI 3.2+.
+/// </summary>
+public class JxlLossyEncoder : IEncoderPreset
+{
+    /// <summary>
+    /// Butteraugli distance. 0.0 = mathematically lossless, 1.0 = high quality, higher = more compression.
+    /// </summary>
+    public float Distance { get; set; }
+
+    public JxlLossyEncoder(float distance)
+    {
+        Distance = distance;
+    }
+
+    [Obsolete("Use ToJsonNode() instead")]
+    public object ToImageflowDynamic() => new { jxllossy = new { distance = Distance } };
+
+    public JsonNode ToJsonNode() => new JsonObject
+    {
+        { "jxllossy", new JsonObject { { "distance", Distance } } }
+    };
+}
+
+/// <summary>
+/// Encodes the image as a JPEG XL with lossless compression (modular mode).
+/// Requires imageflow ABI 3.2+.
+/// </summary>
+public class JxlLosslessEncoder : IEncoderPreset
+{
+    [Obsolete("Use ToJsonNode() instead")]
+    public object ToImageflowDynamic() => new { jxllossless = (string?)null };
+
+    public JsonNode ToJsonNode() => new JsonObject { { "jxllossless", (string?)null } };
+}

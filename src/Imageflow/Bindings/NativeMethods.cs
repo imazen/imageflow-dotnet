@@ -17,7 +17,7 @@ internal static class NativeMethods
     // ReSharper disable once InconsistentNaming
     public const int ABI_MAJOR = 3;
     // ReSharper disable once InconsistentNaming
-    public const int ABI_MINOR = 1;
+    public const int ABI_MINOR = 2;
 
     [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
