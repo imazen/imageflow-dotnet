@@ -65,9 +65,11 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
 #endif
         };
         var ms = new MemoryStream();
-        var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = true });
-        JsonSerializer.Serialize(utf8JsonWriter, obj, options);
-        utf8JsonWriter.Flush();
+        using (var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = true }))
+        {
+            JsonSerializer.Serialize(utf8JsonWriter, obj, options);
+            utf8JsonWriter.Flush();
+        }
         return ms.ToArray();
     }
 
@@ -284,20 +286,24 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
 #if NETSTANDARD2_1_OR_GREATER
         // MAYBE: Use ArrayPoolBufferWriter instead? Adds CommunityToolkit.HighPerformance dependency
         var writer = new ArrayBufferWriter<byte>(4096);
-        var utf8JsonWriter = new Utf8JsonWriter(writer, new JsonWriterOptions
+        using (var utf8JsonWriter = new Utf8JsonWriter(writer, new JsonWriterOptions
         {
             Indented = true
-        });
-        message.WriteTo(utf8JsonWriter);
-        utf8JsonWriter.Flush();
+        }))
+        {
+            message.WriteTo(utf8JsonWriter);
+            utf8JsonWriter.Flush();
+        }
         return InvokeInternal(nullTerminatedMethod, writer.WrittenSpan, cancellationToken);
 #else
 
         // Use System.Text.Json for serialization
         var ms = new MemoryStream();
-        var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = true });
-        message.WriteTo(utf8JsonWriter);
-        utf8JsonWriter.Flush();
+        using (var utf8JsonWriter = new Utf8JsonWriter(ms, new JsonWriterOptions { Indented = true }))
+        {
+            message.WriteTo(utf8JsonWriter);
+            utf8JsonWriter.Flush();
+        }
         return ms.TryGetBufferSliceAllWrittenData(out var buffer)
             ? InvokeInternal(nullTerminatedMethod, buffer, cancellationToken)
             : InvokeInternal(nullTerminatedMethod, ms.ToArray(), cancellationToken);
@@ -340,7 +346,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
     private unsafe ImageflowJsonResponse InvokeInternal(ReadOnlySpan<byte> nullTerminatedMethod,
         ReadOnlySpan<byte> utf8Json, CancellationToken cancellationToken = default)
     {
-        if (utf8Json.Length < 0)
+        if (utf8Json.IsEmpty)
         {
             throw new ArgumentException("utf8Json cannot be empty", nameof(utf8Json));
         }
@@ -768,7 +774,7 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
 
     public void Dispose()
     {
-        ObjectDisposedHelper.ThrowIf(IsDisposed, this);
+        if (IsDisposed) return;
 
         if (Interlocked.Exchange(ref _refCount, 0) > 0)
         {

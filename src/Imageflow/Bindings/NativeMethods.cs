@@ -79,7 +79,6 @@ internal static class NativeMethods
     public static extern bool imageflow_json_response_destroy(JobContextHandle context, IntPtr response);
 
     [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
-    [return: MarshalAs(UnmanagedType.I1)]
     public static extern void imageflow_context_request_cancellation(JobContextHandle context);
 
     ///pointer: void*

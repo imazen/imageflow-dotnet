@@ -26,6 +26,7 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
     private readonly bool _seekToStart;
     private Stream? _underlying;
     private readonly bool _disposeUnderlying;
+    private bool _disposed;
 
     private static readonly RecyclableMemoryStreamManager Mgr
         = new();
@@ -34,11 +35,14 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
 
     public void Dispose()
     {
+        if (_disposed) return;
+        _disposed = true;
+
         if (_disposeUnderlying)
         {
             _underlying?.Dispose();
-            _underlying = null;
         }
+        _underlying = null;
 
         _copy?.Dispose();
         _copy = null;
@@ -48,7 +52,7 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
     private bool TryGetWrittenMemory(
         out ReadOnlyMemory<byte> memory)
     {
-        ObjectDisposedHelper.ThrowIf(_underlying == null, this);
+        ObjectDisposedHelper.ThrowIf(_disposed, this);
         var memStream = _copy ?? _underlying as MemoryStream;
         if (memStream != null)
         {
@@ -72,17 +76,18 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
     /// <exception cref="OverflowException"></exception>
     public async ValueTask<ReadOnlyMemory<byte>> BorrowReadOnlyMemoryAsync(CancellationToken cancellationToken)
     {
-        ObjectDisposedHelper.ThrowIf(_underlying == null, this);
+        ObjectDisposedHelper.ThrowIf(_disposed, this);
+        var underlying = _underlying!;
         if (TryGetWrittenMemory(out var segment))
         {
             return segment;
         }
         if (_seekToStart)
         {
-            _underlying.Seek(0, SeekOrigin.Begin);
+            underlying.Seek(0, SeekOrigin.Begin);
         }
-        _copy = new RecyclableMemoryStream(Mgr, "BufferedStreamSource: IAsyncMemorySource", _underlying.CanSeek ? _underlying.Length : 0);
-        await _underlying.CopyToAsync(_copy, 81920, cancellationToken).ConfigureAwait(false);
+        _copy = new RecyclableMemoryStream(Mgr, "BufferedStreamSource: IAsyncMemorySource", underlying.CanSeek ? underlying.Length : 0);
+        await underlying.CopyToAsync(_copy, 81920, cancellationToken).ConfigureAwait(false);
         _copy.Seek(0, SeekOrigin.Begin);
         if (!TryGetWrittenMemory(out segment))
         {
@@ -93,18 +98,19 @@ public sealed class BufferedStreamSource : IAsyncMemorySource, IMemorySource
 
     public ReadOnlyMemory<byte> BorrowReadOnlyMemory()
     {
-        ObjectDisposedHelper.ThrowIf(_underlying == null, this);
+        ObjectDisposedHelper.ThrowIf(_disposed, this);
+        var underlying = _underlying!;
         if (TryGetWrittenMemory(out var segment))
         {
             return segment;
         }
         if (_seekToStart)
         {
-            _underlying.Seek(0, SeekOrigin.Begin);
+            underlying.Seek(0, SeekOrigin.Begin);
         }
 
-        _copy = new RecyclableMemoryStream(Mgr, "BufferedStreamSource: IMemorySource", _underlying.CanSeek ? _underlying.Length : 0);
-        _underlying.CopyTo(_copy);
+        _copy = new RecyclableMemoryStream(Mgr, "BufferedStreamSource: IMemorySource", underlying.CanSeek ? underlying.Length : 0);
+        underlying.CopyTo(_copy);
         _copy.Seek(0, SeekOrigin.Begin);
         if (!TryGetWrittenMemory(out segment))
         {

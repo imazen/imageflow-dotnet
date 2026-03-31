@@ -420,11 +420,6 @@ public class ImageJob : IDisposable
 
             Cleanup.Clear();
         }
-
-        ~SubprocessFilesystemJob()
-        {
-            Dispose();
-        }
     }
 
     private async Task<SubprocessFilesystemJob> PrepareForSubprocessAsync(CancellationToken cancellationToken,
@@ -503,13 +498,12 @@ public class ImageJob : IDisposable
 
             var jsonFile = job.Provider.Create(true, 100000);
             job.Cleanup.Add(jsonFile);
-            var stream = jsonFile.WriteFromBeginning();
+            using var stream = jsonFile.WriteFromBeginning();
             // write job.JobMessage to stream using System.Text.Json
-            var writer = new Utf8JsonWriter(stream);
+            using var writer = new Utf8JsonWriter(stream);
             job.JobMessage.WriteTo(writer);
             writer.Flush();
             stream.Flush();
-            stream.Dispose();
 
             job.JsonPath = jsonFile.Path;
 
