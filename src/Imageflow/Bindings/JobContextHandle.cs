@@ -44,7 +44,7 @@ internal sealed class JobContextHandle : SafeHandleZeroOrMinusOneIsInvalid, IAss
         ObjectDisposedHelper.ThrowIf(!IsValid, this);
     }
 
-    public ImageflowException? DisposeAllowingException()
+    public Exception? DisposeAllowingException()
     {
         if (!IsValid)
         {

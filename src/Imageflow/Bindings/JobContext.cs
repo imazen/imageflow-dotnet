@@ -378,7 +378,9 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
                     // check HasError, throw exception with our input JSON too
                     if (HasError)
                     {
-                        throw ImageflowException.FromContext(Handle, 2048, "JSON:\n" + TextHelpers.Utf8ToString(utf8Json));
+                        var jsonStr = TextHelpers.Utf8ToString(utf8Json);
+                        if (jsonStr.Length > 4000) jsonStr = jsonStr[..4000] + "\n[..truncated]";
+                        throw ImageflowException.FromContext(Handle, 2048, "JSON:\n" + jsonStr);
                     }
 
                     AssertReady();
