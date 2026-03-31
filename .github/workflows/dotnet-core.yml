@@ -28,7 +28,7 @@ jobs:
             rid: linux-x64
           - os: ubuntu-latest
             SystemTextJsonVersion: 8.0.1
-          - os: windows-latest
+          - os: windows-2025-vs2026
             pack: true
             docs: true
             coverage: true
@@ -89,10 +89,13 @@ jobs:
           dotnet nuget locals all --clear
         if: github.event_name == 'release'
 
-      - name: Test with ${{ matrix.SystemTextJsonVersion }} and ${{ matrix.RecyclableMemoryStreamVersion }}
-        if: matrix.SystemTextJsonVersion != null && matrix.RecyclableMemoryStreamVersion != null
+      - name: Test with version overrides
+        if: matrix.SystemTextJsonVersion != null || matrix.RecyclableMemoryStreamVersion != null
         run: |
-          dotnet test ${{ env.CORE_SLN }} -p:SystemTextJsonVersion=${{ matrix.SystemTextJsonVersion }} -p:RecyclableMemoryStreamVersion=${{ matrix.RecyclableMemoryStreamVersion }} -c Release
+          ARGS=""
+          if [ -n "${{ matrix.SystemTextJsonVersion }}" ]; then ARGS="$ARGS -p:SystemTextJsonVersion=${{ matrix.SystemTextJsonVersion }}"; fi
+          if [ -n "${{ matrix.RecyclableMemoryStreamVersion }}" ]; then ARGS="$ARGS -p:RecyclableMemoryStreamVersion=${{ matrix.RecyclableMemoryStreamVersion }}"; fi
+          dotnet test ${{ env.TEST_CSPROJ }} $ARGS -c Release
 
       - name: Install dependencies
         run: dotnet restore ${{ env.CORE_SLN }} --force-evaluate
@@ -117,7 +120,7 @@ jobs:
           path: TestResults/
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         if: matrix.coverage
         with:
           files: ./**/coverage.opencover.xml
@@ -147,8 +150,8 @@ jobs:
             NuGetPackages/Release/*.snupkg
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.3.2
-        if: matrix.os == 'windows-latest' && matrix.test_legacy
+        uses: microsoft/setup-msbuild@v2
+        if: matrix.test_legacy
 
 
       - name: Test win_x86 (.NET 8 only - native runtime doesn't ship x86 for .NET 10)
@@ -173,7 +176,7 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: nowsprinting/check-version-format-action@v3
+      - uses: nowsprinting/check-version-format-action@v4
         id: version
         with:
           prefix: "v"
