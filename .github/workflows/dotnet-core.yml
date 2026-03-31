@@ -89,7 +89,7 @@ jobs:
           dotnet nuget locals all --clear
         if: github.event_name == 'release'
 
-      - name: Test with version overrides
+      - name: Test with ${{ matrix.SystemTextJsonVersion }} and ${{ matrix.RecyclableMemoryStreamVersion }}
         if: matrix.SystemTextJsonVersion != null || matrix.RecyclableMemoryStreamVersion != null
         run: |
           ARGS=""
