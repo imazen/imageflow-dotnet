@@ -298,3 +298,6 @@ __pycache__/
 tempfile.txt
 benchmarks/Imageflow.Benchmarks/BenchmarkDotNet.Artifacts/
 BenchmarkDotNet.Artifacts
+
+# Coordination marker for concurrent agents (per CLAUDE.md)
+.workongoing

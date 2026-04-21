@@ -2,6 +2,13 @@
 
 ## v0.15.1 (draft)
 
+* Surface the new `annotations` field from imageflow's `EncodeResult`
+  on `BuildEncodeResult.Annotations`. Adds `EncodeAnnotations`,
+  `CodecSubstitutionAnnotation`, `SubstitutionReason`, and
+  `CodecPriority` DTOs with snake_case wire parsing. Includes a
+  `CodecSubstitutionAnnotation.Describe()` helper for clean log
+  output. Unknown reason/priority wire values survive round-trip on
+  the `*Raw` fields.
 * Now targets .NET 10 (LTS), .NET 8 (LTS), and .NET Standard 2.0/2.1
 * ARM64 support on Windows, macOS, and Linux
 * Minimum System.Text.Json raised to 8.0.6 (on netstandard2.0/2.1 only; inbox on net8.0+)
