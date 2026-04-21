@@ -36,7 +36,14 @@
       <ProjectReference Include="..\Imageflow\Imageflow.Net.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="Imageflow.NativeRuntime.All" Version="2.3.1-rc01"/>
+      <!-- Native runtime range: accept v2.3.1-rc01+ through any v3.x, but not v4+.
+           This is the end-user-facing consumer library; the range lets downstream projects
+           keep resolving 2.3.1-rc01 today while permitting an automatic pickup of v3 once
+           a v3 prerelease ships. Imageflow.Net's C# API compiles against both native
+           generations (new surface like SetPolicy/GetNetSupport lives on the existing
+           imageflow_context_send_json ABI — calls against a v2 native simply return
+           InvalidMessageEndpoint). -->
+      <PackageReference Include="Imageflow.NativeRuntime.All" Version="[2.3.1-rc01, 4.0.0)"/>
     </ItemGroup>
   <ItemGroup>
         <None Include="images\icon.png" Pack="true" PackagePath="" />
