@@ -85,6 +85,17 @@ public class ImageflowException : Exception
             return new OperationCanceledException(fullMessage);
         }
 
+        // Recognize the killbits structured envelope so callers can catch a
+        // typed exception with the net-support grid attached.
+        if (message != null)
+        {
+            var killbits = KillbitsDeniedException.TryParse(fullMessage);
+            if (killbits != null)
+            {
+                return killbits;
+            }
+        }
+
         return new ImageflowException(fullMessage);
     }
 }
