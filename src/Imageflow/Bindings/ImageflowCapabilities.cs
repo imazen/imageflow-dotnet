@@ -100,13 +100,13 @@ public static class ImageflowCapabilities
     /// </remarks>
     public static ImageFormat? DetectFormat(ReadOnlySpan<byte> magicBytes)
     {
-        if (magicBytes.Length < 3)
+        if (magicBytes.Length < 2)
         {
             return null;
         }
 
         // JPEG: FF D8 FF
-        if (magicBytes[0] == 0xFF && magicBytes[1] == 0xD8 && magicBytes[2] == 0xFF)
+        if (magicBytes.Length >= 3 && magicBytes[0] == 0xFF && magicBytes[1] == 0xD8 && magicBytes[2] == 0xFF)
         {
             return ImageFormat.Jpeg;
         }
