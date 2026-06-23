@@ -1,14 +1,49 @@
 ﻿## Changelog
 
-## v0.15.1 (draft)
+## [Unreleased]
 
-* Surface the new `annotations` field from imageflow's `EncodeResult`
-  on `BuildEncodeResult.Annotations`. Adds `EncodeAnnotations`,
-  `CodecSubstitutionAnnotation`, `SubstitutionReason`, and
-  `CodecPriority` DTOs with snake_case wire parsing. Includes a
-  `CodecSubstitutionAnnotation.Describe()` helper for clean log
-  output. Unknown reason/priority wire values survive round-trip on
-  the `*Raw` fields.
+Integrates two parallel lines of work that diverged after v0.15.1 — the
+three-layer codec killbits surface and ABI 3.2 support — into one set.
+
+### Added
+
+* Three-layer codec killbits .NET surface: `SecurityOptions.Formats` /
+  `SecurityOptions.Codecs` (`FormatKillbits` / `CodecKillbits`), the shared
+  `ImageFormat` enum, `NamedCodecs`, `KillbitsDeniedException`,
+  `NetSupportResponse`, and `ImageflowCapabilities`. Trusted-policy
+  (`SetPolicy`) and `GetNetSupport` round-trips are gated behind
+  `IMAGEFLOW_HAS_KILLBITS=1` until the native runtime ships the endpoints
+  (010dc6d, 6288f0b).
+* `BuildEncodeResult.Annotations` surfaces imageflow's `EncodeResult.annotations`
+  (codec substitution): `EncodeAnnotations`, `CodecSubstitutionAnnotation`,
+  `SubstitutionReason`, and `CodecPriority`, with a
+  `CodecSubstitutionAnnotation.Describe()` helper. Unknown reason/priority wire
+  values survive round-trip on the `*Raw` fields (f62fbc9).
+* ABI 3.2 support: JXL encoders, plus `SecurityOptions.ProcessTimeoutMs`,
+  `MaxEncoderThreads`, and decode/encode format configuration
+  (`DecodeFormatConfig` / `EncodeFormatConfig`) (fafbfd6).
+* `Imageflow.CodeGen` — schema-driven C# generator that loads schemas from the
+  native library (d17e011).
+* Codec capabilities, format detection, and querystring-key APIs
+  (`CodecCapabilities`, `CodecInfo`, `DetectFormat`) (4d79819).
+* Native runtime range widened to accept v3 packages
+  (`Imageflow.NativeRuntime.All [2.3.1-rc01, 4.0.0)`) (e0a025c).
+
+### Changed
+
+* `security.codecs` is owned by the three-layer killbits (`CodecKillbits`). The
+  earlier ABI-3.2 `CodecConfig` (codec-implementation selection / priority) was
+  removed before release; the non-colliding format / timeout / thread options
+  were kept. The shared `ImageFormat` enum gains `Tiff` and drops `Farbfeld` to
+  match the native killbits mirror (dbfe289).
+
+### Fixed
+
+* Dispose leaks, dead code, and CI issues found in a code audit (886120e).
+* IL2026 / IL3050 trim/AOT warnings in `CodecCapabilities.DetectFormat` (cad3312).
+
+## v0.15.1 — 2026-03-31
+
 * Now targets .NET 10 (LTS), .NET 8 (LTS), and .NET Standard 2.0/2.1
 * ARM64 support on Windows, macOS, and Linux
 * Minimum System.Text.Json raised to 8.0.6 (on netstandard2.0/2.1 only; inbox on net8.0+)
