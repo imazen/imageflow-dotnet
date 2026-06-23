@@ -31,6 +31,19 @@ public record BuildEncodeResult
     public required IOutputDestination Destination { get; init; }
 
     /// <summary>
+    /// Forward-extensible annotation bag attached to this encode step.
+    /// Populated when the dispatcher substituted the requested codec,
+    /// surfaced a unit warning, or otherwise has non-error information
+    /// about how this particular encode was served. <c>null</c> when the
+    /// native side emitted no <c>annotations</c> object for this
+    /// encode (the field is <c>skip_serializing_if = Option::is_none</c>
+    /// on the wire).
+    ///
+    /// Maps to <c>"annotations"</c> in json.
+    /// </summary>
+    public EncodeAnnotations? Annotations { get; init; }
+
+    /// <summary>
     /// If this Destination is a BytesDestination, returns the ArraySegment - otherwise null
     /// Returns the byte segment for the given output ID (if that output is a BytesDestination)
     /// </summary>

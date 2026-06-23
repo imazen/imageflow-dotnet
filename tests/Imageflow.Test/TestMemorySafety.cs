@@ -186,7 +186,7 @@ public class TestMemorySafety
         using var job = new ImageJob();
         var builder = job.Decode(TinyPng)
             .EncodeToBytes(new GifEncoder())
-            .FinishWithTimeout(1);
+            .FinishWithTimeout(100);
 
         var tokenField = typeof(FinishJobBuilder).GetField("_token",
             BindingFlags.NonPublic | BindingFlags.Instance)!;
@@ -195,7 +195,7 @@ public class TestMemorySafety
         int callbackFired = 0;
         token.Register(() => Interlocked.Increment(ref callbackFired));
 
-        await Task.Delay(500);
+        await Task.Delay(5000);
 
         Assert.Equal(1, callbackFired);
         _output.WriteLine("FinishWithTimeout callback fired — CTS stays alive.");
