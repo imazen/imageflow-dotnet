@@ -50,22 +50,22 @@ jobs:
     runs-on: ${{matrix.os}}
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os    }}-nuget-${{ hashFiles('**/packages.lock.json') }}
 
       - name: Setup .NET 8, 9, 10
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: |
             8
             9
             10
 
-      - uses: nowsprinting/check-version-format-action@v4
+      - uses: nowsprinting/check-version-format-action@v5
         id: version
         with:
           prefix: "v"
@@ -110,21 +110,21 @@ jobs:
         run: |
           dotnet test ${{ env.CORE_SLN }} -c Release --filter "Category!=LeakTest" --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: TestResults-${{matrix.os}}-${{ env.ARTIFACT_VERSION }}
           path: TestResults/
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v7
         if: matrix.coverage
         with:
           files: ./**/coverage.opencover.xml
           token: ${{ secrets.CODECOV_TOKEN }} # replace with your Codecov token
           fail_ci_if_error: false
 
-      #    - uses: actions/upload-artifact@v3
+      #    - uses: actions/upload-artifact@v7
       #      if: failure()
       #      with:
       #        name: TestResults-${{matrix.os}}-${{ env.ARTIFACT_VERSION }}
@@ -137,7 +137,7 @@ jobs:
         if: matrix.pack
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         id: nuget-artifact-upload-step
         if: matrix.pack
         with:
@@ -173,14 +173,14 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: nowsprinting/check-version-format-action@v4
+      - uses: nowsprinting/check-version-format-action@v5
         id: version
         with:
           prefix: "v"
 
       # Download nuget artifacts from the test job into a folder called NuGetPackages
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         if: steps.version.outputs.is_valid == 'true' && github.event_name == 'release'
         with:
           name: NuGetPackages
