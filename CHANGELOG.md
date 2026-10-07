@@ -12,7 +12,7 @@ described in the [GitHub releases](https://github.com/imazen/imageflow-dotnet/re
 
 ### Changed
 
-- Build tooling: Microsoft.SourceLink.GitHub 10.0.401 (clears the Microsoft.Build.Tasks.Git 8.0.0 advisory) and PolySharp 1.16.0, both private assets; the package's dependency list is unchanged (8d21d12).
+- Build tooling: Microsoft.SourceLink.GitHub 10.0.401 (clears the Microsoft.Build.Tasks.Git 8.0.0 advisory), a private asset; the package's dependency list is unchanged. PolySharp stays at 1.15.0 to match Imageflow.Test (1.16 in the library alone breaks the net481 test build) (8d21d12).
 - Tests and benchmarks: MSTest 3.11.1 in the .NET Framework PackageReference tests, BenchmarkDotNet 0.15.8 (8d21d12).
 - CI: checkout v7, cache v6, setup-dotnet v6, upload-artifact v7, download-artifact v8, codecov v7, check-version-format-action v5 (702519d).
 
