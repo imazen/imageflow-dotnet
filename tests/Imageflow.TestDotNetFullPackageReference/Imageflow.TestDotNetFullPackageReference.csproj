@@ -78,10 +78,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MSTest.TestAdapter">
-      <Version>3.7.3</Version>
+      <Version>3.11.1</Version>
     </PackageReference>
     <PackageReference Include="MSTest.TestFramework">
-      <Version>3.7.3</Version>
+      <Version>3.11.1</Version>
     </PackageReference>
   </ItemGroup>
   <Import
