@@ -37,6 +37,23 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
 
     private readonly Dictionary<int, IoKind> _ioSet = new Dictionary<int, IoKind>();
 
+    // Cached net-support grid. Populated lazily and invalidated on
+    // SetPolicy. Reference-assignments are atomic on all supported
+    // frameworks, so a plain field with Interlocked semantics is enough.
+    private NetSupportResponse? _cachedNetSupport;
+
+    // Count of live native calls made for net-support — exposed only for
+    // tests that want to observe cache hit rates. Incremented on every
+    // get_net_support round-trip and on every SetPolicy call.
+    private int _netSupportNativeCalls;
+
+    /// <summary>
+    /// Number of native round-trips made by this context to fetch the
+    /// net-support grid. Tests use this to assert that the cache is
+    /// serving repeat calls locally. Resets with the context's lifetime.
+    /// </summary>
+    internal int NetSupportNativeCallCount => _netSupportNativeCalls;
+
     public JobContext()
     {
         _handle = new JobContextHandle();
@@ -220,6 +237,112 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
         }
     }
 
+    /// <summary>
+    /// Install a trusted-context policy (three-layer killbits +
+    /// scalar limits). Subsequent job-level security can only narrow
+    /// these settings, never widen them.
+    /// </summary>
+    /// <param name="policy">Scalar limits plus killbits to apply at the trusted layer. Allow-list and table-with-true forms are accepted here.</param>
+    /// <param name="requireUnlocked">When <c>true</c>, the native side rejects the call if a trusted policy is already set on this context. Defaults to <c>false</c>.</param>
+    /// <remarks>
+    /// Invalidates the cached <see cref="NetSupportResponse"/> on this
+    /// context; the next <see cref="GetNetSupport"/> call refetches.
+    ///
+    /// Requires a native runtime with the
+    /// <c>v1/context/set_policy</c> endpoint (imageflow PR #720 and
+    /// later). Older builds throw
+    /// <see cref="ImageflowException"/> with an
+    /// <c>InvalidMessageEndpoint</c> error.
+    /// </remarks>
+    public SetPolicyResponse SetPolicy(SecurityOptions policy, bool requireUnlocked = false)
+    {
+        Argument.ThrowIfNull(policy);
+        policy.Validate();
+        AssertReady();
+
+        var request = new JsonObject
+        {
+            ["policy"] = policy.ToJsonNode(),
+            ["require_unlocked"] = requireUnlocked,
+        };
+
+        // Invalidate cache before issuing the call so concurrent readers
+        // can't hand out a stale value during the window the native side
+        // is reshaping the grid.
+        Interlocked.Exchange(ref _cachedNetSupport, null);
+        Interlocked.Increment(ref _netSupportNativeCalls);
+
+        var node = InvokeAndParse(ImageflowMethods.SetPolicy, request);
+        var data = RequireSuccessData(node, ImageflowMethods.SetPolicy);
+        var locked = data.AsObject().TryGetPropertyValue("locked", out var lockedVal) && lockedVal != null
+            && lockedVal.GetValue<bool>();
+        var netSupport = NetSupportResponse.ParseSetPolicyResponse(data, locked);
+
+        // Prime the cache with the grid the native side just returned —
+        // it already matches the post-set_policy state.
+        Interlocked.Exchange(ref _cachedNetSupport, netSupport);
+
+        return new SetPolicyResponse(locked, netSupport);
+    }
+
+    /// <summary>
+    /// Fetch (or return the cached) three-layer net-support grid.
+    /// </summary>
+    /// <remarks>
+    /// Results are cached per-context. The cache is invalidated by
+    /// <see cref="SetPolicy"/> and by disposal; callers can therefore hold
+    /// onto the returned <see cref="NetSupportResponse"/> for read-only
+    /// access without re-querying.
+    ///
+    /// Requires a native runtime that exposes
+    /// <c>v1/context/get_net_support</c>.
+    /// </remarks>
+    public NetSupportResponse GetNetSupport()
+    {
+        AssertReady();
+        var cached = Volatile.Read(ref _cachedNetSupport);
+        if (cached != null)
+        {
+            return cached;
+        }
+        // Double-checked locking: if two threads race into the native
+        // call, only one publishes — the second sees the cached value
+        // first and bails.
+        lock (this)
+        {
+            cached = Volatile.Read(ref _cachedNetSupport);
+            if (cached != null)
+            {
+                return cached;
+            }
+
+            Interlocked.Increment(ref _netSupportNativeCalls);
+            var node = InvokeAndParse(ImageflowMethods.GetNetSupport);
+            var data = RequireSuccessData(node, ImageflowMethods.GetNetSupport);
+            var response = NetSupportResponse.ParseGetNetSupportResponse(data);
+            Volatile.Write(ref _cachedNetSupport, response);
+            return response;
+        }
+    }
+
+    private JsonNode RequireSuccessData(JsonNode? node, string method)
+    {
+        if (node == null)
+        {
+            throw new ImageflowAssertionFailed($"{method} response is null");
+        }
+        var obj = node.AsObject() ?? throw new ImageflowAssertionFailed($"{method} response is not an object");
+        if (!obj.TryGetPropertyValue("success", out var successValue) || successValue?.GetValue<bool>() != true)
+        {
+            throw ImageflowException.FromContext(Handle);
+        }
+        if (!obj.TryGetPropertyValue("data", out var dataValue) || dataValue == null)
+        {
+            throw new ImageflowAssertionFailed($"{method} response missing data");
+        }
+        return dataValue;
+    }
+
     public IJsonResponse Invoke(string method, ReadOnlySpan<byte> utf8Json)
     {
         return InvokeInternal(method, utf8Json);
@@ -378,7 +501,9 @@ public sealed class JobContext : CriticalFinalizerObject, IDisposable, IAssertRe
                     // check HasError, throw exception with our input JSON too
                     if (HasError)
                     {
-                        throw ImageflowException.FromContext(Handle, 2048, "JSON:\n" + TextHelpers.Utf8ToString(utf8Json));
+                        var jsonStr = TextHelpers.Utf8ToString(utf8Json);
+                        if (jsonStr.Length > 4000) jsonStr = jsonStr[..4000] + "\n[..truncated]";
+                        throw ImageflowException.FromContext(Handle, 2048, "JSON:\n" + jsonStr);
                     }
 
                     AssertReady();

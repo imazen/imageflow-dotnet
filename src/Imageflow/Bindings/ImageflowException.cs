@@ -5,7 +5,7 @@ namespace Imageflow.Bindings;
 
 public class ImageflowException : Exception
 {
-    private const int MaxBufferSize = 8096 * 4;
+    private const ulong MaxBufferSize = 8096 * 4;
 
     internal ImageflowException(string message) : base(message)
     {
@@ -50,26 +50,52 @@ public class ImageflowException : Exception
         }
     }
 
-    internal static ImageflowException FromContext(JobContextHandle c, ulong defaultBufferSize = 2048, string? additionalInfo = null)
+    internal static Exception FromContext(JobContextHandle c, ulong defaultBufferSize = 2048, string? additionalInfo = null)
     {
-        for (var bufferSize = defaultBufferSize; bufferSize < MaxBufferSize; bufferSize *= 2)
+        string? lastMessage = null;
+        for (var bufferSize = defaultBufferSize; bufferSize <= MaxBufferSize; bufferSize *= 2)
         {
             var result = TryGetErrorString(c, bufferSize, out var message);
             switch (result)
             {
                 case ErrorFetchResult.Success:
-                    return new ImageflowException((message ?? "Unknown Imageflow Error") + (additionalInfo != null ? $"\nAdditional info: {additionalInfo}" : ""));
+                    return WrapMessage(message, additionalInfo);
                 case ErrorFetchResult.ContextInvalid:
                     return new ImageflowException("Imageflow context (JobContextHandle) is invalid");
                 case ErrorFetchResult.NoError:
                     return new ImageflowException("Imageflow context has no error stored; cannot fetch error message");
-                case ErrorFetchResult.BufferTooSmall: break;
+                case ErrorFetchResult.BufferTooSmall:
+                    lastMessage = message;
+                    break;
                 default:
                     throw new NotImplementedException($"Unknown error fetching error: {result}");
             }
         }
 
-        throw new ImageflowAssertionFailed(
-                $"Imageflow error and stacktrace exceeded {MaxBufferSize} bytes");
+        // Return what we have with a truncation marker
+        return WrapMessage((lastMessage ?? "Unknown Imageflow Error") + "\n[..truncated]", additionalInfo);
+    }
+
+    private static Exception WrapMessage(string? message, string? additionalInfo)
+    {
+        var fullMessage = (message ?? "Unknown Imageflow Error") + (additionalInfo != null ? $"\nAdditional info: {additionalInfo}" : "");
+
+        if (message != null && message.StartsWith("OperationCancelled", StringComparison.Ordinal))
+        {
+            return new OperationCanceledException(fullMessage);
+        }
+
+        // Recognize the killbits structured envelope so callers can catch a
+        // typed exception with the net-support grid attached.
+        if (message != null)
+        {
+            var killbits = KillbitsDeniedException.TryParse(fullMessage);
+            if (killbits != null)
+            {
+                return killbits;
+            }
+        }
+
+        return new ImageflowException(fullMessage);
     }
 }

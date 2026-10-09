@@ -67,7 +67,7 @@ public static class CodecCapabilities
     {
         var bytesArray = new JsonArray();
         foreach (var b in peekBytes)
-            bytesArray.Add((int)b);
+            bytesArray.Add((JsonNode)JsonValue.Create((int)b));
 
         var request = new JsonObject { ["bytes"] = bytesArray };
         var node = ctx.InvokeAndParse("v3/codecs/detect", request);

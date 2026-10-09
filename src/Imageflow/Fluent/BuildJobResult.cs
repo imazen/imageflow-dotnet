@@ -153,6 +153,14 @@ public class BuildJobResult
                 throw new ImageflowAssertionFailed(requiredMessage);
             }
             var ioId = ioIdValue?.GetValue<int>() ?? throw new ImageflowAssertionFailed(requiredMessage);
+
+            // annotations is optional (skip_serializing_if on native side) — absence deserializes to null.
+            EncodeAnnotations? annotations = null;
+            if (encode.AsObject().TryGetPropertyValue("annotations", out var annotationsNode) && annotationsNode != null)
+            {
+                annotations = EncodeAnnotations.FromJsonNode(annotationsNode);
+            }
+
             encodeResults.Add(new BuildEncodeResult
             {
                 IoId = ioId,
@@ -160,7 +168,8 @@ public class BuildJobResult
                 Height = hValue?.GetValue<int>() ?? throw new ImageflowAssertionFailed(requiredMessage),
                 PreferredExtension = preferredExtensionValue?.GetValue<string>() ?? throw new ImageflowAssertionFailed(requiredMessage),
                 PreferredMimeType = preferredMimeTypeValue?.GetValue<string>() ?? throw new ImageflowAssertionFailed(requiredMessage),
-                Destination = outputs[ioId]
+                Destination = outputs[ioId],
+                Annotations = annotations,
             });
         }
 

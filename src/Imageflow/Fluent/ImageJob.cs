@@ -285,6 +285,9 @@ public class ImageJob : IDisposable
 
     internal JsonObject CreateJsonNodeForFramewiseWithSecurityOptions(SecurityOptions? securityOptions)
     {
+        // Job-level security may only narrow; fail fast on allow-lists or
+        // table-with-true entries before the payload crosses the ABI.
+        securityOptions?.ValidateJobLevel();
         // var message = new
         // {
         //     security = securityOptions?.ToImageflowDynamic(),

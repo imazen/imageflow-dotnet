@@ -163,7 +163,7 @@ function Invoke-Step {
 
     Write-Host "=== $StepName ===" -ForegroundColor Cyan
     try {
-        $result = & $StepCode
+        & $StepCode 2>&1 | ForEach-Object { Write-Host $_ }
         if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne $null) {
             throw "Step failed with exit code $LASTEXITCODE"
         }
@@ -300,7 +300,7 @@ if (-not $TestOnly) {
 
     # Step 2: Build solution
     Invoke-Step "Building solution with MSBuild" {
-        & "$msbuild" $Solution /p:Configuration=$Configuration /p:Platform="Any CPU" /v:minimal
+        & "$msbuild" $Solution /p:Configuration=$Configuration /p:Platform="Any CPU" /v:normal
         if ($LASTEXITCODE -ne 0) { throw "MSBuild failed" }
     }
 
