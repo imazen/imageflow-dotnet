@@ -10,6 +10,10 @@ described in the [GitHub releases](https://github.com/imazen/imageflow-dotnet/re
 
 - None.
 
+### Fixed
+
+- `imageflow_json_response_read` now takes a 64-bit status out parameter. The native function writes an `int64_t`, so the previous `out int` wrote 4 bytes past the caller's slot, reported as a `NullReferenceException` in `BuildJobResult.From` on x86 with Dynamic PGO (#72) (a7b7625).
+
 ### Changed
 
 - Build tooling: Microsoft.SourceLink.GitHub 10.0.401 (clears the Microsoft.Build.Tasks.Git 8.0.0 advisory), a private asset; the package's dependency list is unchanged. PolySharp stays at 1.15.0 to match Imageflow.Test (1.16 in the library alone breaks the net481 test build) (8d21d12).
