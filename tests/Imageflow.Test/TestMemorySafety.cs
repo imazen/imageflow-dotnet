@@ -26,6 +26,57 @@ public class TestMemorySafety
         _output = output;
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // imageflow_json_response_read: the status code is an int64_t
+    // ═══════════════════════════════════════════════════════════
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct StatusSlotWithCanary
+    {
+        public int Status;
+        public int Canary;
+    }
+
+    // Reproduces the 4-byte status slot the binding used to pass, with a canary where a
+    // neighboring local would be.
+    [DllImport("imageflow", EntryPoint = "imageflow_json_response_read", CallingConvention = CallingConvention.Cdecl)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    private static extern bool ReadStatusIntoFourByteSlot(JobContextHandle context, JsonResponseHandle response,
+        ref StatusSlotWithCanary status, IntPtr buffer, IntPtr bufferSize);
+
+    [Fact]
+    public void JsonResponseRead_DeclaresStatusCodeAs64Bits()
+    {
+        var status = typeof(NativeMethods).GetMethod(nameof(NativeMethods.imageflow_json_response_read))!
+            .GetParameters()[2];
+        Assert.Equal(typeof(long).MakeByRefType(), status.ParameterType);
+    }
+
+    [Fact]
+    public void JsonResponseRead_NativeWritesPastAFourByteStatusSlot()
+    {
+        using var context = new JobContext();
+        var response = (ImageflowJsonResponse)context.Invoke("v0.1/get_version_info");
+        var handle = (JsonResponseHandle)typeof(ImageflowJsonResponse)
+            .GetField("_handle", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(response)!;
+
+        var slot = new StatusSlotWithCanary { Status = -1, Canary = -1 };
+        Assert.True(ReadStatusIntoFourByteSlot(handle.ParentContext, handle, ref slot, IntPtr.Zero, IntPtr.Zero));
+
+        Assert.Equal(200, slot.Status);
+        Assert.Equal(0, slot.Canary);
+    }
+
+    [Fact]
+    public void JsonResponse_ReportsStatusCode()
+    {
+        using var context = new JobContext();
+        using var response = context.Invoke("v0.1/get_version_info");
+
+        Assert.Equal(200, response.ImageflowErrorCode);
+        Assert.Contains("version_info", response.CopyString());
+    }
+
     private static readonly byte[] TinyPng = Convert.FromBase64String(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==");
 

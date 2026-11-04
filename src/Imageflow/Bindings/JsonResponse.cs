@@ -105,9 +105,10 @@ internal sealed class ImageflowJsonResponse : IJsonResponseProvider, IAssertRead
     private void Read(out int statusCode, out IntPtr utf8Buffer, out UIntPtr bufferSize)
     {
         AssertReady();
-        NativeMethods.imageflow_json_response_read(_handle.ParentContext, Handle, out statusCode, out utf8Buffer,
-            out bufferSize);
+        NativeMethods.imageflow_json_response_read(_handle.ParentContext, Handle, out long nativeStatusCode,
+            out utf8Buffer, out bufferSize);
         AssertReady();
+        statusCode = checked((int)nativeStatusCode);
     }
 
     /// <summary>

@@ -72,7 +72,7 @@ internal static class NativeMethods
     [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
     public static extern bool imageflow_json_response_read(JobContextHandle context, JsonResponseHandle responseIn,
-        out int statusCodeOut, out IntPtr bufferUtf8NoNullsOut, out UIntPtr bufferSizeOut);
+        out long statusCodeOut, out IntPtr bufferUtf8NoNullsOut, out UIntPtr bufferSizeOut);
 
     [DllImport("imageflow", CallingConvention = CallingConvention.Cdecl)]
     [return: MarshalAs(UnmanagedType.I1)]
