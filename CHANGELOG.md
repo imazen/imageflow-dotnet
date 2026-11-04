@@ -22,4 +22,4 @@ described in the [GitHub releases](https://github.com/imazen/imageflow-dotnet/re
 
 ### Known Bugs
 
-- On main, 69 of 97 tests fail: the bindings require libimageflow ABI 3.2 but the test projects reference the ABI 3.1 native 2.2.0-rc01 packages. PR #71 moves them to 2.3.1-rc01.
+- On main, 71 of 100 tests fail: the bindings require libimageflow ABI 3.2 but the test projects reference the ABI 3.1 native 2.2.0-rc01 packages. PR #71 moves them to 2.3.1-rc01.
